@@ -9,6 +9,9 @@ use App\Http\Controllers\Admin\SatuanController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\StokController;
+use App\Http\Controllers\Admin\TransaksiController;
+use App\Http\Controllers\Admin\ProduksiController;
+use App\Http\Controllers\Admin\KeuanganController;
 
 // Route untuk halaman login admin
 Route::get('/admin/login', [LoginController::class, 'index'])->name('admin.login');
@@ -33,3 +36,30 @@ Route::get('/admin/master-data/customer', [CustomerController::class, 'index'])-
 
 // Route untuk halaman Stok In/Out
 Route::get('/admin/master-data/stok', [StokController::class, 'index'])->name('admin.stok.index');
+
+// Route untuk halaman Entry Penjualan
+Route::get('/admin/transaksi/entry-penjualan', [TransaksiController::class, 'entryPenjualan'])->name('admin.transaksi.entry-penjualan');
+
+// Route untuk halaman Daftar Penjualan
+Route::get('/admin/transaksi/daftar-penjualan', [TransaksiController::class, 'daftarPenjualan'])->name('admin.transaksi.daftar-penjualan');
+
+// Route untuk halaman Entry Pembelian
+Route::get('/admin/transaksi/entry-pembelian', [TransaksiController::class, 'entryPembelian'])->name('admin.transaksi.entry-pembelian');
+
+// Route untuk halaman Daftar Pembelian
+Route::get('/admin/transaksi/daftar-pembelian', [TransaksiController::class, 'daftarPembelian'])->name('admin.transaksi.daftar-pembelian');
+
+// Route untuk Update Produksi
+Route::get('/admin/produksi/update-produksi', [ProduksiController::class, 'updateProduksi'])->name('admin.produksi.update-produksi');
+
+// Route untuk Update Desain
+Route::get('/admin/produksi/update-desain', [ProduksiController::class, 'updateDesain'])->name('admin.produksi.update-desain');
+
+// Route untuk modul Keuangan
+Route::get('/admin/keuangan/kas', [KeuanganController::class, 'kas'])->name('admin.keuangan.kas');
+
+// Route untuk halaman Laba Rugi
+Route::get('/admin/keuangan/laba-rugi', [KeuanganController::class, 'labaRugi'])->name('admin.keuangan.laba-rugi');
+
+// Route untuk halaman Pengeluaran Lainnya
+Route::get('/admin/keuangan/pengeluaran-lainnya', [KeuanganController::class, 'pengeluaranLainnya'])->name('admin.keuangan.pengeluaran-lainnya');

@@ -41,10 +41,10 @@
         </div>
     </div>
 
-    <div class="overflow-x-auto custom-scrollbar rounded-xl border border-gray-100">
+    <div class="class="overflow-x-auto custom-scrollbar">
         <table class="w-full text-left border-collapse whitespace-nowrap">
             <thead>
-                <tr class="bg-gray-50 text-gray-600 text-sm font-semibold border-b border-gray-100">
+                <tr class="text-gray-800 text-sm font-bold border-b-2 border-gray-100">
                     <th class="px-6 py-4 rounded-tl-xl">Gambar</th>
                     <th class="px-6 py-4">Barcode</th>
                     <th class="px-6 py-4">Nama Item</th>
@@ -56,9 +56,9 @@
                     <th class="px-6 py-4 rounded-tr-xl text-center">Opsi</th>
                 </tr>
             </thead>
-            <tbody class="text-sm text-gray-700">
+            <tbody class="text-sm text-gray-600">
                 @for($i=1; $i<=6; $i++)
-                <tr class="border-b border-gray-50 hover:bg-orange-50/50 transition-colors duration-200 group animate-fade-in-up delay-{{ $i * 100 }}">
+                <tr class="border-b border-gray-50 even:bg-gray-50/70 hover:bg-orange-50/40 transition-colors duration-200 animate-fade-in-up delay-{{ $i * 100 }}"">
                     <td class="px-6 py-3">
                         <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shadow-sm">
                             <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=200&auto=format&fit=crop" alt="Baju" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
@@ -67,7 +67,7 @@
                     <td class="px-6 py-3">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=ROMPI-SMKN1" alt="QR" class="w-12 h-12 rounded border border-gray-200 p-0.5 bg-white">
                     </td>
-                    <td class="px-6 py-3 font-medium text-gray-800">Rompi SMKN 1<br><span class="text-xs text-gray-400 font-normal">Bandung</span></td>
+                    <td class="px-6 py-3 font-medium text-gray-80   0">Rompi SMKN 1<br><span class="text-xs text-gray-400 font-normal">Bandung</span></td>
                     <td class="px-6 py-3">Pcs</td>
                     <td class="px-6 py-3">Percetakan</td>
                     <td class="px-6 py-3">100.000</td>

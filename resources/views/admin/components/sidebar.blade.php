@@ -20,10 +20,10 @@
 
 <div x-show="sidebarOpen" class="fixed inset-0 bg-black/50 z-40 md:hidden" @click="sidebarOpen = false"></div>
 
-<aside :class="(sidebarOpen || sidebarHover) ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0 w-72 md:w-[5.5rem]'"
+<aside
+    :class="(sidebarOpen || sidebarHover) ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0 w-72 md:w-[5.5rem]'"
     class="fixed inset-y-0 left-0 z-50 bg-white shadow-[10px_0_20px_rgba(0,0,0,0.05)] rounded-r-[2rem] sidebar-transition flex flex-col md:hover:w-72 group overflow-hidden"
-    @mouseenter="sidebarHover = true"
-    @mouseleave="sidebarHover = false">
+    @mouseenter="sidebarHover = true" @mouseleave="sidebarHover = false">
 
     <div class="relative flex items-center justify-center h-24 border-b border-gray-100 w-full shrink-0">
         <img src="{{ asset('assets/images/logo-mudain-orange.png') }}" alt="Logo Full"
@@ -147,10 +147,163 @@
         </div>
 
         @php
+            // Cek apakah URL saat ini berawalan 'admin/transaksi'
+            $isTransaksiGroup = request()->is('admin/transaksi*');
+        @endphp
+
+        <div x-data="{ openTransaksi: {{ $isTransaksiGroup ? 'true' : 'false' }} }" class="relative">
+
+            <button @click="openTransaksi = !openTransaksi"
+                class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
+                           {{ $isTransaksiGroup ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
+
+                <div class="absolute left-0 top-0 h-full w-[3.5rem] flex items-center justify-center">
+                    <i class="fa-solid fa-shopping-bag text-lg group-hover/item:scale-110 transition-transform"></i>
+                </div>
+
+                <div class="pl-[3.5rem] pr-3 flex-1 flex justify-between items-center transition-opacity duration-300 opacity-0 md:group-hover:opacity-100"
+                    :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">
+                    <span class="font-medium whitespace-nowrap">Transaksi</span>
+                    <i class="fa-solid fa-chevron-right text-xs transition-transform duration-300"
+                        :class="(openTransaksi ? 'rotate-90 ' : '')"></i>
+                </div>
+            </button>
+
+            <div x-show="openTransaksi" x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+                class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
+                :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
+
+                @php
+                    $subTransaksi = [
+                        ['label' => 'Entry Penjualan', 'route' => 'admin.transaksi.entry-penjualan'],
+                        ['label' => 'Daftar Penjualan', 'route' => 'admin.transaksi.daftar-penjualan'],
+                        ['label' => 'Entry Pembelian', 'route' => 'admin.transaksi.entry-pembelian'],
+                        ['label' => 'Daftar Pembelian', 'route' => 'admin.transaksi.daftar-pembelian'],
+                        ['label' => 'Hutang', 'route' => 'admin.transaksi.hutang'],
+                        ['label' => 'Piutang', 'route' => 'admin.transaksi.piutang'],
+                    ];
+                @endphp
+
+                @foreach ($subTransaksi as $sub)
+                    @php
+                        $isActive =
+                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                    @endphp
+                    <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
+                        class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
+                          {{ $isActive ? 'text-[#E65C00] font-semibold bg-orange-50 shadow-sm' : 'text-gray-500 hover:text-[#E65C00] hover:bg-orange-50 hover:shadow-sm' }}">
+                        <span
+                            class="absolute left-[1.5rem] w-[9px] h-[9px] rounded-full border-[2px] bg-transparent transition-all duration-300 {{ $isActive ? 'border-[#E65C00] scale-110' : 'border-gray-400 group-hover/sub:border-[#E65C00] group-hover/sub:scale-110' }}"></span>
+                        <span
+                            class="whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"
+                            :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">{{ $sub['label'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
+        @php
+            $isProduksiGroup = request()->is('admin/produksi*');
+        @endphp
+
+        <div x-data="{ openProduksi: {{ $isProduksiGroup ? 'true' : 'false' }} }" class="relative">
+            <button @click="openProduksi = !openProduksi"
+                class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
+                           {{ $isProduksiGroup ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
+
+                <div class="absolute left-0 top-0 h-full w-[3.5rem] flex items-center justify-center">
+                    <i class="fa-solid fa-scissors text-lg group-hover/item:scale-110 transition-transform"></i>
+                </div>
+
+                <div class="pl-[3.5rem] pr-3 flex-1 flex justify-between items-center transition-opacity duration-300 opacity-0 md:group-hover:opacity-100"
+                    :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">
+                    <span class="font-medium whitespace-nowrap">Produksi</span>
+                    <i class="fa-solid fa-chevron-right text-xs transition-transform duration-300"
+                        :class="(openProduksi ? 'rotate-90 ' : '')"></i>
+                </div>
+            </button>
+
+            <div x-show="openProduksi" x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+                class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
+                :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
+
+                @php
+                    $subProduksi = [
+                        ['label' => 'Update Produksi', 'route' => 'admin.produksi.update-produksi'],
+                        ['label' => 'Update Desain', 'route' => 'admin.produksi.update-desain'],
+                    ];
+                @endphp
+
+                @foreach ($subProduksi as $sub)
+                    @php
+                        $isActive =
+                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                    @endphp
+                    <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
+                        class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
+                          {{ $isActive ? 'text-[#E65C00] font-semibold bg-orange-50 shadow-sm' : 'text-gray-500 hover:text-[#E65C00] hover:bg-orange-50 hover:shadow-sm' }}">
+                        <span
+                            class="absolute left-[1.5rem] w-[9px] h-[9px] rounded-full border-[2px] bg-transparent transition-all duration-300 {{ $isActive ? 'border-[#E65C00] scale-110' : 'border-gray-400 group-hover/sub:border-[#E65C00] group-hover/sub:scale-110' }}"></span>
+                        <span
+                            class="whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"
+                            :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">{{ $sub['label'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
+        @php
+            $isKeuanganGroup = request()->is('admin/keuangan*');
+        @endphp
+        
+        <div x-data="{ openKeuangan: {{ $isKeuanganGroup ? 'true' : 'false' }} }" class="relative">
+            <button @click="openKeuangan = !openKeuangan" 
+                    class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
+                           {{ $isKeuanganGroup ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
+                
+                <div class="absolute left-0 top-0 h-full w-[3.5rem] flex items-center justify-center">
+                    <i class="fa-solid fa-wallet text-lg group-hover/item:scale-110 transition-transform"></i>
+                </div>
+                
+                <div class="pl-[3.5rem] pr-3 flex-1 flex justify-between items-center transition-opacity duration-300 opacity-0 md:group-hover:opacity-100" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">
+                    <span class="font-medium whitespace-nowrap">Keuangan</span>
+                    <i class="fa-solid fa-chevron-right text-xs transition-transform duration-300" :class="(openKeuangan ? 'rotate-90 ' : '')"></i>
+                </div>
+            </button>
+
+            <div x-show="openKeuangan" 
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
+                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
+                
+                @php
+                    $subKeuangan = [
+                        ['label' => 'Kas', 'route' => 'admin.keuangan.kas'],
+                        ['label' => 'Laba Rugi', 'route' => 'admin.keuangan.laba-rugi'],
+                        ['label' => 'Pengeluaran Lainnya', 'route' => 'admin.keuangan.pengeluaran-lainnya'],
+                    ];
+                @endphp
+
+                @foreach($subKeuangan as $sub)
+                @php
+                    $isActive = $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                @endphp
+                <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}" 
+                   class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
+                          {{ $isActive ? 'text-[#E65C00] font-semibold bg-orange-50 shadow-sm' : 'text-gray-500 hover:text-[#E65C00] hover:bg-orange-50 hover:shadow-sm' }}">
+                    <span class="absolute left-[1.5rem] w-[9px] h-[9px] rounded-full border-[2px] bg-transparent transition-all duration-300 {{ $isActive ? 'border-[#E65C00] scale-110' : 'border-gray-400 group-hover/sub:border-[#E65C00] group-hover/sub:scale-110' }}"></span>
+                    <span class="whitespace-nowrap opacity-0 md:group-hover:opacity-100 transition-opacity duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">{{ $sub['label'] }}</span>
+                </a>
+                @endforeach
+            </div>
+        </div>
+
+        @php
             $menus = [
-                ['icon' => 'fa-shopping-bag', 'label' => 'Transaksi'],
-                ['icon' => 'fa-scissors', 'label' => 'Produksi'],
-                ['icon' => 'fa-wallet', 'label' => 'Keuangan'],
                 ['icon' => 'fa-file-alt', 'label' => 'Laporan'],
                 ['icon' => 'fa-users-cog', 'label' => 'Management User'],
                 ['icon' => 'fa-chart-line', 'label' => 'Grafik'],
