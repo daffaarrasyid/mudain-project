@@ -28,8 +28,8 @@
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#F4F6F9] p-4 md:p-6 lg:p-8 animate-[fadeIn_0.5s_ease-in-out]">
                 @yield('content')
             </main>
-            
         </div>
+            
     </div>
 
     @stack('scripts')

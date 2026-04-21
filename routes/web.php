@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\StokController;
 use App\Http\Controllers\Admin\TransaksiController;
 use App\Http\Controllers\Admin\ProduksiController;
 use App\Http\Controllers\Admin\KeuanganController;
+use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\ToolsController;
 
 // Route untuk halaman login admin
 Route::get('/admin/login', [LoginController::class, 'index'])->name('admin.login');
@@ -63,3 +65,38 @@ Route::get('/admin/keuangan/laba-rugi', [KeuanganController::class, 'labaRugi'])
 
 // Route untuk halaman Pengeluaran Lainnya
 Route::get('/admin/keuangan/pengeluaran-lainnya', [KeuanganController::class, 'pengeluaranLainnya'])->name('admin.keuangan.pengeluaran-lainnya');
+
+// Route untuk halaman Hutang
+Route::get('/admin/transaksi/hutang', [TransaksiController::class, 'hutang'])->name('admin.transaksi.hutang');
+
+// Route untuk halaman Piutang
+Route::get('/admin/transaksi/piutang', [TransaksiController::class, 'piutang'])->name('admin.transaksi.piutang');
+
+// Route untuk halaman Laporan Barang
+Route::get('/admin/laporan/barang', [LaporanController::class, 'laporanBarang'])->name('admin.laporan.barang');
+
+// Route untuk halaman Laporan Penjualan
+Route::get('/admin/laporan/penjualan', [LaporanController::class, 'laporanPenjualan'])->name('admin.laporan.penjualan');
+
+// Route untuk halaman Laporan Pembelian
+Route::get('/admin/laporan/pembelian', [LaporanController::class, 'laporanPembelian'])->name('admin.laporan.pembelian');
+
+// Route untuk halaman Laporan Laba Rugi
+Route::get('/admin/laporan/laba-rugi', [LaporanController::class, 'labaRugi'])->name('admin.laporan.laba-rugi');
+
+// Route untuk halaman Laporan Kas
+
+// Route untuk halaman Laporan Stok In/Out
+Route::get('/admin/laporan/stok', [LaporanController::class, 'laporanStok'])->name('admin.laporan.stok');
+
+// Route untuk halaman Laporan Hutang
+Route::get('/admin/laporan/hutang', [LaporanController::class, 'laporanHutang'])->name('admin.laporan.hutang');
+
+// Route untuk halaman Laporan Piutang
+Route::get('/admin/laporan/piutang', [LaporanController::class, 'laporanPiutang'])->name('admin.laporan.piutang');
+
+// Route untuk halaman Generate Barcode
+Route::get('/admin/tools/generate-barcode', [ToolsController::class, 'generateBarcode'])->name('admin.tools.generate-barcode');
+
+//Route untuk halaman Backup Data
+Route::get('/admin/tools/backup-data', [ToolsController::class, 'backupData'])->name('admin.tools.backup-data');

@@ -64,9 +64,7 @@
                             <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=200&auto=format&fit=crop" alt="Baju" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         </div>
                     </td>
-                    <td class="px-6 py-3">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=ROMPI-SMKN1" alt="QR" class="w-12 h-12 rounded border border-gray-200 p-0.5 bg-white">
-                    </td>
+                    <td class="px-6 py-3">KVP-8673</td>
                     <td class="px-6 py-3 font-medium text-gray-80   0">Rompi SMKN 1<br><span class="text-xs text-gray-400 font-normal">Bandung</span></td>
                     <td class="px-6 py-3">Pcs</td>
                     <td class="px-6 py-3">Percetakan</td>

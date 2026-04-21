@@ -30,4 +30,17 @@ class TransaksiController extends Controller
     {
         return view('admin.transaksi.daftar-pembelian');
     }
+
+    // Fungsi untuk menampilkan halaman Hutang
+    public function hutang()
+    {
+        return view('admin.transaksi.hutang');
+    }
+
+    // Fungsi untuk menampilkan halaman Piutang
+    public function piutang()
+    {
+        return view('admin.transaksi.piutang');
+    }
+
 }
