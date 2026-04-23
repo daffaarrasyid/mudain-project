@@ -362,10 +362,10 @@
                 @endforeach
             </div>
         </div>
-
+        
         @php
             $menus = [
-                ['icon' => 'fa-users-cog', 'label' => 'Management User'],
+                ['icon' => 'fa-users-cog', 'label' => 'User'],
                 ['icon' => 'fa-chart-line', 'label' => 'Grafik'],
             ];
         @endphp

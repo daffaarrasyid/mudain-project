@@ -81,10 +81,8 @@ Route::get('/admin/laporan/penjualan', [LaporanController::class, 'laporanPenjua
 // Route untuk halaman Laporan Pembelian
 Route::get('/admin/laporan/pembelian', [LaporanController::class, 'laporanPembelian'])->name('admin.laporan.pembelian');
 
-// Route untuk halaman Laporan Laba Rugi
-Route::get('/admin/laporan/laba-rugi', [LaporanController::class, 'labaRugi'])->name('admin.laporan.laba-rugi');
-
-// Route untuk halaman Laporan Kas
+// Route untuk halaman Laporan Keuangan (Kas dan Laba Rugi)
+Route::get('/admin/laporan/laba-rugi', [LaporanController::class, 'laporanKeuangan'])->name('admin.laporan.keuangan');
 
 // Route untuk halaman Laporan Stok In/Out
 Route::get('/admin/laporan/stok', [LaporanController::class, 'laporanStok'])->name('admin.laporan.stok');

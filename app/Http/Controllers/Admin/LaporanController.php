@@ -26,12 +26,10 @@ class LaporanController extends Controller
     }
 
     // Fungsi untuk menampilkan halaman Laporan Laba Rugi
-    public function labaRugi()
+    public function laporanKeuangan()
     {
-        return view ('admin.laporan.laba-rugi');
+        return view ('admin.laporan.keuangan');
     }
-
-    // Fungsi untuk menampilkan halaman Laporan Kas
 
 
     // Fungsi untuk menampilkan halaman Laporan Stok In/Out

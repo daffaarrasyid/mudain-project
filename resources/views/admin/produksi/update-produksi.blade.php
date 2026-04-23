@@ -39,7 +39,8 @@
                     <th class="px-6 py-4">Waktu Update</th>
                     <th class="px-6 py-4">Keterangan Update</th>
                     <th class="px-6 py-4">Update by</th>
-                    <th class="px-6 py-4 text-center">Opsi</th>
+                    <th class="px-6 py-4 text-center">Persentase</th>
+                    <th class="px-6 py-4 text-center"></th>Opsi</th>
                 </tr>
             </thead>
             <tbody class="text-sm text-gray-600">
@@ -53,11 +54,14 @@
                     <td class="px-6 py-4">01-01-2026</td>
                     <td class="px-6 py-4">Jahit</td>
                     <td class="px-6 py-4">Admin</td>
+                    <td class="px-6 py-4 text-center font-medium">{{ $i % 2 == 0 ? '100%' : '60%' }}</td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex flex-col gap-1.5 items-center justify-center">
+                            @if ($i % 2 != 0)
                             <button @click="modalUpdate = true" class="bg-[#38BDF8] hover:bg-[#0284C7] text-white px-4 py-1 rounded w-20 text-[11px] font-semibold shadow-sm transition-colors">
                                 Update
                             </button>
+                            @endif
                             <button @click="modalHapus = true" class="bg-[#EF4444] hover:bg-[#B91C1C] text-white px-4 py-1 rounded w-20 text-[11px] font-semibold shadow-sm transition-colors">
                                 Hapus
                             </button>
@@ -101,16 +105,31 @@
                 <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
                     <div class="flex justify-between text-sm mb-1"><span class="text-gray-500">Invoice:</span><span class="font-bold text-gray-800">BLP-938593859</span></div>
                     <div class="flex justify-between text-sm mb-1"><span class="text-gray-500">Barang:</span><span class="font-bold text-gray-800">Pin Bros (78 Qty)</span></div>
+                    <div class="flex justify-between text-sm border-t border-blue-200 pt-2 mt-2"><span class="text-gray-500">Progress Produksi:</span><span class="font-bold text-gray-800">60%</span></div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tahap Produksi Saat Ini</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tahap Produksi Saat Ini <span class="text-red-500">*</span></label>
                     <select class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
                         <option value="Potong">Potong Bahan</option>
                         <option value="Jahit" selected>Jahit</option>
                         <option value="Finishing">Finishing & QC</option>
                         <option value="Selesai">Selesai (Siap Diambil)</option>
                     </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Progress Produksi <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="number" min="0" max="100" value="60" required
+                               class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00] text-lg font-bold text-gray-800">
+                        <div class="absolute right-0 top-0 h-full px-4 flex items-center text-gray-400 pointer-events-none font-bold text-lg border-l border-gray-200 bg-gray-100 rounded-r-lg">
+                            %
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info text-[#38BDF8]"></i> 
+                        Ubah ke 100 untuk menandai produksi ini SELESAI.
+                    </p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Catatan Tambahan (Opsional)</label>

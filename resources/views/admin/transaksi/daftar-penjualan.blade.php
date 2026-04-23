@@ -63,9 +63,11 @@
                             <button class="bg-[#10B981] hover:bg-[#059669] text-white px-2 py-1.5 rounded text-[10px] sm:text-xs font-semibold shadow-sm transition-colors flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-print"></i> Cetak
                             </button>
+                            @if ($i % 2 != 0)
                             <button @click="modalEdit = true" class="bg-[#F59E0B] hover:bg-[#D97706] text-white px-2 py-1.5 rounded text-[10px] sm:text-xs font-semibold shadow-sm transition-colors flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                             </button>
+                            @endif
                             <button @click="modalHapus = true" class="bg-[#EF4444] hover:bg-[#B91C1C] text-white px-2 py-1.5 rounded text-[10px] sm:text-xs font-semibold shadow-sm transition-colors flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-trash-can"></i> Hapus
                             </button>
