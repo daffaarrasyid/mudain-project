@@ -1,9 +1,19 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
+</style>
+
 <div class="w-full min-w-0 animate-[fadeIn_0.5s_ease-in-out]">
     
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 max-w-4xl mx-auto">
+    <div class="card-animasi-1bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 max-w-4xl mx-auto">
         
         <h2 class="text-2xl font-bold text-gray-800 mb-10">Backup Data</h2>
         

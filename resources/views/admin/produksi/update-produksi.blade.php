@@ -1,8 +1,17 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+</style>
+
 <div x-data="{ modalDetail: false, modalUpdate: false, modalHapus: false }" 
-     class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
+     class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
     
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
@@ -40,7 +49,7 @@
                     <th class="px-6 py-4">Keterangan Update</th>
                     <th class="px-6 py-4">Update by</th>
                     <th class="px-6 py-4 text-center">Persentase</th>
-                    <th class="px-6 py-4 text-center"></th>Opsi</th>
+                    <th class="px-6 py-4 text-center">Opsi</th>
                 </tr>
             </thead>
             <tbody class="text-sm text-gray-600">

@@ -1,9 +1,18 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+</style>
+
 <div class="animate-[fadeIn_0.5s_ease-in-out] w-full max-w-4xl mx-auto min-w-0">
     
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
+    <div class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
         
         <h2 class="text-2xl font-bold text-gray-800">Pengeluaran Lainnya</h2>
         

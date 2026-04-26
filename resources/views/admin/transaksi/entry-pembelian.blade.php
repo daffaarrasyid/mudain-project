@@ -1,9 +1,21 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
+    .card-animasi-3 { animation: slideUpFade 0.8s ease-out 0.5s both; }
+    .card-animasi-4 { animation: slideUpFade 0.8s ease-out 0.7s both; }
+</style>
+
 <div x-data="{ modalEdit: false, modalHapus: false }" class="space-y-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
     
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card-animasi-1 grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Pembelian</h2>
@@ -36,7 +48,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card-animasi-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
             <div class="flex items-center">
@@ -76,7 +88,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
+    <div class="card-animasi-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
         
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
             <div class="flex items-center gap-2 text-sm text-gray-500">
@@ -137,7 +149,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card-animasi-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center">
             <div class="flex items-center mb-3">

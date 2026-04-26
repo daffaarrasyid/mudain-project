@@ -1,8 +1,17 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+</style>
+
 <div x-data="{ modalTambah: false, modalEdit: false, modalHapus: false }" 
-     class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-[fadeIn_0.5s_ease-in-out]">
+     class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-[fadeIn_0.5s_ease-in-out]">
     
     <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-8">
         <div>

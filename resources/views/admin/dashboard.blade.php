@@ -1,9 +1,21 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
+    .card-animasi-3 { animation: slideUpFade 0.8s ease-out 0.5s both; }
+    .card-animasi-4 { animation: slideUpFade 0.8s ease-out 0.7s both; }
+</style>
+
 <div class="space-y-6">
     
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="card-animasi-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-[#E65C00] rounded-2xl p-6 text-white shadow-lg shadow-orange-500/30 flex justify-between items-center transform hover:-translate-y-1 transition duration-300">
             <div class="bg-white/20 p-4 rounded-xl">
                 <i class="fa-solid fa-shirt text-3xl"></i>
@@ -42,7 +54,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card-animasi-2 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white rounded-2xl p-8 shadow-sm flex items-center space-x-6 border border-gray-100">
             <div class="bg-orange-100 text-[#E65C00] p-5 rounded-2xl">
                 <i class="fa-solid fa-arrow-right-to-bracket text-3xl"></i>
@@ -63,7 +75,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="card-animasi-3 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h3 class="text-lg font-bold text-gray-800 mb-6">History Login</h3>
             <div class="space-y-5">
@@ -92,7 +104,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card-animasi-4grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Grafik Kategori Produk</h3>
             <div class="relative h-64 w-full">

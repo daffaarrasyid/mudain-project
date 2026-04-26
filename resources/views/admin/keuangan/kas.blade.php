@@ -1,9 +1,19 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
+</style>
+
 <div x-data="{ modalTambah: false }" class="space-y-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
     
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+    <div class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 md:mb-10">Kas</h2>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <h3 class="text-3xl font-medium text-gray-500">Saldo</h3>
@@ -11,7 +21,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 w-full min-w-0">
+    <div class="card-animasi-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 w-full min-w-0">
         
         <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-100">
             <button @click="modalTambah = true" class="bg-[#E65C00] hover:bg-[#cc5200] text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-orange-500/30 transition-all transform hover:-translate-y-0.5">

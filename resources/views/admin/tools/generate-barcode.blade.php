@@ -1,9 +1,19 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
+</style>
+
 <div class="space-y-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
     
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+    <div class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-8">Generate Barcode</h2>
         
         <div class="space-y-4 w-full mx-auto mb-8">
@@ -40,7 +50,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 w-full min-w-0">
+    <div class="card-animasi-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 w-full min-w-0">
         <div class="w-full overflow-x-auto custom-scrollbar rounded-xl">
             <table class="w-full text-left border-collapse whitespace-nowrap min-w-[700px]">
                 <thead>

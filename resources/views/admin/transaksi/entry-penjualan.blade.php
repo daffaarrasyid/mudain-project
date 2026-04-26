@@ -1,9 +1,22 @@
 @extends('admin.layouts.app')
 
 @section('content')
+
+<style>
+    @keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
+    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
+    .card-animasi-3 { animation: slideUpFade 0.8s ease-out 0.5s both; }
+    .card-animasi-4 { animation: slideUpFade 0.8s ease-out 0.7s both; }
+    .card-animasi-5 { animation: slideUpFade 0.8s ease-out 0.9s both; }
+</style>
+
 <div class="space-y-6 animate-[fadeIn_0.5s_ease-in-out]">
     
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+    <div class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
         <div class="flex justify-between items-start mb-6">
             <h2 class="text-2xl font-bold text-gray-800">Penjualan</h2>
             <div class="text-right">
@@ -17,7 +30,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="card-animasi-2 grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
             <div class="flex items-center">
@@ -78,7 +91,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
+    <div class="card-animasi-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
         <h3 class="text-lg font-bold text-gray-800 mb-4">Produk</h3>
         <div class="w-full overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
@@ -103,7 +116,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
+    <div class="card-animasi-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
         <h3 class="text-lg font-bold text-gray-800 mb-4">Service</h3>
         <div class="w-full overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
@@ -126,7 +139,7 @@
         </div>
     </div>
 
-    <div class="flex justify-end gap-4 pb-8">
+    <div class="card-animasi-5 flex justify-end gap-4 pb-8">
         <button class="bg-[#EF4444] hover:bg-[#B91C1C] text-white px-8 py-2.5 rounded-lg font-bold shadow-md transition-colors transform hover:-translate-y-0.5">
             Cancel
         </button>
