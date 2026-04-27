@@ -1,250 +1,162 @@
 @extends('admin.layouts.app')
 
+@section('page-title', 'Dashboard')
+
 @section('content')
+    <div class="space-y-6">
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            @php
+                $cards = [
+                    ['label' => 'Total Produk', 'value' => $ringkasan['produk'], 'icon' => 'fa-box', 'color' => 'orange'],
+                    ['label' => 'Total Supplier', 'value' => $ringkasan['pemasok'], 'icon' => 'fa-truck', 'color' => 'sky'],
+                    ['label' => 'Total Customer', 'value' => $ringkasan['pembeli'], 'icon' => 'fa-users', 'color' => 'emerald'],
+                    ['label' => 'Penjualan Hari Ini', 'value' => $ringkasan['penjualan_hari_ini'], 'icon' => 'fa-cash-register', 'color' => 'violet'],
+                ];
+            @endphp
 
-<style>
-    @keyframes slideUpFade {
-        0% { opacity: 0; transform: translateY(30px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
-    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
-    .card-animasi-3 { animation: slideUpFade 0.8s ease-out 0.5s both; }
-    .card-animasi-4 { animation: slideUpFade 0.8s ease-out 0.7s both; }
-</style>
-
-<div class="space-y-6">
-    
-    <div class="card-animasi-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-[#E65C00] rounded-2xl p-6 text-white shadow-lg shadow-orange-500/30 flex justify-between items-center transform hover:-translate-y-1 transition duration-300">
-            <div class="bg-white/20 p-4 rounded-xl">
-                <i class="fa-solid fa-shirt text-3xl"></i>
-            </div>
-            <div class="text-right">
-                <p class="text-white/80 text-sm font-medium">Produk</p>
-                <h3 class="text-4xl font-bold counter-animate" data-target="87">0</h3>
-            </div>
-        </div>
-        <div class="bg-[#3B82F6] rounded-2xl p-6 text-white shadow-lg shadow-blue-500/30 flex justify-between items-center transform hover:-translate-y-1 transition duration-300">
-            <div class="bg-white/20 p-4 rounded-xl">
-                <i class="fa-solid fa-truck text-3xl"></i>
-            </div>
-            <div class="text-right">
-                <p class="text-white/80 text-sm font-medium">Supplier</p>
-                <h3 class="text-4xl font-bold counter-animate" data-target="39">0</h3>
-            </div>
-        </div>
-        <div class="bg-[#10B981] rounded-2xl p-6 text-white shadow-lg shadow-green-500/30 flex justify-between items-center transform hover:-translate-y-1 transition duration-300">
-            <div class="bg-white/20 p-4 rounded-xl">
-                <i class="fa-solid fa-users text-3xl"></i>
-            </div>
-            <div class="text-right">
-                <p class="text-white/80 text-sm font-medium">Pelanggan</p>
-                <h3 class="text-4xl font-bold counter-animate" data-target="105">0</h3>
-            </div>
-        </div>
-        <div class="bg-[#8B5CF6] rounded-2xl p-6 text-white shadow-lg shadow-purple-500/30 flex justify-between items-center transform hover:-translate-y-1 transition duration-300">
-            <div class="bg-white/20 p-4 rounded-xl">
-                <i class="fa-solid fa-shopping-basket text-3xl"></i>
-            </div>
-            <div class="text-right">
-                <p class="text-white/80 text-sm font-medium">Penjualan Hari Ini</p>
-                <h3 class="text-4xl font-bold counter-animate" data-target="3">0</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-animasi-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl p-8 shadow-sm flex items-center space-x-6 border border-gray-100">
-            <div class="bg-orange-100 text-[#E65C00] p-5 rounded-2xl">
-                <i class="fa-solid fa-arrow-right-to-bracket text-3xl"></i>
-            </div>
-            <div>
-                <p class="text-gray-500 font-medium">Kas Masuk Hari Ini</p>
-                <h2 class="text-3xl font-extrabold text-gray-800 mt-1">Rp. <span class="counter-animate" data-target="30000000">0</span></h2>
-            </div>
-        </div>
-        <div class="bg-white rounded-2xl p-8 shadow-sm flex items-center space-x-6 border border-gray-100">
-            <div class="bg-orange-100 text-[#E65C00] p-5 rounded-2xl">
-                <i class="fa-solid fa-arrow-right-from-bracket text-3xl"></i>
-            </div>
-            <div>
-                <p class="text-gray-500 font-medium">Kas Keluar Hari Ini</p>
-                <h2 class="text-3xl font-extrabold text-gray-800 mt-1">Rp. <span class="counter-animate" data-target="789000">0</span></h2>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-animasi-3 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800 mb-6">History Login</h3>
-            <div class="space-y-5">
-                @for($i=0; $i<4; $i++)
-                <div class="flex justify-between items-center pb-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-300">
-                    <div class="flex items-center space-x-3">
-                        <img src="https://ui-avatars.com/api/?name=Dadang&background=E65C00&color=fff" class="w-10 h-10 rounded-full">
+            @foreach ($cards as $card)
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between">
                         <div>
-                            <p class="font-bold text-gray-800 text-sm">Dadang</p>
-                            <p class="text-xs text-gray-500">Administrator</p>
+                            <p class="text-sm text-slate-500">{{ $card['label'] }}</p>
+                            <p class="mt-3 text-4xl font-black text-slate-900">{{ number_format($card['value']) }}</p>
+                        </div>
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-{{ $card['color'] }}-100 text-{{ $card['color'] }}-600">
+                            <i class="fa-solid {{ $card['icon'] }} text-xl"></i>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="font-bold text-gray-800 text-sm">14:05:35</p>
-                        <p class="text-xs text-gray-500">2026-03-29</p>
-                    </div>
                 </div>
-                @endfor
+            @endforeach
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-3">
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-sm text-slate-500">Kas Masuk Hari Ini</p>
+                <p class="mt-3 text-3xl font-black text-emerald-600">Rp {{ number_format($ringkasan['kas_masuk_hari_ini'], 0, ',', '.') }}</p>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-sm text-slate-500">Kas Keluar Hari Ini</p>
+                <p class="mt-3 text-3xl font-black text-rose-600">Rp {{ number_format($ringkasan['kas_keluar_hari_ini'], 0, ',', '.') }}</p>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-sm text-slate-500">Saldo Kas Keseluruhan</p>
+                <p class="mt-3 text-3xl font-black text-slate-900">Rp {{ number_format($ringkasan['saldo_kas'], 0, ',', '.') }}</p>
             </div>
         </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Grafik Pendapatan Bulan Ini</h3>
-            <div class="relative h-64 w-full">
-                <canvas id="lineChart"></canvas>
+
+        <div class="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-slate-900">Grafik Penjualan</h3>
+                    <p class="text-sm text-slate-500">Ringkasan penjualan per bulan.</p>
+                </div>
+                <div class="h-80">
+                    <canvas id="chartPenjualan"></canvas>
+                </div>
+            </div>
+
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-slate-900">Aktivitas Terbaru</h3>
+                    <p class="text-sm text-slate-500">Riwayat penggunaan sistem terbaru.</p>
+                </div>
+                <div class="space-y-4">
+                    @forelse ($aktivitas as $log)
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                            <p class="text-sm font-semibold text-slate-800">{{ $log->aktivitas }}</p>
+                            <p class="mt-1 text-xs text-slate-500">{{ $log->pengguna?->nama_user ?? 'Sistem' }} • {{ $log->waktu->format('d M Y H:i') }}</p>
+                            @if ($log->detail)
+                                <p class="mt-2 text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($log->detail, 100) }}</p>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="text-sm text-slate-500">Belum ada aktivitas.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-3">
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900">Grafik Arus Kas</h3>
+                <div class="mt-4 h-72">
+                    <canvas id="chartKas"></canvas>
+                </div>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900">Grafik Laba Rugi</h3>
+                <div class="mt-4 h-72">
+                    <canvas id="chartLabaRugi"></canvas>
+                </div>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900">Produk per Kategori</h3>
+                <div class="mt-4 space-y-4">
+                    @foreach ($kategoriChart as $kategori)
+                        <div>
+                            <div class="mb-1 flex items-center justify-between text-sm">
+                                <span class="font-semibold text-slate-700">{{ $kategori->nama_kategori }}</span>
+                                <span class="text-slate-500">{{ $kategori->produk_count }} produk</span>
+                            </div>
+                            <div class="h-2 rounded-full bg-slate-100">
+                                <div class="h-2 rounded-full bg-orange-500" style="width: {{ max(8, min(100, $kategori->produk_count * 10)) }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="card-animasi-4grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Grafik Kategori Produk</h3>
-            <div class="relative h-64 w-full">
-                <canvas id="barChart"></canvas>
-            </div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Grafik Kas</h3>
-            <div class="relative h-64 w-full flex justify-center">
-                <canvas id="pieChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-</div>
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        // ==========================================
-        // 1. ANIMASI NUMBER COUNTER (ANGKA NAIK)
-        // ==========================================
-        const counters = document.querySelectorAll('.counter-animate');
-        const animationDuration = 2000; // Durasi animasi 2 detik
+    <script>
+        const chartPenjualan = @json($chartPenjualan);
+        const chartArusKas = @json($chartArusKas);
+        const chartLabaRugi = @json($chartLabaRugi);
 
-        counters.forEach(counter => {
-            const target = +counter.getAttribute('data-target');
-            const start = 0;
-            let startTime = null;
-
-            function updateCounter(currentTime) {
-                if (!startTime) startTime = currentTime;
-                const progress = Math.min((currentTime - startTime) / animationDuration, 1);
-                
-                // Efek Ease-Out (mulai cepat, melambat di akhir)
-                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-                const currentVal = Math.floor(easeOutQuart * (target - start) + start);
-                
-                // Format angka menggunakan standar Indonesia (titik sebagai pemisah ribuan)
-                counter.innerText = currentVal.toLocaleString('id-ID');
-
-                if (progress < 1) {
-                    requestAnimationFrame(updateCounter);
-                } else {
-                    counter.innerText = target.toLocaleString('id-ID'); // Pastikan angka akhir presisi
-                }
-            }
-            requestAnimationFrame(updateCounter);
-        });
-
-        // ==========================================
-        // 2. ANIMASI CHART.JS YANG DIPERINDAH
-        // ==========================================
-        
-        // Line Chart (Pendapatan)
-        const ctxLine = document.getElementById('lineChart').getContext('2d');
-        new Chart(ctxLine, {
+        new Chart(document.getElementById('chartPenjualan'), {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                labels: chartPenjualan.labels,
                 datasets: [{
-                    label: 'Pendapatan',
-                    data: [30, 25, 75, 40, 60, 70, 30, 10, 90, 35, 80, 20],
-                    borderColor: '#E65C00', backgroundColor: 'rgba(230, 92, 0, 0.2)',
-                    tension: 0.4, fill: true, pointBackgroundColor: '#fff', pointBorderColor: '#E65C00', pointRadius: 4
-                }, {
-                    label: 'Pengeluaran',
-                    data: [60, 45, 95, 50, 75, 80, 40, 25, 75, 90, 75, 45],
-                    borderColor: '#8B5CF6', backgroundColor: 'rgba(139, 92, 246, 0.2)',
-                    tension: 0.4, fill: true, pointBackgroundColor: '#fff', pointBorderColor: '#8B5CF6', pointRadius: 4
+                    label: 'Penjualan',
+                    data: chartPenjualan.data,
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.12)',
+                    fill: true,
+                    tension: 0.35
                 }]
             },
-            options: { 
-                responsive: true, maintainAspectRatio: false, 
-                plugins: { legend: { position: 'bottom' } }, 
-                scales: { y: { beginAtZero: true } },
-                // Penambahan Animasi Smooth & lambat
-                animation: {
-                    duration: 2500, // 2.5 detik
-                    easing: 'easeOutQuart'
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
 
-        // Bar Chart (Kategori Produk)
-        const ctxBar = document.getElementById('barChart').getContext('2d');
-        new Chart(ctxBar, {
+        new Chart(document.getElementById('chartKas'), {
             type: 'bar',
             data: {
-                labels: ['Baju', 'PDH', 'Lanyard', 'Ganci'],
-                datasets: [{
-                    data: [3, 1, 7, 6],
-                    backgroundColor: ['#E65C00', '#A78BFA', '#38BDF8', '#34D399'],
-                    borderRadius: 8
-                }]
+                labels: chartArusKas.labels,
+                datasets: [
+                    { label: 'Kas Masuk', data: chartArusKas.masuk, backgroundColor: '#10b981' },
+                    { label: 'Kas Keluar', data: chartArusKas.keluar, backgroundColor: '#ef4444' }
+                ]
             },
-            options: { 
-                responsive: true, maintainAspectRatio: false, 
-                plugins: { legend: { display: false } }, 
-                scales: { y: { beginAtZero: true } },
-                // Penambahan Animasi Stagger (Bar muncul bergantian)
-                animation: {
-                    duration: 1500,
-                    delay: (context) => {
-                        let delay = 0;
-                        if (context.type === 'data' && context.mode === 'default') {
-                            delay = context.dataIndex * 300; // Jeda 300ms antar batang grafik
-                        }
-                        return delay;
-                    }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
 
-        // Doughnut Chart (Kas)
-        const ctxPie = document.getElementById('pieChart').getContext('2d');
-        new Chart(ctxPie, {
-            type: 'doughnut',
+        new Chart(document.getElementById('chartLabaRugi'), {
+            type: 'line',
             data: {
-                labels: ['Januari', 'Februari', 'Maret', 'April'],
+                labels: chartLabaRugi.labels,
                 datasets: [{
-                    data: [100, 250, 700, 450],
-                    backgroundColor: ['#A78BFA', '#F87171', '#38BDF8', '#FBBF24'],
-                    borderWidth: 0
+                    label: 'Laba / Rugi',
+                    data: chartLabaRugi.data,
+                    borderColor: '#0f172a',
+                    backgroundColor: 'rgba(15, 23, 42, 0.08)',
+                    fill: true,
+                    tension: 0.35
                 }]
             },
-            options: { 
-                responsive: true, maintainAspectRatio: false, 
-                plugins: { legend: { position: 'right' } }, cutout: '60%',
-                // Penambahan Animasi Rotasi dan Skala
-                animation: {
-                    animateScale: true,
-                    animateRotate: true,
-                    duration: 2000,
-                    easing: 'easeInOutCirc'
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
-    });
-</script>
+    </script>
 @endpush

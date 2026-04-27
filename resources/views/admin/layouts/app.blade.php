@@ -3,33 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Mudain</title>
-    
+    <title>@yield('page-title', 'Dashboard Mudain')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #F3F4F6; }
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f8fafc;
+        }
     </style>
 </head>
-<body class="text-gray-800 antialiased overflow-hidden" x-data="{ sidebarOpen: false, sidebarHover: false }">
-
-    <div class="flex h-screen w-full bg-[#F4F6F9]">
-        
+<body class="text-slate-800" x-data="{ sidebarOpen: false }">
+    <div class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
         @include('admin.components.sidebar')
 
-        <div class="flex-1 flex flex-col min-w-0 md:ml-[5.5rem] transition-all duration-300">
-            
+        <div class="min-h-screen">
             @include('admin.components.navbar')
 
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#F4F6F9] p-4 md:p-6 lg:p-8 animate-[fadeIn_0.5s_ease-in-out]">
+            <main class="px-4 py-6 sm:px-6 lg:px-8">
+                @if (session('success'))
+                    <div class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                        <p class="font-semibold">Periksa kembali data yang diinput.</p>
+                        <ul class="mt-2 list-disc space-y-1 pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @yield('content')
             </main>
         </div>
-            
     </div>
 
     @stack('scripts')

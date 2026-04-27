@@ -1,192 +1,94 @@
 @extends('admin.layouts.app')
 
+@section('page-title', 'Grafik')
+
 @section('content')
-
-<style>
-    @keyframes slideUpFade {
-        0% { opacity: 0; transform: translateY(30px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
-    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
-    .card-animasi-3 { animation: slideUpFade 0.8s ease-out 0.5s both; }
-    .card-animasi-4 { animation: slideUpFade 0.8s ease-out 0.7s both; }
-</style>
-
-<div class="w-full min-w-0">
-    
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <div class="card-animasi-1 lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-            <h2 class="text-xl font-bold text-gray-800 mb-6">Grafik Pendapatan Bulan Ini</h2>
-            <div class="relative h-[300px] md:h-[400px] w-full">
-                <canvas id="pendapatanChart"></canvas>
+    <div class="space-y-6">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Grafik Bisnis</h2>
+                    <p class="mt-2 text-sm text-slate-500">Visualisasi arus kas, penjualan, dan laba rugi per tahun.</p>
+                </div>
+                <form method="GET" class="flex gap-3">
+                    <input type="number" min="2020" max="2100" name="tahun" value="{{ $tahun }}" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                    <button type="submit" class="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">Tampilkan</button>
+                </form>
             </div>
         </div>
 
-        <div class="card-animasi-2 lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-            <h2 class="text-xl font-bold text-gray-800 mb-6">Grafik Kategori Barang</h2>
-            <div class="relative h-[250px] md:h-[300px] w-full">
-                <canvas id="kategoriChart"></canvas>
+        <div class="grid gap-6 xl:grid-cols-2">
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900">Arus Kas {{ $tahun }}</h3>
+                <div class="mt-4 h-80">
+                    <canvas id="chartKasTahunan"></canvas>
+                </div>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900">Penjualan {{ $tahun }}</h3>
+                <div class="mt-4 h-80">
+                    <canvas id="chartPenjualanTahunan"></canvas>
+                </div>
             </div>
         </div>
 
-        <div class="card-animasi-3 lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-            <h2 class="text-xl font-bold text-gray-800 mb-6">Grafik Kas</h2>
-            <div class="relative h-[250px] md:h-[300px] w-full flex items-center justify-center">
-                <canvas id="kasChart"></canvas>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900">Laba Rugi {{ $tahun }}</h3>
+            <div class="mt-4 h-80">
+                <canvas id="chartLabaRugiTahunan"></canvas>
             </div>
         </div>
-
-        <div class="card-animasi-4 lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-            <h2 class="text-xl font-bold text-gray-800 mb-6">10 Barang Terlaris Bulan Ini</h2>
-            <div class="relative h-[300px] md:h-[400px] w-full">
-                <canvas id="terlarisChart"></canvas>
-            </div>
-        </div>
-
     </div>
+@endsection
 
-</div>
+@push('scripts')
+    <script>
+        const grafikKas = @json($chartArusKas);
+        const grafikPenjualan = @json($chartPenjualan);
+        const grafikLabaRugi = @json($chartLabaRugi);
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        Chart.defaults.font.family = "'Poppins', sans-serif";
-        Chart.defaults.color = '#9CA3AF'; 
-
-        // 1. Grafik Pendapatan
-        const ctxPendapatan = document.getElementById('pendapatanChart').getContext('2d');
-        new Chart(ctxPendapatan, {
-            type: 'line',
-            data: {
-                labels: ['02', '06', '08', '12', '15', '20', '22', '23', '24', '26', '28', '30'],
-                datasets: [{
-                    label: 'Pendapatan (Juta)',
-                    data: [5, 3, 17, 2, 7, 18, 6, 2, 28, 9, 21, 4],
-                    borderColor: '#FF8A8A', 
-                    backgroundColor: 'rgba(255, 138, 138, 0.15)', 
-                    borderWidth: 2,
-                    fill: true, 
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 2000,
-                    easing: 'easeOutQuart' // Efek melambat secara smooth di akhir
-                },
-                plugins: { legend: { display: false } }, 
-                scales: {
-                    y: { beginAtZero: true, max: 30, ticks: { callback: function(v) { return v + 'jt'; } } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // 2. Grafik Kategori Barang
-        const ctxKategori = document.getElementById('kategoriChart').getContext('2d');
-        new Chart(ctxKategori, {
+        new Chart(document.getElementById('chartKasTahunan'), {
             type: 'bar',
             data: {
-                labels: ['Konveksi', 'Percetakan'],
-                datasets: [{
-                    label: 'Total Kategori',
-                    data: [60, 100],
-                    backgroundColor: ['#34D399', '#38BDF8'], 
-                    borderRadius: 8, 
-                    barThickness: 80
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 2000,
-                    easing: 'easeOutBounce' // Membuat balok sedikit memantul saat naik
-                },
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, max: 100 },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // 3. Grafik Kas Pie
-        const ctxKas = document.getElementById('kasChart').getContext('2d');
-        new Chart(ctxKas, {
-            type: 'pie',
-            data: {
-                labels: ['Masuk', 'Keluar', 'Lainnya'],
-                datasets: [{
-                    data: [50, 20, 30],
-                    backgroundColor: ['#38BDF8', '#A78BFA', '#FF8A8A'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    animateRotate: true, // Animasi memutar
-                    animateScale: true,  // Animasi membesar
-                    duration: 2000,
-                    easing: 'easeOutQuart'
-                },
-                plugins: {
-                    legend: { display: false } 
-                }
-            }
-        });
-
-        // 4. Grafik Barang Terlaris
-        const ctxTerlaris = document.getElementById('terlarisChart').getContext('2d');
-        new Chart(ctxTerlaris, {
-            type: 'line',
-            data: {
-                labels: ['Lanyard', 'Kemeja', 'PDH Biasa', 'Medali', 'Gantungan', 'PDH 2 in 1', 'Kaos', 'Jaket', 'WorkShirt', 'Stiker'],
+                labels: grafikKas.labels,
                 datasets: [
-                    {
-                        label: 'Minggu 1',
-                        data: [0, 30, 2, 30, 1, 2, 18, 0, 30, 1],
-                        borderColor: '#A78BFA', backgroundColor: 'rgba(167, 139, 250, 0.1)',
-                        borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0
-                    },
-                    {
-                        label: 'Minggu 2',
-                        data: [20, 15, 10, 15, 20, 20, 0, 0, 18, 20],
-                        borderColor: '#FF8A8A', backgroundColor: 'rgba(255, 138, 138, 0.1)',
-                        borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0
-                    },
-                    {
-                        label: 'Minggu 3',
-                        data: [0, 0, 10, 0, 10, 10, 10, 5, 0, 0],
-                        borderColor: '#38BDF8', backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                        borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0
-                    }
+                    { label: 'Kas Masuk', data: grafikKas.masuk, backgroundColor: '#10b981' },
+                    { label: 'Kas Keluar', data: grafikKas.keluar, backgroundColor: '#ef4444' },
                 ]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 2500,
-                    easing: 'easeOutQuart'
-                },
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
-                },
-                scales: {
-                    y: { beginAtZero: true, max: 35 },
-                    x: { grid: { display: false } }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
 
-    });
-</script>
-@endsection
+        new Chart(document.getElementById('chartPenjualanTahunan'), {
+            type: 'line',
+            data: {
+                labels: grafikPenjualan.labels,
+                datasets: [{
+                    label: 'Penjualan',
+                    data: grafikPenjualan.data,
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                    fill: true,
+                    tension: 0.35
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        new Chart(document.getElementById('chartLabaRugiTahunan'), {
+            type: 'line',
+            data: {
+                labels: grafikLabaRugi.labels,
+                datasets: [{
+                    label: 'Laba / Rugi',
+                    data: grafikLabaRugi.data,
+                    borderColor: '#0f172a',
+                    backgroundColor: 'rgba(15, 23, 42, 0.08)',
+                    fill: true,
+                    tension: 0.35
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    </script>
+@endpush

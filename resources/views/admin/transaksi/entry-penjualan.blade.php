@@ -1,152 +1,152 @@
 @extends('admin.layouts.app')
 
+@section('page-title', 'Entry Penjualan')
+
 @section('content')
-
-<style>
-    @keyframes slideUpFade {
-        0% { opacity: 0; transform: translateY(30px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
-    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
-    .card-animasi-3 { animation: slideUpFade 0.8s ease-out 0.5s both; }
-    .card-animasi-4 { animation: slideUpFade 0.8s ease-out 0.7s both; }
-    .card-animasi-5 { animation: slideUpFade 0.8s ease-out 0.9s both; }
-</style>
-
-<div class="space-y-6 animate-[fadeIn_0.5s_ease-in-out]">
-    
-    <div class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-        <div class="flex justify-between items-start mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">Penjualan</h2>
-            <div class="text-right">
-                <p class="text-sm font-bold text-gray-800">Invoice <span class="font-normal text-gray-500">BLP000000000</span></p>
-            </div>
-        </div>
-        
-        <div class="flex flex-col md:flex-row justify-between items-end mt-10">
-            <h3 class="text-3xl font-bold text-gray-700 mb-2 md:mb-0">Total (Rp)</h3>
-            <h1 class="text-5xl md:text-6xl font-black text-gray-800">3.400.000</h1>
-        </div>
-    </div>
-
-    <div class="card-animasi-2 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-            <div class="flex items-center">
-                <label class="w-1/3 text-sm font-bold text-gray-700">Operator</label>
-                <input type="text" value="Administrator" readonly class="w-2/3 bg-gray-100 border border-gray-200 text-gray-500 text-sm rounded-lg px-3 py-2 cursor-not-allowed outline-none">
-            </div>
-            <div class="flex items-center">
-                <label class="w-1/3 text-sm font-bold text-gray-700">Customer</label>
-                <select class="w-2/3 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
-                    <option value="">Pilih Customer</option>
-                    <option value="1">Family HM</option>
-                </select>
-            </div>
-            <div class="flex items-center">
-                <label class="w-1/3 text-sm font-bold text-gray-700">Layanan</label>
-                <select class="w-2/3 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
-                    <option value="">Pilih Layanan</option>
-                    <option value="1">Produk</option>
-                    <option value="2">Service</option>
-                </select>
-            </div>
+    <div class="space-y-6" x-data="salesForm(@js($produkOptions->map(fn ($produk) => [
+        'id' => $produk->id_produk,
+        'nama' => $produk->nama_produk,
+        'harga' => (float) $produk->harga,
+        'stok' => $produk->stok_aktif,
+    ])->values()))">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900">Entry Penjualan</h2>
+            <p class="mt-2 text-sm text-slate-500">Buat transaksi penjualan, pilih customer, lalu tambahkan item produk yang terjual.</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Barcode</label>
-                <div class="w-3/4 flex">
-                    <input type="text" class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-l-lg px-3 py-2 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none border-r-0">
-                    <button class="bg-[#E65C00] hover:bg-[#cc5200] text-white px-4 rounded-r-lg transition-colors">
-                        <i class="fa-solid fa-search"></i>
-                    </button>
+        <form action="{{ route('admin.transaksi.store-penjualan') }}" method="POST" class="space-y-6">
+            @csrf
+            <div class="grid gap-6 lg:grid-cols-3">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700">Tanggal</label>
+                            <input type="datetime-local" name="tanggal" value="{{ old('tanggal', now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100" required>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700">Customer</label>
+                            <select name="id_pembeli" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                                <option value="">Umum</option>
+                                @foreach ($pembeliOptions as $pembeli)
+                                    <option value="{{ $pembeli->id_pembeli }}" @selected(old('id_pembeli') == $pembeli->id_pembeli)>{{ $pembeli->nama_pembeli }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700">Status Pembayaran</label>
+                            <select name="status_pembayaran" x-model="paymentStatus" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                                <option value="tunai">Tunai</option>
+                                <option value="piutang">Piutang</option>
+                            </select>
+                        </div>
+                        <div x-show="paymentStatus === 'piutang'">
+                            <label class="mb-1 block text-sm font-semibold text-slate-700">Jatuh Tempo</label>
+                            <input type="date" name="jatuh_tempo" value="{{ old('jatuh_tempo') }}" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-200 text-sm">
+                            <thead>
+                                <tr class="text-left text-xs font-bold uppercase tracking-wide text-slate-500">
+                                    <th class="px-3 py-3">Produk</th>
+                                    <th class="px-3 py-3">Stok</th>
+                                    <th class="px-3 py-3">Qty</th>
+                                    <th class="px-3 py-3">Harga</th>
+                                    <th class="px-3 py-3">Subtotal</th>
+                                    <th class="px-3 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <template x-for="(item, index) in items" :key="index">
+                                    <tr>
+                                        <td class="px-3 py-3">
+                                            <select :name="`items[${index}][id_produk]`" x-model="item.id_produk" @change="selectProduct(index)" class="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                                                <option value="">Pilih produk</option>
+                                                <template x-for="produk in products" :key="produk.id">
+                                                    <option :value="produk.id" x-text="produk.nama"></option>
+                                                </template>
+                                            </select>
+                                        </td>
+                                        <td class="px-3 py-3 text-slate-600" x-text="item.stok"></td>
+                                        <td class="px-3 py-3">
+                                            <input type="number" min="1" :name="`items[${index}][jumlah]`" x-model.number="item.jumlah" @input="refreshSubtotal(index)" class="w-24 rounded-2xl border border-slate-200 px-3 py-2 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                                        </td>
+                                        <td class="px-3 py-3">
+                                            <input type="number" min="0" step="0.01" :name="`items[${index}][harga]`" x-model.number="item.harga" @input="refreshSubtotal(index)" class="w-32 rounded-2xl border border-slate-200 px-3 py-2 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                                        </td>
+                                        <td class="px-3 py-3 font-semibold text-slate-900" x-text="rupiah(item.subtotal)"></td>
+                                        <td class="px-3 py-3 text-right">
+                                            <button type="button" @click="removeRow(index)" class="rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-600">Hapus</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap gap-3">
+                        <button type="button" @click="addRow()" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">Tambah Baris</button>
+                        <div class="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">
+                            Total: <span x-text="rupiah(total)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700">Nama Desain</label>
+                            <input type="text" name="nama_desain" value="{{ old('nama_desain') }}" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700">Deskripsi Desain</label>
+                            <textarea name="deskripsi_desain" rows="4" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">{{ old('deskripsi_desain') }}</textarea>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-slate-700">Catatan</label>
+                            <textarea name="catatan" rows="4" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">{{ old('catatan') }}</textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-6 w-full rounded-2xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white">Simpan Penjualan</button>
                 </div>
             </div>
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Qty</label>
-                <input type="number" class="w-3/4 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4 relative">
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Nama</label>
-                <input type="text" class="w-3/4 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
-            </div>
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Harga</label>
-                <input type="number" class="w-3/4 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
-            </div>
-            <div class="flex items-center mb-10">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Total</label>
-                <input type="text" value="Rp 0" readonly class="w-3/4 bg-gray-100 border border-gray-200 text-gray-400 text-sm font-bold rounded-lg px-3 py-2 outline-none cursor-not-allowed">
-            </div>
-            <div class="flex items-end justify-end right-6">
-                <button class="bg-[#10B981] hover:bg-[#059669] text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md transition-colors">
-                    Tambah
-                </button>
-            </div>
-        </div>
+        </form>
     </div>
-
-    <div class="card-animasi-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Produk</h3>
-        <div class="w-full overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
-                <thead>
-                    <tr class="text-gray-800 text-sm font-bold border-b-2 border-gray-100">
-                        <th class="py-3 px-2">Barcode</th>
-                        <th class="py-3 px-2">Nama Item</th>
-                        <th class="py-3 px-2">Harga Umum</th>
-                        <th class="py-3 px-2">Harga Pelanggan</th>
-                        <th class="py-3 px-2">Qty</th>
-                        <th class="py-3 px-2">Disc/Item</th>
-                        <th class="py-3 px-2">Total</th>
-                        <th class="py-3 px-2 text-center">Opsi</th>
-                    </tr>
-                </thead>
-                <tbody class="text-sm text-gray-600">
-                    <tr class="border-b border-gray-100 h-12">
-                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="card-animasi-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Service</h3>
-        <div class="w-full overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
-                <thead>
-                    <tr class="text-gray-800 text-sm font-bold border-b-2 border-gray-100">
-                        <th class="py-3 px-2">Kode</th>
-                        <th class="py-3 px-2">Nama Service</th>
-                        <th class="py-3 px-2 text-center">Pegawai</th>
-                        <th class="py-3 px-2">Harga</th>
-                        <th class="py-3 px-2">Total</th>
-                        <th class="py-3 px-2 text-center">Opsi</th>
-                    </tr>
-                </thead>
-                <tbody class="text-sm text-gray-600">
-                    <tr class="border-b border-gray-100 h-12">
-                        <td></td><td></td><td></td><td></td><td></td><td></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="card-animasi-5 flex justify-end gap-4 pb-8">
-        <button class="bg-[#EF4444] hover:bg-[#B91C1C] text-white px-8 py-2.5 rounded-lg font-bold shadow-md transition-colors transform hover:-translate-y-0.5">
-            Cancel
-        </button>
-        <button class="bg-[#38BDF8] hover:bg-[#0284C7] text-white px-8 py-2.5 rounded-lg font-bold shadow-md transition-colors transform hover:-translate-y-0.5">
-            Payment
-        </button>
-    </div>
-
-</div>
 @endsection
+
+@push('scripts')
+    <script>
+        function salesForm(products) {
+            return {
+                products,
+                paymentStatus: 'tunai',
+                items: [{ id_produk: '', jumlah: 1, harga: 0, stok: 0, subtotal: 0 }],
+                get total() {
+                    return this.items.reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
+                },
+                addRow() {
+                    this.items.push({ id_produk: '', jumlah: 1, harga: 0, stok: 0, subtotal: 0 });
+                },
+                removeRow(index) {
+                    if (this.items.length === 1) return;
+                    this.items.splice(index, 1);
+                },
+                selectProduct(index) {
+                    const product = this.products.find((entry) => entry.id === this.items[index].id_produk);
+                    if (!product) return;
+                    this.items[index].harga = product.harga;
+                    this.items[index].stok = product.stok;
+                    this.refreshSubtotal(index);
+                },
+                refreshSubtotal(index) {
+                    const item = this.items[index];
+                    item.subtotal = Number(item.jumlah || 0) * Number(item.harga || 0);
+                },
+                rupiah(value) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value || 0);
+                }
+            }
+        }
+    </script>
+@endpush

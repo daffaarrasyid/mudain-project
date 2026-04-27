@@ -1,38 +1,51 @@
 @extends('admin.layouts.app')
 
+@section('page-title', 'Backup Data')
+
 @section('content')
-
-<style>
-    @keyframes slideUpFade {
-        0% { opacity: 0; transform: translateY(30px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-    .card-animasi-1 { animation: slideUpFade 0.8s ease-out 0.1s both; }
-    .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
-</style>
-
-<div class="w-full min-w-0 animate-[fadeIn_0.5s_ease-in-out]">
-    
-    <div class="card-animasi-1bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 max-w-4xl mx-auto">
-        
-        <h2 class="text-2xl font-bold text-gray-800 mb-10">Backup Data</h2>
-        
-        <div class="flex flex-col items-center justify-center text-center space-y-8 py-8">
-            
-            <p class="text-gray-700 font-bold text-base md:text-lg max-w-2xl">
-                Menu ini berguna untuk mem back-up data keseluruhan dari aplikasi Point Of Sales yang berformat .sql
-            </p>
-
-            <form action="#" method="POST">
-                @csrf
-                <button type="submit" class="bg-[#38BDF8] hover:bg-[#0284C7] text-white px-12 md:px-16 py-3.5 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> Generate
-                </button>
-            </form>
-            
+    <div class="space-y-6">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Backup Data</h2>
+                    <p class="mt-2 text-sm text-slate-500">Buat file backup JSON untuk mengamankan seluruh data inti aplikasi.</p>
+                </div>
+                <form action="{{ route('admin.tools.backup-data.process') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="rounded-2xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white">Buat Backup Baru</button>
+                </form>
+            </div>
         </div>
-        
-    </div>
 
-</div>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead>
+                        <tr class="text-left text-xs font-bold uppercase tracking-wide text-slate-500">
+                            <th class="px-4 py-3">Nama File</th>
+                            <th class="px-4 py-3">Waktu Dibuat</th>
+                            <th class="px-4 py-3 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse ($backups as $backup)
+                            <tr>
+                                <td class="px-4 py-4 font-medium text-slate-900">{{ $backup['name'] }}</td>
+                                <td class="px-4 py-4 text-slate-600">{{ $backup['updated_at'] }}</td>
+                                <td class="px-4 py-4 text-right">
+                                    <a href="{{ route('admin.tools.backup-data.download', ['path' => $backup['path']]) }}" class="inline-flex rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                                        Download
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-10 text-center text-slate-500">Belum ada file backup.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 @endsection
