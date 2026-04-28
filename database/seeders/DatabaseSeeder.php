@@ -99,7 +99,7 @@ class DatabaseSeeder extends Seeder
             'id_pemasok' => $supplierA->id_pemasok,
             'tanggal' => now()->subDays(10)->format('Y-m-d H:i:s'),
             'status_pembayaran' => 'tunai',
-            'catatan' => 'Pembelian stok awal konveksi',
+            'catatax    n' => 'Pembelian stok awal konveksi',
             'items' => [
                 ['id_produk' => $produk1->id_produk, 'jumlah' => 25, 'harga' => 120000],
                 ['id_produk' => $produk3->id_produk, 'jumlah' => 40, 'harga' => 25000],

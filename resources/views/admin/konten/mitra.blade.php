@@ -26,7 +26,7 @@
             <div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">Mitra</h2>
                 <button @click="modalTambah = true"
-                    class="bg-[#E65C00] hover:bg-[#cc5200] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition-all transform hover:-translate-y-0.5">
+                    classx="bg-[#E65C00] hover:bg-[#cc5200] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition-all transform hover:-translate-y-0.5">
                     Tambah Mitra
                 </button>
             </div>
