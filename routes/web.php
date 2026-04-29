@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\KategoriController;
@@ -18,11 +17,29 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\GrafikController;
 use App\Http\Controllers\Admin\ToolsController;
 
-// Route untuk halaman login admin
-Route::get('/admin/login', [LoginController::class, 'index'])->name('admin.login');
+use App\Http\Controllers\Customer\LandingPageController;
+use App\Http\Controllers\Customer\TentangController;
+use App\Http\Controllers\Customer\ProdukController;
+use App\Http\Controllers\Customer\KontakController;
+
+// CUSTOMER ROUTES
+// Route untuk halaman landing page
+Route::get('/', [LandingPageController::class, 'index'])->name('beranda');
+// Route untuk halaman tentang
+Route::get('/tentang', [TentangController::class, 'index'])->name('tentang');
+// Route untuk halaman Produk
+Route::get('/produk', [ProdukController::class, 'index'])->name('produk');
+// Route untuk halaman Kontak
+Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
+
+// ADMIN ROUTES
 
 // Route untuk halaman dashboard admin
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+Route::get('/dashboard', function () {
+    return redirect()->route('admin.dashboard');
+})->name('dashboard');
+require __DIR__.'/auth.php';
 
 // Route untuk halaman master data produk
 Route::get('/admin/master-data/data-produk', [ProductController::class, 'index'])->name('admin.data-produk.index');
@@ -100,3 +117,4 @@ Route::get('/admin/grafik', [GrafikController::class, 'index'])->name('admin.gra
 Route::get('/admin/tools/generate-barcode', [ToolsController::class, 'generateBarcode'])->name('admin.tools.generate-barcode');
 //Route untuk halaman Backup Data
 Route::get('/admin/tools/backup-data', [ToolsController::class, 'backupData'])->name('admin.tools.backup-data');
+

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ class LoginController extends Controller
      */
     public function index()
     {
-        // Pastikan file login.blade.php ada di resources/views/admin/
-        return view('admin.login');
+        // Pastikan file login.blade.php ada di resources/views/auth/
+        return view('auth.login');
     }
 }
