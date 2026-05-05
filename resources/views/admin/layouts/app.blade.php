@@ -21,11 +21,11 @@
         
         @include('admin.components.sidebar')
 
-        <div class="flex-1 flex flex-col min-w-0 md:ml-[5.5rem] transition-all duration-300">
+        <div class="flex-1 flex flex-col min-w-0 transition-all duration-300">
             
             @include('admin.components.navbar')
 
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-[#F4F6F9] p-4 md:p-6 lg:p-8 animate-[fadeIn_0.5s_ease-in-out]">
+            <main class="flex-1 md:ml-[5.5rem] overflow-x-hidden overflow-y-auto bg-[#F4F6F9] p-4 md:p-6 lg:p-8 animate-[fadeIn_0.5s_ease-in-out]">
                 @yield('content')
             </main>
         </div>

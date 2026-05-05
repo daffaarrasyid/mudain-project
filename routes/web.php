@@ -42,17 +42,40 @@ Route::get('/dashboard', function () {
 require __DIR__.'/auth.php';
 
 // Route untuk halaman master data produk
-Route::get('/admin/master-data/data-produk', [ProductController::class, 'index'])->name('admin.data-produk.index');
+Route::post('/admin/master-data/data-produk/import-excel', [ProductController::class, 'importExcel'])->name('admin.data-produk.import-excel');
+Route::resource('/admin/master-data/data-produk', ProductController::class)
+    ->names('admin.data-produk')
+    ->except(['create', 'show', 'edit']);
+
 // Route untuk halaman Kategori Produk
-Route::get('/admin/master-data/kategori-produk', [KategoriController::class, 'index'])->name('admin.kategori.index');
+Route::resource('admin/master-data/kategori-produk', KategoriController::class)
+    ->names('admin.kategori')
+    ->except(['create', 'show', 'edit']);
+
 // Route untuk halaman Data Satuan Produk
-Route::get('/admin/master-data/satuan-produk', [SatuanController::class, 'index'])->name('admin.satuan.index');
+Route::resource('admin/master-data/satuan-produk', SatuanController::class)
+    ->names('admin.satuan')
+    ->except(['create', 'show', 'edit']);
+
 // Route untuk halaman Data Supplier
-Route::get('/admin/master-data/supplier', [SupplierController::class, 'index'])->name('admin.supplier.index');
+Route::get('/admin/master-data/supplier/export-pdf', [SupplierController::class, 'exportPdf'])->name('admin.supplier.export-pdf');
+Route::post('/admin/master-data/supplier/import-excel', [SupplierController::class, 'importExcel'])->name('admin.supplier.import-excel');
+Route::resource('/admin/master-data/supplier', SupplierController::class)
+    ->names('admin.supplier')
+    ->except(['create', 'show', 'edit']);
+
 // Route untuk halaman Data Customer
-Route::get('/admin/master-data/customer', [CustomerController::class, 'index'])->name('admin.customer.index');
+Route::get('admin/master-data/customer/export-pdf', [CustomerController::class, 'exportPdf'])->name('admin.customer.export-pdf');
+Route::post('admin/master-data/customer/import-excel', [CustomerController::class, 'importExcel'])->name('admin.customer.import-excel');
+
+Route::resource('admin/master-data/customer', CustomerController::class)
+    ->names('admin.customer')
+    ->except(['create', 'show', 'edit']);
+
 // Route untuk halaman Stok In/Out
-Route::get('/admin/master-data/stok', [StokController::class, 'index'])->name('admin.stok.index');
+Route::resource('admin/master-data/stok', StokController::class)
+    ->names('admin.stok')
+    ->except(['create', 'show', 'edit', 'update']);
 
 // Route untuk halaman Entry Penjualan
 Route::get('/admin/transaksi/entry-penjualan', [TransaksiController::class, 'entryPenjualan'])->name('admin.transaksi.entry-penjualan');

@@ -11,9 +11,9 @@
     .card-animasi-2 { animation: slideUpFade 0.8s ease-out 0.3s both; }
 </style>
 
-<div x-data="{ modalTambah: false }" class="space-y-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
+<div x-data="{ modalTambah: false }" class="animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
     
-    <div class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+    <div class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 p-6 md:p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 md:mb-10">Laba Rugi</h2>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <h3 class="text-3xl font-medium text-gray-500">Saldo</h3>

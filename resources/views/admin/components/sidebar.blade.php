@@ -105,7 +105,7 @@
                 </div>
             </button>
 
-            <div x-show="openMasterData" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openMasterData" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-out duration-300"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
@@ -174,7 +174,7 @@
                 </div>
             </button>
 
-            <div x-show="openTransaksi" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openTransaksi" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-out duration-300"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
@@ -232,7 +232,7 @@
                 </div>
             </button>
 
-            <div x-show="openProduksi" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openProduksi" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-out duration-300"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
@@ -286,7 +286,7 @@
                 </div>
             </button>
 
-            <div x-show="openKeuangan" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openKeuangan" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-out duration-300"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
@@ -341,8 +341,10 @@
                 </div>
             </button>
 
-            <div x-show="openKonten" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openKonten" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-out duration-300"
+                x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
 
@@ -395,7 +397,7 @@
                 </div>
             </button>
 
-            <div x-show="openLaporan" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openLaporan" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-out duration-300"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
@@ -454,7 +456,7 @@
                 </div>
             </button>
 
-            <div x-show="openUser" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openUser" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-out duration-300"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
@@ -528,7 +530,7 @@
                 </div>
             </button>
 
-            <div x-show="openTools" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openTools" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-out duration-300"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
@@ -562,3 +564,77 @@
 
     </nav>
 </aside>
+
+<!-- ======================================================== -->
+<!-- SCRIPT UNTUK FITUR REAL-TIME SEARCH MENU SIDEBAR         -->
+<!-- ======================================================== -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Menangkap elemen input pencarian (menggunakan placeholder karena tidak ada atribut ID)
+        const searchInput = document.querySelector('input[placeholder="Cari Menu ..."]');
+        
+        // 2. Menangkap elemen <nav> yang membungkus semua menu
+        const nav = document.querySelector('nav');
+        
+        // 3. Menangkap semua menu utama (anak langsung dari <nav>). 
+        // <a> untuk single link (Dashboard, Grafik), <div> untuk dropdown (Master Data, dll)
+        const navElements = Array.from(nav.children);
+
+        // 4. Event Listener setiap kali user mengetik
+        searchInput.addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase();
+
+            navElements.forEach(item => {
+                
+                // JIKA MENU ADALAH SINGLE LINK (Contoh: Dashboard, Grafik)
+                if (item.tagName.toLowerCase() === 'a') {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(keyword)) {
+                        item.style.display = ''; // Munculkan
+                    } else {
+                        item.style.display = 'none'; // Sembunyikan
+                    }
+                } 
+                // JIKA MENU ADALAH DROPDOWN GROUP (Contoh: Master Data, Transaksi, dll)
+                else if (item.tagName.toLowerCase() === 'div') {
+                    const parentBtn = item.querySelector('button');
+                    if (!parentBtn) return; // Skip jika bukan grup dropdown
+
+                    const parentText = parentBtn.textContent.toLowerCase();
+                    const subContainer = item.querySelector('div[x-show]');
+                    const subLinks = subContainer.querySelectorAll('a');
+                    
+                    let hasVisibleSub = false;
+
+                    // Cek satu-satu sub-menu di dalamnya
+                    subLinks.forEach(sub => {
+                        const subText = sub.textContent.toLowerCase();
+                        // Tampilkan sub-menu jika namanya cocok dengan ketikan, 
+                        // ATAU jika nama parent-nya yang dicari (maka tampilkan semua sub)
+                        if (subText.includes(keyword) || parentText.includes(keyword)) {
+                            sub.style.display = ''; 
+                            hasVisibleSub = true;
+                        } else {
+                            sub.style.display = 'none'; 
+                        }
+                    });
+
+                    // Tampilkan grup parent jika ada sub-menu yang cocok atau parent-nya cocok
+                    if (hasVisibleSub || parentText.includes(keyword)) {
+                        item.style.display = ''; 
+                        
+                        // BUKA PAKSA dropdown jika ada kata kunci yang diketik
+                        if (keyword !== '') {
+                            subContainer.style.display = 'block';
+                        } else {
+                            // Jika input dihapus/kosong, hapus override agar kembali diatur oleh Alpine.js
+                            subContainer.style.display = ''; 
+                        }
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
+</script>

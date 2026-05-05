@@ -98,13 +98,13 @@
         </div>
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Grafik Pendapatan Bulan Ini</h3>
-            <div class="relative h-64 w-full">
+            <div class="relative h-80 w-full">
                 <canvas id="lineChart"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="card-animasi-4grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card-animasi-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Grafik Kategori Produk</h3>
             <div class="relative h-64 w-full">
