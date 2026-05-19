@@ -15,7 +15,7 @@
                 <img src="https://ui-avatars.com/api/?name={{ Auth::user()->name ?? 'Dadang' }}&background=E65C00&color=fff" alt="Profile" class="h-9 w-9 rounded-full object-cover border-2 border-white shadow-sm transition-transform group-hover:scale-105">
                 <div class="hidden sm:block text-right">
                     <p class="text-sm font-bold text-gray-800 leading-tight">{{ Auth::user()->name ?? 'Dadang' }}</p>
-                    <p class="text-xs text-gray-500">Administrator</p>
+                    <p class="text-xs text-gray-500">{{ Auth::user()->role->nama ?? 'Super Admin' }}</p>
                 </div>
                 <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-1 transition-transform duration-300" :class="profileOpen ? 'rotate-180' : ''"></i>
             </div>

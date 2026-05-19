@@ -181,12 +181,18 @@ Route::post('/admin/laporan/hutang/export', [LaporanController::class, 'exportHu
 Route::get('/admin/laporan/piutang', [LaporanController::class, 'laporanPiutang'])->name('admin.laporan.piutang');
 Route::post('/admin/laporan/piutang/export', [LaporanController::class, 'exportPiutang'])->name('admin.laporan.piutang.export');
 
-// Route untuk halaman Manajemen Role
+// Route untuk halaman Manajemen Role (CRUD)
 Route::get('/admin/user/role', [UserController::class, 'role'])->name('admin.user.role');
+Route::post('/admin/user/role', [UserController::class, 'storeRole'])->name('admin.user.role.store');
+Route::put('/admin/user/role/{id}', [UserController::class, 'updateRole'])->name('admin.user.role.update');
+Route::delete('/admin/user/role/{id}', [UserController::class, 'destroyRole'])->name('admin.user.role.destroy');
 // Route untuk halaman Histori Pengguna
 Route::get('/admin/user/histori', [UserController::class, 'histori'])->name('admin.user.histori');
-//Route untuk halaman Manajemen Pengguna
+// Route untuk halaman Manajemen Pengguna (CRUD)
 Route::get('/admin/user/pengguna', [UserController::class, 'pengguna'])->name('admin.user.pengguna');
+Route::post('/admin/user/pengguna', [UserController::class, 'storePengguna'])->name('admin.user.pengguna.store');
+Route::put('/admin/user/pengguna/{id}', [UserController::class, 'updatePengguna'])->name('admin.user.pengguna.update');
+Route::delete('/admin/user/pengguna/{id}', [UserController::class, 'destroyPengguna'])->name('admin.user.pengguna.destroy');
 
 // Route untuk halaman Grafik
 Route::get('/admin/grafik', [GrafikController::class, 'index'])->name('admin.grafik.index');
