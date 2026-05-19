@@ -138,12 +138,24 @@ Route::prefix('admin/keuangan')->name('admin.keuangan.')->group(function () {
 
 // Route untuk halaman Mitra
 Route::get('/admin/konten/mitra', [KontenController::class, 'mitra'])->name('admin.konten.mitra');
+Route::post('/admin/konten/mitra', [KontenController::class, 'storeMitra'])->name('admin.konten.mitra.store');
+Route::put('/admin/konten/mitra/{id}', [KontenController::class, 'updateMitra'])->name('admin.konten.mitra.update');
+Route::delete('/admin/konten/mitra/{id}', [KontenController::class, 'destroyMitra'])->name('admin.konten.mitra.destroy');
 // Route untuk halaman Produk
 Route::get('/admin/konten/produk', [KontenController::class, 'produk'])->name('admin.konten.produk');
+Route::post('/admin/konten/produk', [KontenController::class, 'storeProduk'])->name('admin.konten.produk.store');
+Route::put('/admin/konten/produk/{id}', [KontenController::class, 'updateProduk'])->name('admin.konten.produk.update');
+Route::delete('/admin/konten/produk/{id}', [KontenController::class, 'destroyProduk'])->name('admin.konten.produk.destroy');
 // Route untuk halaman Portofolio
 Route::get('/admin/konten/portofolio', [KontenController::class, 'portofolio'])->name('admin.konten.portofolio');
+Route::post('/admin/konten/portofolio', [KontenController::class, 'storePortofolio'])->name('admin.konten.portofolio.store');
+Route::put('/admin/konten/portofolio/{id}', [KontenController::class, 'updatePortofolio'])->name('admin.konten.portofolio.update');
+Route::delete('/admin/konten/portofolio/{id}', [KontenController::class, 'destroyPortofolio'])->name('admin.konten.portofolio.destroy');
 // Route untuk halaman Testimoni
 Route::get('/admin/konten/testimoni', [KontenController::class, 'testimoni'])->name('admin.konten.testimoni');
+Route::post('/admin/konten/testimoni', [KontenController::class, 'storeTestimoni'])->name('admin.konten.testimoni.store');
+Route::put('/admin/konten/testimoni/{id}', [KontenController::class, 'updateTestimoni'])->name('admin.konten.testimoni.update');
+Route::delete('/admin/konten/testimoni/{id}', [KontenController::class, 'destroyTestimoni'])->name('admin.konten.testimoni.destroy');
 
 // Route untuk halaman Laporan Barang
 Route::get('/admin/laporan/barang', [LaporanController::class, 'laporanBarang'])->name('admin.laporan.barang');
@@ -183,3 +195,4 @@ Route::get('/admin/grafik', [GrafikController::class, 'index'])->name('admin.gra
 Route::get('/admin/tools/generate-barcode', [ToolsController::class, 'generateBarcode'])->name('admin.tools.generate-barcode');
 //Route untuk halaman Backup Data
 Route::get('/admin/tools/backup-data', [ToolsController::class, 'backupData'])->name('admin.tools.backup-data');
+Route::post('/admin/tools/backup-data/process', [ToolsController::class, 'processBackup'])->name('admin.tools.backup-data.process');

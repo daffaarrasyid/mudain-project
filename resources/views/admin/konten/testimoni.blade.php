@@ -2,7 +2,30 @@
 
 @section('content')
 
-    <div x-data="{ modalTambah: false, modalEdit: false, modalHapus: false }"
+    @if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" class="mb-4 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl flex items-center justify-between">
+        <div class="flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> <span>{{ session('success') }}</span></div>
+        <button @click="show = false"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    @endif
+
+    @if ($errors->any())
+    <div class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl shadow-sm">
+        <div class="flex items-center gap-2 font-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Gagal Menyimpan!</div>
+        <ul class="list-disc list-inside text-sm ml-5">
+            @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+        </ul>
+    </div>
+    @endif
+    
+    <div x-data="{ 
+            modalTambah: false, 
+            modalEdit: false, 
+            modalHapus: false,
+            editAction: '',
+            hapusAction: '',
+            form: { nama: '', jabatan: '', testimoni: '', rating: 5 }
+        }"
         class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -15,12 +38,6 @@
             </div>
 
             <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                <div class="flex items-center gap-2 text-sm text-gray-500">
-                    <span>Tampilkan</span>
-                    <select class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg px-3 py-2 outline-none">
-                        <option>10</option>
-                    </select>
-                </div>
                 <div class="relative w-full sm:w-64">
                     <input type="text" placeholder="Cari..."
                         class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00]">
@@ -29,7 +46,6 @@
                 </div>
             </div>
         </div>
-
 
         <div class="w-full overflow-x-auto custom-scrollbar rounded-xl border border-gray-50">
             <table class="w-full text-left border-collapse whitespace-nowrap min-w-[900px]">
@@ -44,54 +60,49 @@
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-600">
+                    @forelse($testimonis as $item)
                     <tr class="border-b border-gray-50 hover:bg-orange-50/40 transition-colors">
                         <td class="px-6 py-4">
-                            <div
-                                class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xl border-2 border-white shadow-sm">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
+                            @if($item->foto_profil)
+                                <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                                    <img src="{{ asset('storage/' . $item->foto_profil) }}" class="w-full h-full object-cover">
+                                </div>
+                            @else
+                                <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xl border-2 border-white shadow-sm">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            @endif
                         </td>
-                        <td class="px-6 py-4 font-bold text-gray-800">Budi Santoso</td>
-                        <td class="px-6 py-4 text-gray-500">Ketua OSIS SMAN 1</td>
+                        <td class="px-6 py-4 font-bold text-gray-800">{{ $item->nama_customer }}</td>
+                        <td class="px-6 py-4 text-gray-500">{{ $item->jabatan ?? '-' }}</td>
                         <td class="px-6 py-4 text-center text-gray-500 text-s">
-                            <i class="fa-solid fa-star text-yellow-400"></i> 5
+                            <i class="fa-solid fa-star text-yellow-400"></i> {{ $item->rating }}
                         </td>
                         <td class="px-6 py-4">
-                            <p class="truncate max-w-[250px] italic text-gray-500">"Hasil jahitan rapi banget, mantap
-                                deh pokoknya!"</p>
+                            <p class="truncate max-w-[250px] italic text-gray-500">"{{ $item->testimoni }}"</p>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <div class="flex flex-col gap-1.5 items-center justify-center">
-                                <button @click="modalEdit = true"
-                                    class="bg-[#38BDF8] text-white px-4 py-1 rounded w-16 text-[11px] font-semibold">Edit</button>
-                                <button @click="modalHapus = true"
-                                    class="bg-[#EF4444] text-white px-4 py-1 rounded w-16 text-[11px] font-semibold">Hapus</button>
+                                <button @click="modalEdit = true; editAction = '{{ route('admin.konten.testimoni.update', $item->id) }}'; form.nama = '{{ addslashes($item->nama_customer) }}'; form.jabatan = '{{ addslashes($item->jabatan) }}'; form.testimoni = '{{ addslashes($item->testimoni) }}'; form.rating = {{ $item->rating }};"
+                                    class="bg-[#38BDF8] text-white px-4 py-1 rounded w-16 text-[11px] font-semibold hover:bg-[#0284C7] transition-colors">Edit</button>
+                                <button @click="modalHapus = true; hapusAction = '{{ route('admin.konten.testimoni.destroy', $item->id) }}'"
+                                    class="bg-[#EF4444] text-white px-4 py-1 rounded w-16 text-[11px] font-semibold hover:bg-[#B91C1C] transition-colors">Hapus</button>
                             </div>
                         </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-400 italic">Belum ada data testimoni.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-between mt-6 text-sm text-gray-500 gap-4">
-            <div>Menampilkan 1 sampai 6 dari 87 data</div>
+            <div>Menampilkan {{ $testimonis->firstItem() ?? 0 }} sampai {{ $testimonis->lastItem() ?? 0 }} dari {{ $testimonis->total() }} data</div>
             <div class="flex gap-1">
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-gray-100 transition-colors"><i
-                        class="fa-solid fa-chevron-left text-xs"></i></button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">1</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">2</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">3</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">4</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">5</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-gray-100 transition-colors"><i
-                        class="fa-solid fa-chevron-right text-xs"></i></button>
+                {{ $testimonis->links('pagination::tailwind') }}
             </div>
         </div>
 
@@ -105,24 +116,26 @@
                         class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
 
-                <form action="#" method="POST" class="space-y-4">
+                <form action="{{ route('admin.konten.testimoni.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    @csrf
                     <div class="flex items-center gap-4">
-                        <div
-                            class="w-14 h-14 bg-gray-100 rounded-full flex shrink-0 items-center justify-center text-gray-400 text-2xl border border-gray-200">
+                        <div class="w-14 h-14 bg-gray-100 rounded-full flex shrink-0 items-center justify-center text-gray-400 text-2xl border border-gray-200">
                             <i class="fa-solid fa-user"></i>
                         </div>
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Foto Profil (Opsional)</label>
-                            <input type="file" accept="image/*"
+                            <input type="file" name="foto_profil" accept="image/*"
                                 class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-[#E65C00] hover:file:bg-orange-100 cursor-pointer border border-gray-200 rounded-xl bg-gray-50 outline-none">
                         </div>
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer</label><input
-                            type="text" required
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer <span class="text-red-500">*</span></label>
+                        <input type="text" name="nama_customer" required
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Status / Jabatan</label><input
-                            type="text" placeholder="Cth: Mahasiswa, CEO..."
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status / Jabatan (Opsional)</label>
+                        <input type="text" name="jabatan" placeholder="Cth: Mahasiswa, CEO..."
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
                     </div>
 
@@ -133,8 +146,7 @@
                                 <button type="button" @click="rating = i" @mouseenter="hoverRating = i"
                                     @mouseleave="hoverRating = 0"
                                     class="text-3xl transition-colors duration-150 focus:outline-none"
-                                    :class="(hoverRating >= i || (!hoverRating && rating >= i)) ?
-                                    'text-yellow-400 scale-110' : 'text-gray-300'">
+                                    :class="(hoverRating >= i || (!hoverRating && rating >= i)) ? 'text-yellow-400 scale-110' : 'text-gray-300'">
                                     <i class="fa-solid fa-star"></i>
                                 </button>
                             </template>
@@ -142,14 +154,16 @@
                         <input type="hidden" name="rating" :value="rating">
                     </div>
 
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Isi Testimoni</label>
-                        <textarea rows="3" required
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Isi Testimoni <span class="text-red-500">*</span></label>
+                        <textarea name="testimoni" rows="3" required
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]"></textarea>
                     </div>
 
-                    <div class="flex justify-end gap-3 pt-4 border-t"><button type="button" @click="modalTambah = false"
-                            class="px-5 py-2.5 bg-gray-100 font-medium rounded-xl">Batal</button><button type="submit"
-                            class="px-5 py-2.5 bg-[#E65C00] font-medium text-white rounded-xl">Simpan</button></div>
+                    <div class="flex justify-end gap-3 pt-4 border-t">
+                        <button type="button" @click="modalTambah = false" class="px-5 py-2.5 bg-gray-100 font-medium rounded-xl text-gray-700">Batal</button>
+                        <button type="submit" class="px-5 py-2.5 bg-[#E65C00] font-medium text-white rounded-xl">Simpan</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -164,53 +178,51 @@
                         class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
 
-                <form action="#" method="POST" class="space-y-4">
+                <form :action="editAction" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf @method('PUT')
                     <div class="flex items-center gap-4">
-                        <div
-                            class="w-14 h-14 bg-gray-100 rounded-full flex shrink-0 items-center justify-center text-gray-400 text-2xl border border-gray-200">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
                         <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Update Profil
-                                (Opsional)</label>
-                            <input type="file" accept="image/*"
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Update Profil (Opsional)</label>
+                            <input type="file" name="foto_profil" accept="image/*"
                                 class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-[#E65C00] hover:file:bg-orange-100 cursor-pointer border border-gray-200 rounded-xl bg-gray-50 outline-none">
                         </div>
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer</label><input
-                            type="text" value="Budi Santoso"
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer</label>
+                        <input type="text" name="nama_customer" x-model="form.nama" required
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Status / Jabatan</label><input
-                            type="text" value="Ketua OSIS SMAN 1"
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status / Jabatan</label>
+                        <input type="text" name="jabatan" x-model="form.jabatan"
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
                     </div>
 
-                    <div x-data="{ rating: 5, hoverRating: 0 }">
+                    <div x-data="{ hoverRating: 0 }">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Rating Kepuasan</label>
                         <div class="flex gap-2">
                             <template x-for="i in 5">
-                                <button type="button" @click="rating = i" @mouseenter="hoverRating = i"
+                                <button type="button" @click="form.rating = i" @mouseenter="hoverRating = i"
                                     @mouseleave="hoverRating = 0"
                                     class="text-3xl transition-colors duration-150 focus:outline-none"
-                                    :class="(hoverRating >= i || (!hoverRating && rating >= i)) ?
-                                    'text-yellow-400 scale-110' : 'text-gray-300'"><i
-                                        class="fa-solid fa-star"></i></button>
+                                    :class="(hoverRating >= i || (!hoverRating && form.rating >= i)) ? 'text-yellow-400 scale-110' : 'text-gray-300'">
+                                    <i class="fa-solid fa-star"></i>
+                                </button>
                             </template>
                         </div>
-                        <input type="hidden" name="rating" :value="rating">
+                        <input type="hidden" name="rating" :value="form.rating">
                     </div>
 
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Isi Testimoni</label>
-                        <textarea rows="3"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">"Hasil jahitan rapi banget, mantap deh pokoknya!"</textarea>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Isi Testimoni</label>
+                        <textarea name="testimoni" x-model="form.testimoni" rows="3" required
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]"></textarea>
                     </div>
 
-                    <div class="flex justify-end gap-3 pt-4 border-t"><button type="button" @click="modalEdit = false"
-                            class="px-5 py-2.5 bg-gray-100 font-medium rounded-xl">Batal</button><button type="submit"
-                            class="px-5 py-2.5 bg-[#38BDF8] font-medium text-white shadow-lg shadow-blue-500/30 rounded-xl">Simpan
-                            Update</button></div>
+                    <div class="flex justify-end gap-3 pt-4 border-t">
+                        <button type="button" @click="modalEdit = false" class="px-5 py-2.5 bg-gray-100 font-medium text-gray-700 rounded-xl">Batal</button>
+                        <button type="submit" class="px-5 py-2.5 bg-[#38BDF8] font-medium text-white shadow-lg shadow-blue-500/30 rounded-xl">Simpan Update</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -223,12 +235,12 @@
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-5"><i
                         class="fa-solid fa-triangle-exclamation text-3xl text-red-500"></i></div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">Hapus Testimoni?</h3>
-                <p class="text-sm text-gray-500 mb-6">Yakin ingin menghapus testimoni dari Budi Santoso?</p>
+                <p class="text-sm text-gray-500 mb-6">Yakin ingin menghapus testimoni dari katalog?</p>
                 <div class="flex gap-3 justify-center">
-                    <button @click="modalHapus = false"
-                        class="px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl">Batal</button>
-                    <form action="#" method="POST">@csrf @method('DELETE')<button type="submit"
-                            class="px-6 py-2.5 bg-red-500 text-white font-medium rounded-xl shadow-lg shadow-red-500/30">Hapus</button>
+                    <button @click="modalHapus = false" class="px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl">Batal</button>
+                    <form :action="hapusAction" method="POST">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="px-6 py-2.5 bg-red-500 text-white font-medium rounded-xl shadow-lg shadow-red-500/30">Hapus</button>
                     </form>
                 </div>
             </div>
