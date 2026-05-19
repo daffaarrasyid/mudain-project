@@ -13,37 +13,47 @@
 
 <div class="max-w-5xl mx-auto space-y-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
     
+    @if ($errors->any())
+    <div class="card-animasi-1 bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl shadow-sm">
+        <div class="flex items-center gap-2 font-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Gagal Export!</div>
+        <ul class="list-disc list-inside text-sm ml-5">
+            @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+        </ul>
+    </div>
+    @endif
+
     <div class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h2 class="text-2xl font-bold text-gray-800">Laporan Hutang</h2>
     </div>
 
     <div class="card-animasi-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
         
-        <form action="#" method="POST" class="space-y-6">
+        <form action="{{ route('admin.laporan.hutang.export') }}" method="POST" target="_blank" class="space-y-6">
             @csrf
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Tanggal Awal</label>
-                    <input type="date" required 
+                    <input type="date" name="tanggal_awal" required 
                            class="w-full bg-gray-50 border border-transparent text-gray-700 text-sm rounded-xl px-4 py-3.5 focus:bg-white focus:border-[#E65C00] focus:ring-2 focus:ring-[#E65C00]/20 transition-all outline-none cursor-pointer appearance-none">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Tanggal Akhir</label>
-                    <input type="date" required 
+                    <input type="date" name="tanggal_akhir" required 
                            class="w-full bg-gray-50 border border-transparent text-gray-700 text-sm rounded-xl px-4 py-3.5 focus:bg-white focus:border-[#E65C00] focus:ring-2 focus:ring-[#E65C00]/20 transition-all outline-none cursor-pointer appearance-none">
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Jenis</label>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Filter Supplier</label>
                 <div class="relative">
-                    <select required 
+                    <select name="supplier_id" required 
                             class="w-full bg-gray-50 border border-transparent text-gray-700 text-sm rounded-xl px-4 py-3.5 focus:bg-white focus:border-[#E65C00] focus:ring-2 focus:ring-[#E65C00]/20 transition-all outline-none cursor-pointer appearance-none">
-                        <option value="Semua" selected>Semua Customer</option>
-                        <option value="Masuk">Customer A</option>
-                        <option value="Keluar">Customer B</option>
+                        <option value="Semua" selected>Semua Supplier</option>
+                        @foreach($suppliers as $sup)
+                            <option value="{{ $sup->id }}">{{ $sup->nama_supplier }}</option>
+                        @endforeach
                     </select>
                     <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                         <i class="fa-solid fa-chevron-down text-sm"></i>

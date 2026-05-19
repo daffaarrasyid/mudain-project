@@ -151,6 +151,90 @@ class LaporanController extends Controller
         return view ('admin.laporan.keuangan');
     }
 
+    // 1. FUNGSI EXPORT KAS (PDF)
+    public function exportKas(Request $request)
+    {
+        $request->validate(['tanggal_awal' => 'required|date', 'tanggal_akhir' => 'required|date']);
+        $awal = $request->tanggal_awal . ' 00:00:00';
+        $akhir = $request->tanggal_akhir . ' 23:59:59';
+
+        $kas = \App\Models\Kas::with('user')->whereBetween('created_at', [$awal, $akhir])->orderBy('created_at', 'asc')->get();
+
+        $totalMasuk = $kas->where('tipe', 'Masuk')->sum('nominal');
+        $totalKeluar = $kas->where('tipe', 'Keluar')->sum('nominal');
+        $saldo = $totalMasuk - $totalKeluar;
+
+        $pdf = Pdf::loadView('admin.laporan.pdf-kas', compact('kas', 'totalMasuk', 'totalKeluar', 'saldo', 'request'));
+        ob_clean();
+        return $pdf->stream('Laporan_Kas_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.pdf');
+    }
+
+    // 2. FUNGSI EXPORT LABA KOTOR (CSV/Excel) -> (Penjualan vs Pembelian Stok)
+    public function exportLabaKotor(Request $request)
+    {
+        $request->validate(['tanggal_awal' => 'required|date', 'tanggal_akhir' => 'required|date']);
+        $awal = $request->tanggal_awal . ' 00:00:00';
+        $akhir = $request->tanggal_akhir . ' 23:59:59';
+
+        // Laba Kotor biasanya cuma ngitung transaksi Penjualan (Masuk) & Pembelian Stok (Keluar)
+        $transaksi = \App\Models\Kas::whereIn('jenis', ['Penjualan', 'Pembelian'])
+                        ->whereBetween('created_at', [$awal, $akhir])->orderBy('created_at', 'asc')->get();
+
+        $namaFile = 'Laba_Kotor_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.csv';
+        $headers = ["Content-type" => "text/csv", "Content-Disposition" => "attachment; filename=$namaFile", "Pragma" => "no-cache"];
+
+        $callback = function() use($transaksi) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Tanggal', 'No Referensi', 'Kategori', 'Tipe', 'Pendapatan (Masuk)', 'HPP/Pembelian (Keluar)']);
+            
+            $totalPendapatan = 0; $totalHPP = 0;
+
+            foreach ($transaksi as $trx) {
+                $masuk = $trx->tipe == 'Masuk' ? $trx->nominal : 0;
+                $keluar = $trx->tipe == 'Keluar' ? $trx->nominal : 0;
+                $totalPendapatan += $masuk; $totalHPP += $keluar;
+
+                fputcsv($file, [$trx->created_at->format('d/m/Y H:i'), $trx->kode_kas, $trx->jenis, $trx->tipe, $masuk, $keluar]);
+            }
+            fputcsv($file, ['', '', '', 'TOTAL', $totalPendapatan, $totalHPP]);
+            fputcsv($file, ['', '', '', 'LABA KOTOR', $totalPendapatan - $totalHPP, '']);
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // 3. FUNGSI EXPORT LABA BERSIH (CSV/Excel) -> (Semua Masuk vs Semua Keluar)
+    public function exportLabaBersih(Request $request)
+    {
+        $request->validate(['tanggal_awal' => 'required|date', 'tanggal_akhir' => 'required|date']);
+        $awal = $request->tanggal_awal . ' 00:00:00';
+        $akhir = $request->tanggal_akhir . ' 23:59:59';
+
+        $transaksi = \App\Models\Kas::whereBetween('created_at', [$awal, $akhir])->orderBy('created_at', 'asc')->get();
+
+        $namaFile = 'Laba_Bersih_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.csv';
+        $headers = ["Content-type" => "text/csv", "Content-Disposition" => "attachment; filename=$namaFile", "Pragma" => "no-cache"];
+
+        $callback = function() use($transaksi) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Tanggal', 'No Referensi', 'Kategori', 'Keterangan', 'Tipe', 'Pemasukan', 'Pengeluaran']);
+            
+            $totalMasuk = 0; $totalKeluar = 0;
+
+            foreach ($transaksi as $trx) {
+                $masuk = $trx->tipe == 'Masuk' ? $trx->nominal : 0;
+                $keluar = $trx->tipe == 'Keluar' ? $trx->nominal : 0;
+                $totalMasuk += $masuk; $totalKeluar += $keluar;
+
+                fputcsv($file, [$trx->created_at->format('d/m/Y H:i'), $trx->kode_kas, $trx->jenis, $trx->keterangan, $trx->tipe, $masuk, $keluar]);
+            }
+            fputcsv($file, ['', '', '', '', 'TOTAL', $totalMasuk, $totalKeluar]);
+            fputcsv($file, ['', '', '', '', 'LABA BERSIH', $totalMasuk - $totalKeluar, '']);
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
 
     // Fungsi untuk menampilkan halaman Laporan Stok In/Out
     public function laporanStok()
@@ -158,15 +242,121 @@ class LaporanController extends Controller
         return view('admin.laporan.stok');
     }
 
-    // Fungsi untuk menampilkan halaman Laporan Hutang
-    public function laporanHutang()
+    // FUNGSI BARU: Export PDF Laporan Stok
+    public function exportStok(Request $request)
     {
-        return view('admin.laporan.hutang');
+        // 1. Validasi Input Form
+        $request->validate([
+            'tanggal_awal' => 'required|date',
+            'tanggal_akhir' => 'required|date|after_or_equal:tanggal_awal',
+            'jenis' => 'required|in:Semua,Masuk,Keluar'
+        ]);
+
+        $awal = $request->tanggal_awal . ' 00:00:00';
+        $akhir = $request->tanggal_akhir . ' 23:59:59';
+
+        // 2. Tarik Data Stok (Asumsi Model bernama RiwayatStok)
+        $query = \App\Models\Stok::with(['produk', 'user'])
+                    ->whereBetween('created_at', [$awal, $akhir]);
+
+        // 3. Filter berdasarkan Jenis (Jika bukan 'Semua')
+        if ($request->jenis != 'Semua') {
+            $query->where('jenis', $request->jenis);
+        }
+
+        $riwayat = $query->orderBy('created_at', 'asc')->get();
+
+        // 4. Render ke PDF
+        $pdf = Pdf::loadView('admin.laporan.pdf-stok', compact('riwayat', 'request'));
+        
+        ob_clean();
+        
+        return $pdf->stream('Laporan_Stok_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.pdf');
     }
 
-    // Fungsi untuk menampilkan halaman Laporan Piutang
+    // Update fungsi ini untuk melempar data Supplier ke dropdown
+    public function laporanHutang()
+    {
+        $suppliers = \App\Models\Supplier::all();
+        return view('admin.laporan.hutang', compact('suppliers'));
+    }
+
+    // FUNGSI BARU: Export PDF Laporan Hutang
+    public function exportHutang(Request $request)
+    {
+        $request->validate([
+            'tanggal_awal' => 'required|date',
+            'tanggal_akhir' => 'required|date|after_or_equal:tanggal_awal',
+            'supplier_id' => 'required'
+        ]);
+
+        $awal = $request->tanggal_awal . ' 00:00:00';
+        $akhir = $request->tanggal_akhir . ' 23:59:59';
+
+        // Tarik data pembelian yang ngutang (Kredit / Belum Lunas)
+        $query = \App\Models\Pembelian::with(['supplier', 'user'])
+                    ->whereIn('status_pembayaran', ['Hutang', 'Belum Lunas'])
+                    ->whereBetween('created_at', [$awal, $akhir]);
+
+        // Filter jika spesifik 1 supplier
+        if ($request->supplier_id != 'Semua') {
+            $query->where('supplier_id', $request->supplier_id);
+        }
+
+        $hutangs = $query->orderBy('created_at', 'asc')->get();
+
+        // Hitung Total Hutang (Total Harga Pembelian - Uang yang sudah dibayar)
+        $totalHutang = $hutangs->sum(function ($item) {
+            return $item->total_harga - $item->bayar;
+        });
+
+        $pdf = Pdf::loadView('admin.laporan.pdf-hutang', compact('hutangs', 'totalHutang', 'request'));
+        
+        ob_clean();
+        return $pdf->stream('Laporan_Hutang_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.pdf');
+    }
+
+    // Update fungsi ini untuk melempar data Customer ke dropdown
     public function laporanPiutang()
     {
-        return view('admin.laporan.piutang');
+        $customers = \App\Models\Customer::all();
+        return view('admin.laporan.piutang', compact('customers'));
+    }
+
+    // FUNGSI BARU: Export PDF Laporan Piutang
+    public function exportPiutang(Request $request)
+    {
+        // 1. Validasi
+        $request->validate([
+            'tanggal_awal' => 'required|date',
+            'tanggal_akhir' => 'required|date|after_or_equal:tanggal_awal',
+            'customer_id' => 'required'
+        ]);
+
+        $awal = $request->tanggal_awal . ' 00:00:00';
+        $akhir = $request->tanggal_akhir . ' 23:59:59';
+
+        // 2. Tarik data PENJUALAN yang masih Kredit
+        $query = Penjualan::with(['customer', 'user'])
+                    ->whereIn('status_pembayaran', ['Kredit', 'Belum Lunas'])
+                    ->whereBetween('created_at', [$awal, $akhir]);
+
+        // 3. Filter spesifik 1 customer jika dipilih
+        if ($request->customer_id != 'Semua') {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        $piutangs = $query->orderBy('created_at', 'asc')->get();
+
+        // 4. Hitung Total Piutang (Total Harga Penjualan - Uang yang sudah dibayar Customer)
+        $totalPiutang = $piutangs->sum(function ($item) {
+            return $item->total_harga - $item->bayar;
+        });
+
+        // 5. Render PDF
+        $pdf = Pdf::loadView('admin.laporan.pdf-piutang', compact('piutangs', 'totalPiutang', 'request'));
+        
+        ob_clean();
+        return $pdf->stream('Laporan_Piutang_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.pdf');
     }
 }

@@ -156,12 +156,18 @@ Route::get('/admin/laporan/pembelian', [LaporanController::class, 'laporanPembel
 Route::post('/admin/laporan/pembelian/export', [LaporanController::class, 'exportPembelian'])->name('admin.laporan.pembelian.export');
 // Route untuk halaman Laporan Keuangan (Kas dan Laba Rugi)
 Route::get('/admin/laporan/laba-rugi', [LaporanController::class, 'laporanKeuangan'])->name('admin.laporan.keuangan');
+Route::post('/admin/laporan/kas/export', [LaporanController::class, 'exportKas'])->name('admin.laporan.kas.export');
+Route::post('/admin/laporan/laba-kotor/export', [LaporanController::class, 'exportLabaKotor'])->name('admin.laporan.laba-kotor.export');
+Route::post('/admin/laporan/laba-bersih/export', [LaporanController::class, 'exportLabaBersih'])->name('admin.laporan.laba-bersih.export');
 // Route untuk halaman Laporan Stok In/Out
 Route::get('/admin/laporan/stok', [LaporanController::class, 'laporanStok'])->name('admin.laporan.stok');
+Route::post('/admin/laporan/stok/export', [LaporanController::class, 'exportStok'])->name('admin.laporan.stok.export');
 // Route untuk halaman Laporan Hutang
 Route::get('/admin/laporan/hutang', [LaporanController::class, 'laporanHutang'])->name('admin.laporan.hutang');
+Route::post('/admin/laporan/hutang/export', [LaporanController::class, 'exportHutang'])->name('admin.laporan.hutang.export');
 // Route untuk halaman Laporan Piutang
 Route::get('/admin/laporan/piutang', [LaporanController::class, 'laporanPiutang'])->name('admin.laporan.piutang');
+Route::post('/admin/laporan/piutang/export', [LaporanController::class, 'exportPiutang'])->name('admin.laporan.piutang.export');
 
 // Route untuk halaman Manajemen Role
 Route::get('/admin/user/role', [UserController::class, 'role'])->name('admin.user.role');
