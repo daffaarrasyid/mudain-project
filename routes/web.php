@@ -5,10 +5,16 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\KategoriController;
 use App\Http\Controllers\Admin\SatuanController;
+use App\Http\Controllers\Admin\ServisController;
+use App\Http\Controllers\Admin\StafController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\StokController;
 use App\Http\Controllers\Admin\TransaksiController;
+use App\Http\Controllers\Admin\PenjualanController;
+use App\Http\Controllers\Admin\PembelianController;
+use App\Http\Controllers\Admin\HutangController;
+use App\Http\Controllers\Admin\PiutangController;
 use App\Http\Controllers\Admin\ProduksiController;
 use App\Http\Controllers\Admin\KeuanganController;
 use App\Http\Controllers\Admin\KontenController;
@@ -39,7 +45,7 @@ Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('adm
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');
 })->name('dashboard');
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Route untuk halaman master data produk
 Route::post('/admin/master-data/data-produk/import-excel', [ProductController::class, 'importExcel'])->name('admin.data-produk.import-excel');
@@ -56,6 +62,11 @@ Route::resource('admin/master-data/kategori-produk', KategoriController::class)
 Route::resource('admin/master-data/satuan-produk', SatuanController::class)
     ->names('admin.satuan')
     ->except(['create', 'show', 'edit']);
+
+// Route untuk halaman Data Servis
+Route::resource('/admin/master-data/servis', ServisController::class)->names('admin.servis')->except(['create', 'show', 'edit']);
+// Route untuk halaman Data Staf
+Route::resource('/admin/master-data/staf', StafController::class)->names('admin.staf')->except(['create', 'show', 'edit']);
 
 // Route untuk halaman Data Supplier
 Route::get('/admin/master-data/supplier/export-pdf', [SupplierController::class, 'exportPdf'])->name('admin.supplier.export-pdf');
@@ -78,29 +89,52 @@ Route::resource('admin/master-data/stok', StokController::class)
     ->except(['create', 'show', 'edit', 'update']);
 
 // Route untuk halaman Entry Penjualan
-Route::get('/admin/transaksi/entry-penjualan', [TransaksiController::class, 'entryPenjualan'])->name('admin.transaksi.entry-penjualan');
-// Route untuk halaman Daftar Penjualan
-Route::get('/admin/transaksi/daftar-penjualan', [TransaksiController::class, 'daftarPenjualan'])->name('admin.transaksi.daftar-penjualan');
-// Route untuk halaman Entry Pembelian
-Route::get('/admin/transaksi/entry-pembelian', [TransaksiController::class, 'entryPembelian'])->name('admin.transaksi.entry-pembelian');
-// Route untuk halaman Daftar Pembelian
-Route::get('/admin/transaksi/daftar-pembelian', [TransaksiController::class, 'daftarPembelian'])->name('admin.transaksi.daftar-pembelian');
+Route::prefix('admin/transaksi')->name('admin.penjualan.')->group(function () {
+    Route::get('/entry-penjualan', [PenjualanController::class, 'entry'])->name('entry');
+    Route::post('/entry-penjualan', [PenjualanController::class, 'store'])->name('store');
+    Route::get('/daftar-penjualan', [PenjualanController::class, 'daftar'])->name('daftar');
+});
 
-// Route untuk Update Produksi
-Route::get('/admin/produksi/update-produksi', [ProduksiController::class, 'updateProduksi'])->name('admin.produksi.update-produksi');
-// Route untuk Update Desain
-Route::get('/admin/produksi/update-desain', [ProduksiController::class, 'updateDesain'])->name('admin.produksi.update-desain');
+Route::prefix('admin/penjualan')->name('admin.penjualan.')->group(function () {
+    Route::put('/{id}/update-pembayaran', [PenjualanController::class, 'updatePembayaran'])->name('update-pembayaran');
+    Route::delete('/{id}', [PenjualanController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/cetak', [PenjualanController::class, 'cetakInvoice'])->name('cetak');
+});
 
-// Route untuk modul Keuangan
-Route::get('/admin/keuangan/kas', [KeuanganController::class, 'kas'])->name('admin.keuangan.kas');
-// Route untuk halaman Laba Rugi
-Route::get('/admin/keuangan/laba-rugi', [KeuanganController::class, 'labaRugi'])->name('admin.keuangan.laba-rugi');
-// Route untuk halaman Pengeluaran Lainnya
-Route::get('/admin/keuangan/pengeluaran-lainnya', [KeuanganController::class, 'pengeluaranLainnya'])->name('admin.keuangan.pengeluaran-lainnya');
+// Route untuk halaman Pembelian
+Route::prefix('admin/transaksi')->name('admin.pembelian.')->group(function () {
+    Route::get('/entry-pembelian', [PembelianController::class, 'entry'])->name('entry');
+    Route::post('/entry-pembelian', [PembelianController::class, 'store'])->name('store');
+    Route::get('/daftar-pembelian', [PembelianController::class, 'daftar'])->name('daftar');
+    Route::put('/{id}/update-pembayaran', [PembelianController::class, 'updatePembayaran'])->name('update-pembayaran');
+    Route::delete('/{id}', [PembelianController::class, 'destroy'])->name('destroy');
+});
 // Route untuk halaman Hutang
-Route::get('/admin/transaksi/hutang', [TransaksiController::class, 'hutang'])->name('admin.transaksi.hutang');
+Route::get('/admin/transaksi/hutang', [HutangController::class, 'index'])->name('admin.transaksi.hutang');
+Route::put('/admin/transaksi/hutang/{id}/bayar', [HutangController::class, 'bayarCicilan']);
+
 // Route untuk halaman Piutang
-Route::get('/admin/transaksi/piutang', [TransaksiController::class, 'piutang'])->name('admin.transaksi.piutang');
+Route::get('/admin/transaksi/piutang', [PiutangController::class, 'index'])->name('admin.transaksi.piutang');
+// Rute untuk Proses Bayar & Update Piutang
+Route::put('/admin/transaksi/piutang/{id}/bayar', [PiutangController::class, 'bayarCicilan']);
+Route::put('/admin/transaksi/piutang/{id}/update', [PiutangController::class, 'updateMaster']);
+
+Route::get('/admin/produksi/update-produksi', [ProduksiController::class, 'updateProduksi'])->name('admin.produksi.update-produksi');
+Route::put('/admin/produksi/{id}/update-progress', [ProduksiController::class, 'simpanUpdate'])->name('admin.produksi.update-produksi');
+Route::delete('/admin/produksi/{id}/reset-progress', [ProduksiController::class, 'resetUpdate'])->name('admin.produksi.update-produksi');
+
+Route::get('/admin/produksi/update-desain', [ProduksiController::class, 'updateDesain'])->name('admin.produksi.update-desain');
+Route::put('/admin/produksi/{id}/simpan-desain', [ProduksiController::class, 'simpanDesain'])->name('admin.produksi.update-desain');
+Route::delete('/admin/produksi/{id}/hapus-desain', [ProduksiController::class, 'hapusDesain'])->name('admin.produksi.update-desain');
+
+// Route untuk halaman Keuangan (Kas & Laba Rugi)
+Route::prefix('admin/keuangan')->name('admin.keuangan.')->group(function () {
+    Route::get('/kas', [KeuanganController::class, 'kas'])->name('kas');
+    Route::post('/kas', [KeuanganController::class, 'storeKas'])->name('kas.store'); // <-- Tambahan
+    Route::get('/laba-rugi', [KeuanganController::class, 'labaRugi'])->name('laba-rugi');
+    Route::get('/pengeluaran-lainnya', [KeuanganController::class, 'pengeluaranLainnya'])->name('pengeluaran-lainnya');
+    Route::post('/pengeluaran-lainnya', [\App\Http\Controllers\Admin\KeuanganController::class, 'storePengeluaranLainnya'])->name('pengeluaran-lainnya.store');
+});
 
 // Route untuk halaman Mitra
 Route::get('/admin/konten/mitra', [KontenController::class, 'mitra'])->name('admin.konten.mitra');
@@ -113,10 +147,13 @@ Route::get('/admin/konten/testimoni', [KontenController::class, 'testimoni'])->n
 
 // Route untuk halaman Laporan Barang
 Route::get('/admin/laporan/barang', [LaporanController::class, 'laporanBarang'])->name('admin.laporan.barang');
+Route::get('/admin/laporan/barang/export', [LaporanController::class, 'exportBarang'])->name('admin.laporan.barang.export');
 // Route untuk halaman Laporan Penjualan
 Route::get('/admin/laporan/penjualan', [LaporanController::class, 'laporanPenjualan'])->name('admin.laporan.penjualan');
+Route::post('/admin/laporan/penjualan/export', [LaporanController::class, 'exportPenjualan'])->name('admin.laporan.penjualan.export');
 // Route untuk halaman Laporan Pembelian
 Route::get('/admin/laporan/pembelian', [LaporanController::class, 'laporanPembelian'])->name('admin.laporan.pembelian');
+Route::post('/admin/laporan/pembelian/export', [LaporanController::class, 'exportPembelian'])->name('admin.laporan.pembelian.export');
 // Route untuk halaman Laporan Keuangan (Kas dan Laba Rugi)
 Route::get('/admin/laporan/laba-rugi', [LaporanController::class, 'laporanKeuangan'])->name('admin.laporan.keuangan');
 // Route untuk halaman Laporan Stok In/Out
@@ -140,4 +177,3 @@ Route::get('/admin/grafik', [GrafikController::class, 'index'])->name('admin.gra
 Route::get('/admin/tools/generate-barcode', [ToolsController::class, 'generateBarcode'])->name('admin.tools.generate-barcode');
 //Route untuk halaman Backup Data
 Route::get('/admin/tools/backup-data', [ToolsController::class, 'backupData'])->name('admin.tools.backup-data');
-

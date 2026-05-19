@@ -13,8 +13,22 @@
     .card-animasi-4 { animation: slideUpFade 0.8s ease-out 0.7s both; }
 </style>
 
-<div x-data="{ modalEdit: false, modalHapus: false }" class="space-y-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
+<div x-data="entryPembelianApp()" class="space-y-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
     
+    <!-- Flash Messages -->
+    @if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="mb-4 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl flex items-center justify-between transition-all">
+        <div class="flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> <span>{{ session('success') }}</span></div>
+        <button @click="show = false"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    @endif
+    @if ($errors->any())
+    <div class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
+        <div class="flex items-center gap-2 font-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Gagal Menyimpan!</div>
+        <ul class="list-disc list-inside text-sm ml-5">@foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach</ul>
+    </div>
+    @endif
+
     <div class="card-animasi-1 grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -22,220 +36,271 @@
             <div class="space-y-4">
                 <div class="flex items-center">
                     <label class="w-1/3 text-sm font-bold text-gray-700">Tanggal Faktur</label>
-                    <input type="date" class="w-2/3 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
+                    <input type="date" x-model="tanggalFaktur" class="w-2/3 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
                 </div>
                 <div class="flex items-center">
                     <label class="w-1/3 text-sm font-bold text-gray-700">Nomor Faktur</label>
-                    <input type="text" value="Digenerate otomatis" readonly class="w-2/3 bg-gray-100 border border-gray-200 text-gray-500 text-sm rounded-lg px-3 py-2.5 cursor-not-allowed outline-none">
+                    <!-- Faktur menyesuaikan pilihan Penjualan -->
+                    <input type="text" :value="searchInvoice ? searchInvoice + '-POXX' : 'Pilih Penjualan Dahulu'" readonly class="w-2/3 bg-gray-100 border border-gray-200 font-bold text-gray-600 text-sm rounded-lg px-3 py-2.5 cursor-not-allowed outline-none">
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center space-y-4">
-            <div class="flex items-center">
-                <label class="w-1/3 text-sm font-bold text-gray-700">Supplier</label>
-                <div class="w-2/3 flex">
-                    <input type="text" class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-l-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none border-r-0">
-                    <button class="bg-[#E65C00] hover:bg-[#cc5200] text-white px-4 rounded-r-lg transition-colors">
-                        <i class="fa-solid fa-search"></i>
-                    </button>
+            <!-- Pencarian Penjualan -->
+            <div class="flex items-center relative">
+                <label class="w-1/3 text-sm font-bold text-gray-700">Pilih Penjualan</label>
+                <div class="w-2/3 flex relative" @click.away="invOpen = false">
+                    <input type="text" x-model="searchInvoice" @input="invOpen = true; findInvoice()" @focus="invOpen = true" placeholder="Ketik Kode Invoice..." class="w-full bg-orange-50 border border-orange-200 text-orange-700 font-bold text-sm rounded-l-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] outline-none border-r-0 placeholder:font-normal">
+                    <button class="bg-[#E65C00] text-white px-4 rounded-r-lg transition-colors cursor-default"><i class="fa-solid fa-file-invoice"></i></button>
+                    
+                    <!-- Dropdown Invoice -->
+                    <ul x-show="invOpen && resInvoice.length > 0" class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-100 shadow-xl rounded-xl max-h-40 overflow-y-auto z-50">
+                        <template x-for="inv in resInvoice" :key="inv.id">
+                            <li @click="selectInvoice(inv)" class="px-4 py-3 hover:bg-orange-50 cursor-pointer text-sm border-b border-gray-50 flex flex-col">
+                                <span class="font-bold text-[#E65C00]" x-text="inv.invoice"></span>
+                                <span class="text-xs text-gray-500" x-text="'Tgl: ' + formatTanggal(inv.created_at)"></span>
+                            </li>
+                        </template>
+                    </ul>
                 </div>
-            </div>
-            <div class="flex items-center">
-                <label class="w-1/3 text-sm font-bold text-gray-700">Operator</label>
-                <input type="text" value="Administrator" readonly class="w-2/3 bg-gray-100 border border-gray-200 text-gray-500 text-sm rounded-lg px-3 py-2.5 cursor-not-allowed outline-none">
-            </div>
-        </div>
-    </div>
-
-    <div class="card-animasi-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Barcode</label>
-                <div class="w-3/4 flex">
-                    <input type="text" class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-l-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none border-r-0">
-                    <button class="bg-[#E65C00] hover:bg-[#cc5200] text-white px-4 rounded-r-lg transition-colors">
-                        <i class="fa-solid fa-search"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Nama</label>
-                <input type="text" class="w-3/4 bg-gray-100 border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2.5 outline-none cursor-not-allowed" readonly placeholder="Terisi otomatis">
-            </div>
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Qty</label>
-                <input type="number" class="w-3/4 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4 relative pb-16">
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Harga Beli</label>
-                <input type="number" class="w-3/4 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
-            </div>
-            <div class="flex items-center">
-                <label class="w-1/4 text-sm font-bold text-gray-700">Harga Jual</label>
-                <input type="number" class="w-3/4 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
             </div>
             
-            <div class="absolute bottom-4 right-6">
-                <button class="bg-[#10B981] hover:bg-[#059669] text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md transition-colors transform hover:-translate-y-0.5">
-                    Tambah
-                </button>
+            <div class="flex items-center relative">
+                <label class="w-1/3 text-sm font-bold text-gray-700">Supplier</label>
+                <div class="w-2/3 flex relative" @click.away="supOpen = false">
+                    <input type="text" x-model="searchSupplier" @input="supOpen = true; findSupplier()" @focus="supOpen = true" placeholder="Ketik nama supplier..." class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-l-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] outline-none border-r-0">
+                    <button class="bg-[#E65C00] text-white px-4 rounded-r-lg transition-colors cursor-default"><i class="fa-solid fa-search"></i></button>
+                    <!-- Dropdown Supplier -->
+                    <ul x-show="supOpen && resSupplier.length > 0" class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-100 shadow-xl rounded-xl max-h-40 overflow-y-auto z-50">
+                        <template x-for="sup in resSupplier" :key="sup.id">
+                            <li @click="selectSupplier(sup)" class="px-4 py-2 hover:bg-orange-50 cursor-pointer text-sm border-b border-gray-50" x-text="sup.nama_supplier"></li>
+                        </template>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="card-animasi-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0">
+    <!-- TABEL KEBUTUHAN BARANG (Menggantikan Keranjang Manual) -->
+    <div class="card-animasi-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 min-w-0" x-show="selectedInvoiceId">
         
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-            <div class="flex items-center gap-2 text-sm text-gray-500">
-                <span>Tampilkan</span>
-                <select class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] outline-none py-1.5 px-3 cursor-pointer">
-                    <option>10</option><option>25</option><option>50</option>
-                </select>
-            </div>
-            <div class="relative w-full sm:w-64">
-                <input type="text" placeholder="Cari" class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2 focus:outline-none focus:border-[#E65C00] transition-colors">
-                <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl flex items-center justify-center hover:bg-[#cc5200]">
-                    <i class="fa-solid fa-search"></i>
-                </button>
-            </div>
+            <h3 class="text-lg font-bold text-gray-800">Daftar Kebutuhan Produksi</h3>
+            <p class="text-xs text-gray-500 italic"><i class="fa-solid fa-info-circle text-[#E65C00]"></i> Ceklis barang yang ingin dibeli, lalu input harga modal supplier.</p>
         </div>
 
         <div class="w-full overflow-x-auto custom-scrollbar rounded-xl border border-gray-50">
             <table class="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
                 <thead>
                     <tr class="text-gray-800 text-sm font-bold border-b-2 border-gray-100">
-                        <th class="py-4 px-4">Barcode</th>
+                        <th class="py-4 px-4 text-center w-16">Pilih</th>
                         <th class="py-4 px-4">Nama Item</th>
-                        <th class="py-4 px-4">Harga Beli</th>
-                        <th class="py-4 px-4">Harga Jual</th>
-                        <th class="py-4 px-4 text-center">Qty</th>
-                        <th class="py-4 px-4">Total</th>
-                        <th class="py-4 px-4 text-center">Opsi</th>
+                        <th class="py-4 px-4 text-center">Qty Pesanan</th>
+                        <th class="py-4 px-4">Harga Beli (Rp)</th>
+                        <th class="py-4 px-4 text-right">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-600">
-                    <tr class="border-b border-gray-50 bg-gray-50/50 hover:bg-orange-50/40 transition-colors duration-200">
-                        <td class="py-4 px-4 font-medium text-gray-700">PN/BRS01</td>
-                        <td class="py-4 px-4">Pin Bros</td>
-                        <td class="py-4 px-4">Rp 875</td>
-                        <td class="py-4 px-4">Rp 2.000</td>
-                        <td class="py-4 px-4 text-center font-bold">10</td>
-                        <td class="py-4 px-4 font-bold text-gray-800">Rp 8.750</td>
-                        <td class="py-4 px-4 text-center">
-                            <div class="flex flex-col gap-1 items-center justify-center">
-                                <button @click="modalEdit = true" class="bg-[#38BDF8] hover:bg-[#0284C7] text-white px-3 py-1 rounded w-16 text-xs font-semibold shadow-sm transition-colors">Edit</button>
-                                <button @click="modalHapus = true" class="bg-[#EF4444] hover:bg-[#B91C1C] text-white px-3 py-1 rounded w-16 text-xs font-semibold shadow-sm transition-colors">Hapus</button>
-                            </div>
-                        </td>
+                    <template x-for="(item, index) in listPesanan" :key="index">
+                        <tr class="border-b border-gray-50 transition-colors duration-200" :class="item.selected ? 'bg-orange-50/40' : 'hover:bg-gray-50'">
+                            <td class="py-4 px-4 text-center">
+                                <input type="checkbox" x-model="item.selected" class="w-5 h-5 accent-[#E65C00] cursor-pointer rounded">
+                            </td>
+                            <td class="py-4 px-4 font-bold text-gray-700" x-text="item.nama"></td>
+                            <td class="py-4 px-4 text-center">
+                                <!-- QTY DIKUNCI -->
+                                <span class="bg-gray-100 border border-gray-200 px-4 py-1.5 rounded-lg font-bold text-gray-600" x-text="item.qty"></span>
+                            </td>
+                            <td class="py-4 px-4 w-48">
+                                <input type="number" x-model="item.harga_beli" :disabled="!item.selected" class="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] outline-none disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors">
+                            </td>
+                            <td class="py-4 px-4 text-right font-bold text-gray-800" x-text="'Rp ' + formatRupiah(item.harga_beli * item.qty)"></td>
+                        </tr>
+                    </template>
+                    <tr x-show="listPesanan.length === 0">
+                        <td colspan="5" class="py-8 text-center text-gray-400 italic">Pilih Nomor Penjualan terlebih dahulu.</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-
-        <div class="flex flex-col sm:flex-row items-center justify-between mt-6 text-sm text-gray-500 gap-4">
-            <div>Menampilkan 1 sampai 1 dari 1 data</div>
-            <div class="flex items-center gap-1 text-sm">
-                <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-gray-100"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-                <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">1</button>
-                <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100">2</button>
-                <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100">3</button>
-                <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-gray-100"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-            </div>
-        </div>
     </div>
 
-    <div class="card-animasi-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- TOTAL -->
+    <div class="card-animasi-4 grid grid-cols-1 lg:grid-cols-2 gap-6" x-show="selectedInvoiceId">
         
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center">
             <div class="flex items-center mb-3">
-                <label class="w-1/4 text-sm font-bold text-gray-800">Diskon</label>
-                <input type="number" class="w-3/4 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-4 py-3 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none">
+                <label class="w-1/4 text-sm font-bold text-gray-800">Diskon Global</label>
+                <input type="number" x-model="diskonGlobal" min="0" class="w-3/4 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg px-4 py-3 focus:ring-1 focus:ring-[#E65C00] outline-none">
             </div>
             <p class="text-xs text-gray-400 italic">
-                Note: Diskon di sini merupakan diskon keseluruhan dari pembelian. Jika diskon di nota adalah diskon per satuan, maka harap dijumlahkan secara keseluruhan.
+                Note: Masukkan diskon jika ada potongan harga total dari supplier.
             </p>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
             <div class="flex justify-between items-end mb-6">
                 <h2 class="text-3xl font-bold text-gray-700">Total (Rp)</h2>
-                <h1 class="text-5xl font-black text-gray-800">8750</h1>
+                <h1 class="text-5xl font-black text-[#E65C00]" x-text="formatRupiah(grandTotal)"></h1>
             </div>
             <div class="flex justify-end gap-3 mt-4">
-                <button class="bg-[#EF4444] hover:bg-[#B91C1C] text-white px-8 py-2.5 rounded-lg font-bold shadow-md transition-colors transform hover:-translate-y-0.5">
+                <button @click="resetForm()" class="bg-[#EF4444] hover:bg-[#B91C1C] text-white px-8 py-2.5 rounded-lg font-bold shadow-md transition-colors transform hover:-translate-y-0.5">
                     Batal
                 </button>
-                <button class="bg-[#38BDF8] hover:bg-[#0284C7] text-white px-8 py-2.5 rounded-lg font-bold shadow-md transition-colors transform hover:-translate-y-0.5">
-                    Simpan
+                <button @click="modalPayment = true" :disabled="!isAdaYangDiceklis() || !selectedSupplier" class="bg-[#38BDF8] hover:bg-[#0284C7] disabled:bg-gray-300 text-white px-8 py-2.5 rounded-lg font-bold shadow-md transition-colors transform hover:-translate-y-0.5">
+                    Bayar ke Supplier
                 </button>
             </div>
         </div>
     </div>
 
-    <div x-show="modalEdit" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-        
-        <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 m-auto" @click.away="modalEdit = false"
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 translate-y-4">
-            
-            <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-4">
-                <h3 class="text-lg font-bold text-gray-800">Edit Item: Pin Bros</h3>
-                <button @click="modalEdit = false" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- MODAL PAYMENT -->
+    <div x-show="modalPayment" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-transition.opacity>
+        <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 md:p-8 m-auto" @click.away="modalPayment = false" x-transition>
+            <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-5">
+                <h3 class="text-xl font-bold text-gray-800">Pembayaran Modal</h3>
+                <button @click="modalPayment = false" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
 
-            <form action="#" method="POST" class="space-y-4">
-                @csrf @method('PUT')
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli (Rp)</label>
-                    <input type="number" value="875" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#E65C00]">
+            <form action="{{ route('admin.pembelian.store') }}" method="POST" class="space-y-4">
+                @csrf
+                <input type="hidden" name="supplier_id" :value="selectedSupplier">
+                <input type="hidden" name="penjualan_id" :value="selectedInvoiceId">
+                <input type="hidden" name="tanggal_faktur" :value="tanggalFaktur">
+                <!-- Kita lempar ke backend array HANYA yang diceklis admin -->
+                <input type="hidden" name="cart_data" :value="JSON.stringify(listPesanan.filter(i => i.selected).map(i => ({id: i.id, qty: i.qty, harga_beli: i.harga_beli, total: i.harga_beli * i.qty})))">
+                <input type="hidden" name="total_harga" :value="totalSemua">
+                <input type="hidden" name="diskon" :value="diskonGlobal">
+                <input type="hidden" name="grand_total" :value="grandTotal">
+                <input type="hidden" name="sisa_hutang" :value="sisaHutang">
+
+                <div class="bg-orange-50 p-4 rounded-xl mb-4">
+                    <div class="flex justify-between text-sm mb-1 text-gray-600"><span>Supplier:</span> <span class="font-bold text-gray-800" x-text="searchSupplier"></span></div>
+                    <div class="flex justify-between text-sm mb-1 text-gray-600"><span>No Penjualan:</span> <span class="font-bold text-gray-800" x-text="searchInvoice"></span></div>
+                    <div class="flex justify-between text-sm border-t border-orange-200 pt-2 mt-2">
+                        <span class="text-gray-600 font-medium">Grand Total:</span>
+                        <span class="font-black text-[#E65C00] text-xl" x-text="'Rp ' + formatRupiah(grandTotal)"></span>
+                    </div>
                 </div>
+
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga Jual (Rp)</label>
-                    <input type="number" value="2000" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#E65C00]">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Uang Dibayarkan (Rp) <span class="text-red-500">*</span></label>
+                    <input type="number" name="bayar" x-model="inputBayar" @input="kalkulasiHutang()" required class="w-full bg-white border border-gray-300 text-2xl font-bold rounded-xl px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-2 focus:ring-[#E65C00]/50 transition-colors text-right">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                    <input type="number" value="10" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#E65C00]">
+
+                <div x-show="sisaHutang > 0" x-transition.opacity class="bg-red-50 border border-red-200 p-4 rounded-xl mt-4">
+                    <label class="block text-sm font-bold text-red-700 mb-2">Tanggal Jatuh Tempo Hutang <span class="text-red-500">*</span></label>
+                    <input type="date" name="jatuh_tempo" :required="sisaHutang > 0" class="w-full bg-white border border-red-300 text-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                    <p class="text-xs text-red-500 mt-2 italic">Karena pembayaran belum lunas, wajib menentukan tanggal jatuh tempo.</p>
                 </div>
                 
-                <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100">
-                    <button type="button" @click="modalEdit = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-[#38BDF8] hover:bg-[#0284C7] text-white text-sm font-medium rounded-lg shadow-sm">Simpan Edit</button>
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span class="text-gray-600 font-medium">Sisa Hutang (Kredit)</span>
+                    <span class="font-bold text-lg" :class="sisaHutang > 0 ? 'text-red-500' : 'text-green-600'" x-text="sisaHutang > 0 ? 'Rp ' + formatRupiah(sisaHutang) : 'LUNAS'"></span>
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <button type="button" @click="modalPayment = false" class="w-1/2 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors">Batal</button>
+                    <button type="submit" class="w-1/2 py-3 bg-[#E65C00] hover:bg-[#cc5200] text-white font-bold rounded-xl transition-colors shadow-lg shadow-orange-500/30">
+                        Proses <i class="fa-solid fa-check ml-1"></i>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div x-show="modalHapus" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-        
-        <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 text-center m-auto" @click.away="modalHapus = false"
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-            
-            <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-red-100 mb-4">
-                <i class="fa-solid fa-trash text-2xl text-red-500"></i>
-            </div>
-            <h3 class="text-lg font-bold text-gray-800 mb-1">Hapus Item?</h3>
-            <p class="text-sm text-gray-500 mb-5">Keluarkan "Pin Bros" dari daftar pembelian?</p>
-            
-            <div class="flex justify-center gap-2">
-                <button @click="modalHapus = false" class="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg">Batal</button>
-                <form action="#" method="POST">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="px-5 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg shadow-sm">Ya, Hapus</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
 </div>
+
+<!-- SCRIPT ALPINE -->
+<script>
+    function entryPembelianApp() {
+        return {
+            dbSupplier: @json($suppliers),
+            dbPenjualan: @json($penjualans),
+            
+            tanggalFaktur: '{{ date("Y-m-d") }}',
+            
+            // State Invoice
+            searchInvoice: '',
+            invOpen: false,
+            resInvoice: [],
+            selectedInvoiceId: '',
+            listPesanan: [],
+
+            // State Supplier
+            searchSupplier: '',
+            supOpen: false,
+            resSupplier: [],
+            selectedSupplier: '',
+
+            // State Pembayaran
+            diskonGlobal: 0,
+            modalPayment: false,
+            inputBayar: '',
+            sisaHutang: 0,
+
+            // === FUNGSI INVOICE PENJUALAN ===
+            findInvoice() {
+                const kw = this.searchInvoice.toLowerCase();
+                this.resInvoice = kw.length ? this.dbPenjualan.filter(p => p.invoice.toLowerCase().includes(kw)) : [];
+            },
+            selectInvoice(inv) {
+                this.selectedInvoiceId = inv.id;
+                this.searchInvoice = inv.invoice;
+                this.invOpen = false;
+                
+                // Load barang dari invoice ke tabel, dikunci qty-nya
+                this.listPesanan = inv.details.map(d => ({
+                    id: d.produk_id,
+                    nama: d.produk ? d.produk.nama_item : 'Produk Dihapus',
+                    qty: d.qty,
+                    harga_beli: d.produk ? d.produk.harga_beli : 0, // Ambil base modal
+                    selected: false // Harus diceklis manual sama admin
+                }));
+            },
+
+            // === FUNGSI SUPPLIER ===
+            findSupplier() {
+                const kw = this.searchSupplier.toLowerCase();
+                this.resSupplier = kw.length ? this.dbSupplier.filter(s => s.nama_supplier.toLowerCase().includes(kw)) : [];
+            },
+            selectSupplier(sup) {
+                this.selectedSupplier = sup.id;
+                this.searchSupplier = sup.nama_supplier;
+                this.supOpen = false;
+            },
+
+            // === KALKULASI & UTILITAS ===
+            isAdaYangDiceklis() {
+                return this.listPesanan.some(i => i.selected);
+            },
+            get totalSemua() {
+                return this.listPesanan
+                        .filter(i => i.selected)
+                        .reduce((sum, item) => sum + (parseInt(item.harga_beli || 0) * parseInt(item.qty)), 0);
+            },
+            get grandTotal() {
+                const gt = this.totalSemua - (parseInt(this.diskonGlobal) || 0);
+                return gt > 0 ? gt : 0;
+            },
+            kalkulasiHutang() {
+                const bayar = parseInt(this.inputBayar) || 0;
+                this.sisaHutang = this.grandTotal - bayar;
+                if(this.sisaHutang < 0) this.sisaHutang = 0;
+            },
+            resetForm() {
+                this.searchInvoice = ''; this.selectedInvoiceId = ''; this.listPesanan = [];
+                this.searchSupplier = ''; this.selectedSupplier = ''; diskonGlobal = 0;
+            },
+            formatTanggal(tgl) {
+                if(!tgl) return '';
+                return new Date(tgl).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+            },
+            formatRupiah(angka) {
+                return new Intl.NumberFormat('id-ID').format(angka || 0);
+            }
+        }
+    }
+</script>
 @endsection

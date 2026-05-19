@@ -7,12 +7,6 @@ use Illuminate\Http\Request;
 
 class TransaksiController extends Controller
 {
-    // Fungsi untuk menampilkan halaman Entry Penjualan
-    public function entryPenjualan()
-    {
-        return view('admin.transaksi.entry-penjualan');
-    }
-
     // Fungsi untuk menampilkan halaman Daftar Penjualan
     public function daftarPenjualan()
     {

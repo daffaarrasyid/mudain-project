@@ -75,6 +75,8 @@
                 request()->routeIs('admin.produk.index') ||
                 request()->routeIs('admin.kategori.index') ||
                 request()->routeIs('admin.satuan.index') ||
+                request()->routeIs('admin.servis.index') ||
+                request()->routeIs('admin.staf.index') ||
                 request()->routeIs('admin.supplier.index') ||
                 request()->routeIs('admin.customer.index') ||
                 request()->routeIs('admin.sales.index') ||
@@ -82,6 +84,8 @@
                 request()->is('admin/data-produk*') ||
                 request()->is('admin/kategori-produk*') ||
                 request()->is('admin/satuan-produk*') ||
+                request()->is('admin/servis*') ||
+                request()->is('admin/staf*') ||
                 request()->is('admin/supplier*') ||
                 request()->is('admin/customer*') ||
                 request()->is('admin/sales*') ||
@@ -118,6 +122,8 @@
                         ['label' => 'Data Produk', 'route' => 'admin.data-produk.index'], // Pastikan nama routenya sesuai dengan web.php kamu ya
                         ['label' => 'Data Kategori Produk', 'route' => 'admin.kategori.index'],
                         ['label' => 'Data Satuan Produk', 'route' => 'admin.satuan.index'],
+                        ['label' => 'Data Servis', 'route' => 'admin.servis.index'],
+                        ['label' => 'Data Staf', 'route' => 'admin.staf.index'],
                         ['label' => 'Data Supplier', 'route' => 'admin.supplier.index'],
                         ['label' => 'Data Customer', 'route' => 'admin.customer.index'],
                         ['label' => 'Stok In/Out', 'route' => 'admin.stok.index'],
@@ -183,10 +189,10 @@
 
                 @php
                     $subTransaksi = [
-                        ['label' => 'Entry Penjualan', 'route' => 'admin.transaksi.entry-penjualan'],
-                        ['label' => 'Daftar Penjualan', 'route' => 'admin.transaksi.daftar-penjualan'],
-                        ['label' => 'Entry Pembelian', 'route' => 'admin.transaksi.entry-pembelian'],
-                        ['label' => 'Daftar Pembelian', 'route' => 'admin.transaksi.daftar-pembelian'],
+                        ['label' => 'Entry Penjualan', 'route' => 'admin.penjualan.entry'],
+                        ['label' => 'Daftar Penjualan', 'route' => 'admin.penjualan.daftar'],
+                        ['label' => 'Entry Pembelian', 'route' => 'admin.pembelian.entry'],
+                        ['label' => 'Daftar Pembelian', 'route' => 'admin.pembelian.daftar'],
                         ['label' => 'Hutang', 'route' => 'admin.transaksi.hutang'],
                         ['label' => 'Piutang', 'route' => 'admin.transaksi.piutang'],
                     ];
