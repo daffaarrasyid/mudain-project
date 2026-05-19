@@ -1,8 +1,23 @@
 @extends('admin.layouts.app')
 
 @section('content')
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+            class="mb-4 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl flex items-center justify-between">
+            <div class="flex items-center gap-2"><i class="fa-solid fa-circle-check"></i>
+                <span>{{ session('success') }}</span></div>
+            <button @click="show = false"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    @endif
 
-    <div x-data="{ modalTambah: false, modalEdit: false, modalHapus: false }"
+    <div x-data="{
+        modalTambah: false,
+        modalEdit: false,
+        modalHapus: false,
+        editAction: '',
+        hapusAction: '',
+        form: { nama: '', status: 'Publish' }
+    }"
         class="card-animasi-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-[fadeIn_0.5s_ease-in-out] w-full min-w-0">
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -15,12 +30,6 @@
             </div>
 
             <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                <div class="flex items-center gap-2 text-sm text-gray-500">
-                    <span>Tampilkan</span>
-                    <select class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg px-3 py-2 outline-none">
-                        <option>10</option>
-                    </select>
-                </div>
                 <div class="relative w-full sm:w-64">
                     <input type="text" placeholder="Cari..."
                         class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00]">
@@ -35,57 +44,55 @@
                 <thead>
                     <tr class="text-gray-800 text-sm font-bold border-b-2 border-gray-100">
                         <th class="px-6 py-4 w-32">Gambar</th>
-                        <th class="px-6 py-4">Produk</th>
-                        <th class="px-6 py-4">Jumlah PCS</th>
+                        <th class="px-6 py-4">Produk / Client</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4 text-center">Opsi</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-600">
-                    <tr class="border-b border-gray-50 hover:bg-orange-50/40 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                                <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=300&auto=format&fit=crop"
-                                    class="w-full h-full object-cover">
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 font-medium text-gray-700">Asep (Contoh PDH)</td>
-                        <td class="px-6 py-4">500 pcs</td>
-                        <td class="px-6 py-4"><span
-                                class="bg-[#10B981] text-white px-3 py-1.5 rounded-md text-[11px] font-bold">Publish</span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex flex-col gap-1.5 items-center justify-center">
-                                <button @click="modalEdit = true"
-                                    class="bg-[#38BDF8] text-white px-4 py-1 rounded w-16 text-[11px] font-semibold">Edit</button>
-                                <button @click="modalHapus = true"
-                                    class="bg-[#EF4444] text-white px-4 py-1 rounded w-16 text-[11px] font-semibold">Hapus</button>
-                            </div>
-                        </td>
-                    </tr>
+                    @forelse($portofolios as $item)
+                        <tr class="border-b border-gray-50 hover:bg-orange-50/40 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                    <img src="{{ asset('storage/' . $item->gambar) }}" class="w-full h-full object-cover">
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-medium text-gray-700">{{ $item->nama_klien }}</td>
+                            <td class="px-6 py-4">
+                                @if ($item->status == 'Publish')
+                                    <span
+                                        class="bg-[#10B981] text-white px-3 py-1.5 rounded-md text-[11px] font-bold">Publish</span>
+                                @else
+                                    <span
+                                        class="bg-[#F59E0B] text-white px-3 py-1.5 rounded-md text-[11px] font-bold">Private</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex flex-col gap-1.5 items-center justify-center">
+                                    <button
+                                        @click="modalEdit = true; editAction = '{{ route('admin.konten.portofolio.update', $item->id) }}'; form.nama = '{{ $item->nama_klien }}'; form.status = '{{ $item->status }}'"
+                                        class="bg-[#38BDF8] text-white px-4 py-1 rounded w-16 text-[11px] font-semibold hover:bg-[#0284C7] transition-colors">Edit</button>
+                                    <button
+                                        @click="modalHapus = true; hapusAction = '{{ route('admin.konten.portofolio.destroy', $item->id) }}'"
+                                        class="bg-[#EF4444] text-white px-4 py-1 rounded w-16 text-[11px] font-semibold hover:bg-[#B91C1C] transition-colors">Hapus</button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-gray-400 italic">Belum ada portofolio
+                                produk.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-between mt-6 text-sm text-gray-500 gap-4">
-            <div>Menampilkan 1 sampai 6 dari 87 data</div>
+            <div>Menampilkan {{ $portofolios->firstItem() ?? 0 }} sampai {{ $portofolios->lastItem() ?? 0 }} dari
+                {{ $portofolios->total() }} data</div>
             <div class="flex gap-1">
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-gray-100 transition-colors"><i
-                        class="fa-solid fa-chevron-left text-xs"></i></button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">1</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">2</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">3</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">4</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">5</button>
-                <button
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-gray-100 transition-colors"><i
-                        class="fa-solid fa-chevron-right text-xs"></i></button>
+                {{ $portofolios->links('pagination::tailwind') }}
             </div>
         </div>
 
@@ -95,26 +102,29 @@
             <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 m-auto"
                 @click.away="modalTambah = false" x-transition>
                 <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
-                    <h3 class="text-xl font-bold text-gray-800">Tambah Portofolio</h3><button @click="modalTambah = false"
-                        class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <h3 class="text-xl font-bold text-gray-800">Tambah Portofolio</h3>
+                    <button @click="modalTambah = false" class="text-gray-400 hover:text-gray-600"><i
+                            class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-                <form action="#" method="POST" class="space-y-4">
+                <form action="{{ route('admin.konten.portofolio.store') }}" method="POST" enctype="multipart/form-data"
+                    class="space-y-4">
+                    @csrf
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Foto Hasil Produksi</label>
-                        <input type="file" accept="image/*"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Foto Hasil Produksi <span
+                                class="text-red-500">*</span></label>
+                        <input type="file" name="gambar" accept="image/*" required
                             class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-[#E65C00] hover:file:bg-orange-100 cursor-pointer border border-gray-200 rounded-xl bg-gray-50 outline-none">
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk / Client</label><input
-                            type="text"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
-                    </div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Jumlah PCS</label><input type="text"
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk / Client <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="nama_klien" placeholder="Cth: Kemeja PDH Bank BJB" required
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <div class="relative">
-                            <select
+                            <select name="status"
                                 class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 appearance-none cursor-pointer focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
                                 <option value="Publish">Publish</option>
                                 <option value="Private">Private</option>
@@ -123,9 +133,12 @@
                                 class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                         </div>
                     </div>
-                    <div class="flex justify-end gap-3 pt-4 border-t"><button type="button" @click="modalTambah = false"
-                            class="px-5 py-2.5 bg-gray-100 font-medium rounded-xl">Batal</button><button type="submit"
-                            class="px-5 py-2.5 bg-[#E65C00] font-medium text-white rounded-xl">Simpan</button></div>
+                    <div class="flex justify-end gap-3 pt-4 border-t">
+                        <button type="button" @click="modalTambah = false"
+                            class="px-5 py-2.5 bg-gray-100 font-medium text-gray-700 rounded-xl">Batal</button>
+                        <button type="submit"
+                            class="px-5 py-2.5 bg-[#E65C00] font-medium text-white rounded-xl">Simpan</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -136,40 +149,42 @@
             <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 m-auto" @click.away="modalEdit = false"
                 x-transition>
                 <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
-                    <h3 class="text-xl font-bold text-gray-800">Edit Portofolio</h3><button @click="modalEdit = false"
-                        class="text-gray-400"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <h3 class="text-xl font-bold text-gray-800">Edit Portofolio</h3>
+                    <button @click="modalEdit = false" class="text-gray-400 hover:text-gray-600"><i
+                            class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-                <form action="#" method="POST" class="space-y-4">
+                <form :action="editAction" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf @method('PUT')
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Update Foto (Opsional)</label>
-                        <input type="file" accept="image/*"
+                        <input type="file" name="gambar" accept="image/*"
                             class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-[#E65C00] hover:file:bg-orange-100 cursor-pointer border border-gray-200 rounded-xl bg-gray-50 outline-none">
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk / Client</label><input
-                            type="text" value="Asep (Contoh PDH)"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
-                    </div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Jumlah PCS</label><input
-                            type="text" value="500 pcs"
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk / Client <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="nama_klien" x-model="form.nama" required
                             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <div class="relative">
-                            <select
+                            <select name="status" x-model="form.status"
                                 class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 appearance-none cursor-pointer focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
-                                <option value="Publish" selected>Publish</option>
+                                <option value="Publish">Publish</option>
                                 <option value="Private">Private</option>
                             </select>
                             <i
                                 class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                         </div>
                     </div>
-                    <div class="flex justify-end gap-3 pt-4 border-t"><button type="button" @click="modalEdit = false"
-                            class="px-5 py-2.5 bg-gray-100 font-medium rounded-xl">Batal</button><button type="submit"
+                    <div class="flex justify-end gap-3 pt-4 border-t">
+                        <button type="button" @click="modalEdit = false"
+                            class="px-5 py-2.5 bg-gray-100 font-medium text-gray-700 rounded-xl">Batal</button>
+                        <button type="submit"
                             class="px-5 py-2.5 bg-[#38BDF8] font-medium text-white rounded-xl shadow-lg shadow-blue-500/30">Simpan
-                            Update</button></div>
+                            Update</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -186,7 +201,9 @@
                 <div class="flex gap-3 justify-center">
                     <button @click="modalHapus = false"
                         class="px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl">Batal</button>
-                    <form action="#" method="POST">@csrf @method('DELETE')<button type="submit"
+                    <form :action="hapusAction" method="POST">
+                        @csrf @method('DELETE')
+                        <button type="submit"
                             class="px-6 py-2.5 bg-red-500 text-white font-medium rounded-xl shadow-lg shadow-red-500/30">Hapus</button>
                     </form>
                 </div>

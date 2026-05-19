@@ -42,7 +42,7 @@
                 </div>
                 <h3 class="text-[20px] font-bold text-dark mb-4">{{ $feature['title'] }}</h3>
                 <p class="text-gray-400 text-[13px] leading-relaxed">
-                    Lorem ipsum dolor sit amet consectetur. Ut feugiat neque nec tincidunt gravida et non morbi fermentum. Ut vitae quis quis cras.
+                    Lorem ipsum dolor sit amet consectetur. Ut feugiat neque nec tincidunt gravida et non morbi fermentum.
                 </p>
             </div>
             @endforeach
@@ -53,19 +53,14 @@
         <h2 class="text-[32px] font-bold text-[#4a4a4a] mb-2">Mitra kami</h2>
         <div class="w-16 h-1 bg-brand mx-auto mb-16 rounded-full"></div>
         <div class="overflow-hidden py-10 w-full">
-            @php
-                $sekolah = [
-                    ['src' => 'sman1-bdg.jpg', 'alt' => 'SMAN 1'],
-                    ['src' => 'sman2-bdg.png', 'alt' => 'SMAN 2'],
-                    ['src' => 'sman3-bdg.jpg', 'alt' => 'SMAN 3'],
-                    ['src' => 'sman4-bdg.jpg', 'alt' => 'SMAN 4'],
-                ];
-            @endphp
             <div class="animate-scroll flex gap-12 lg:gap-20 items-center">
                 @for ($i = 0; $i < 3; $i++)
-                    @foreach($sekolah as $s)
-                        <img src="{{ asset('assets/images/' . $s['src']) }}" alt="{{ $s['alt'] }}" class="img-logo h-16 md:h-20 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500 object-contain">
-                    @endforeach
+                    @forelse($mitras as $mitra)
+                        <img src="{{ asset('storage/' . $mitra->logo) }}" alt="{{ $mitra->nama_mitra }}" title="{{ $mitra->nama_mitra }}" 
+                             class="img-logo h-16 md:h-20 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500 object-contain">
+                    @empty
+                        <span class="text-gray-300 font-bold tracking-widest uppercase">Belum ada Mitra</span>
+                    @endforelse
                 @endfor
             </div>
         </div>
@@ -78,41 +73,45 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-16 px-4">
-            @php
-            $testimonials = [
-                ['name' => 'Arief', 'role' => 'Back End Developer', 'images' => 'valoza.jpg'],
-                ['name' => 'Arief', 'role' => 'Back End Developer', 'images' => 'valoza.jpg'],
-                ['name' => 'Arief', 'role' => 'Back End Developer', 'images' => 'valoza.jpg'],
-                ['name' => 'Arief', 'role' => 'Back End Developer', 'images' => 'valoza.jpg'],
-            ];
-            @endphp
-
-            @foreach($testimonials as $index => $item)
+            @forelse($testimonis as $index => $item)
                 @php 
                     $delay = ($index + 1) * 100; 
-                    // Logika penentu selang-seling (Index 0, 2 = Putih | Index 1, 3 = Oranye)
+                    // Logika selang-seling Oranye-Putih utuh 100%
                     $isOrange = $index % 2 !== 0; 
                 @endphp
                 
                 <div class="relative px-6 pt-14 pb-8 rounded-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.08)] transform hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(232,87,17,0.2)] transition-all duration-300 fade-in-up text-center group {{ $isOrange ? 'bg-brand' : 'bg-white' }}" style="transition-delay: {{ $delay }}ms">
                     
-                    <img src="{{ asset('assets/images/' . $item['images']) }}" alt="{{ $item['name'] }}" 
-                         class="w-16 h-16 rounded-full border-[5px] border-white absolute -top-8 left-1/2 transform -translate-x-1/2 shadow-md object-cover">
+                    @if($item->foto_profil)
+                        <img src="{{ asset('storage/' . $item->foto_profil) }}" alt="{{ $item->nama_customer }}" 
+                             class="w-16 h-16 rounded-full border-[5px] border-white absolute -top-8 left-1/2 transform -translate-x-1/2 shadow-md object-cover bg-white">
+                    @else
+                        <div class="w-16 h-16 rounded-full border-[5px] border-white absolute -top-8 left-1/2 transform -translate-x-1/2 shadow-md bg-gray-200 flex items-center justify-center text-gray-400 text-2xl">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                    @endif
                     
                     <div class="flex justify-center mb-2 text-sm {{ $isOrange ? 'text-white' : 'text-brand' }}">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        @for($i = 1; $i <= 5; $i++)
+                            @if($i <= $item->rating)
+                                <i class="fa-solid fa-star"></i>
+                            @else
+                                <i class="fa-regular fa-star opacity-50"></i> @endif
+                        @endfor
                     </div>
                     
-                    <h4 class="font-bold text-lg {{ $isOrange ? 'text-white' : 'text-dark' }}">{{ $item['name'] }}</h4>
-                    <p class="text-[11px] mb-4 uppercase tracking-wider font-semibold {{ $isOrange ? 'text-orange-200' : 'text-gray-400' }}">{{ $item['role'] }}</p>
+                    <h4 class="font-bold text-lg {{ $isOrange ? 'text-white' : 'text-dark' }}">{{ $item->nama_customer }}</h4>
+                    <p class="text-[11px] mb-4 uppercase tracking-wider font-semibold {{ $isOrange ? 'text-orange-200' : 'text-gray-400' }}">{{ $item->jabatan ?? 'Customer' }}</p>
                     
                     <div class="text-4xl font-serif font-black mb-2 leading-none {{ $isOrange ? 'text-white opacity-40' : 'text-brand opacity-80' }}">"</div>
                     
                     <p class="text-[12px] leading-relaxed {{ $isOrange ? 'text-white' : 'text-gray-400' }}">
-                        Lorem ipsum dolor sit amet consectetur. Nisi vel tristique mattis ultricies rhoncus condimentum sed.
+                        {{ $item->testimoni }}
                     </p>
                 </div>
-            @endforeach
+            @empty
+                <div class="col-span-full text-gray-400 italic">Belum ada testimoni dari customer.</div>
+            @endforelse
         </div>
     </section>
 @endsection
