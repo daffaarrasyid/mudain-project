@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -140,7 +141,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         // Jangan hapus akun yang sedang login
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return redirect()->route('admin.user.pengguna')->with('error', 'Tidak bisa menghapus akun yang sedang aktif.');
         }
 
@@ -151,7 +152,7 @@ class UserController extends Controller
     public function histori()
     {
         $query = ActivityLog::with('user')->latest();
-
+        
         // Filter berdasarkan pencarian
         if (request('search')) {
             $q = request('search');
@@ -175,7 +176,7 @@ class UserController extends Controller
 
         $logs    = $query->paginate(20)->withQueryString();
         $modules = ActivityLog::select('module')->distinct()->whereNotNull('module')->pluck('module');
-
+    
         return view('admin.user.histori', compact('logs', 'modules'));
     }
 

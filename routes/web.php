@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\KategoriController;
@@ -39,13 +41,52 @@ Route::get('/produk', [ProdukController::class, 'index'])->name('produk');
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
 
 // ADMIN ROUTES
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
 // Route untuk halaman dashboard admin
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+Route::get('/admin/dashboard/chart-data', [DashboardController::class, 'chartData'])->name('admin.dashboard.chart-data');
 Route::get('/dashboard', function () {
-    return redirect()->route('admin.dashboard');
-})->name('dashboard');
-require __DIR__ . '/auth.php';
+    $user = Auth::user();
+    $perms = $user->role->permissions ?? [];
+
+    // 1. Kalau dia Super Admin (Akses Penuh), langsung lempar ke Dashboard Utama
+    if (in_array('*', $perms)) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    // 2. Daftar prioritas rute berdasarkan Izin Akses (Permission)
+    $routeMap = [
+        'Transaksi_Entry Penjualan' => 'admin.penjualan.entry',
+        'Transaksi_Daftar Penjualan' => 'admin.penjualan.daftar',
+        'Produksi_Update Produksi' => 'admin.produksi.update-produksi',
+        'Master Data_Data Produk' => 'admin.data-produk.index',
+        'Keuangan_Kas' => 'admin.keuangan.kas',
+        'Laporan_Laporan Penjualan' => 'admin.laporan.penjualan',
+        'Konten_Mitra' => 'admin.konten.mitra',
+        'User_Manajemen Pengguna' => 'admin.user.pengguna',
+        'Tools_Generate Barcode' => 'admin.tools.generate-barcode',
+    ];
+
+    // 3. Cek satu per satu, dia punya izin yang mana?
+    foreach ($routeMap as $perm => $routeName) {
+        if (in_array($perm, $perms)) {
+            // Langsung lempar ke halaman pertama yang dia punya izinnya
+            return redirect()->route($routeName);
+        }
+    }
+
+    // 4. Kalau bener-bener kosong melompong (nggak punya izin apapun)
+    Auth::logout();
+    Auth::shouldUse('web');
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    
+    return redirect('/login')->with('error', 'Akun Anda belum diberikan akses modul apapun oleh Admin.');
+    })->middleware('auth')->name('dashboard');
+
 
 // Route untuk halaman master data produk
 Route::post('/admin/master-data/data-produk/import-excel', [ProductController::class, 'importExcel'])->name('admin.data-produk.import-excel');

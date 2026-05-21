@@ -23,12 +23,22 @@ class User extends Authenticatable
 
     protected $hidden = ['password', 'remember_token'];
 
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+    ];
+
+    /**
+     * Check if the user has a specific permission.
+     * Returns true for wildcard '*' (super admin).
+     */
+    public function hasPermission(string $permission): bool
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-        ];
+        $perms = $this->role?->permissions ?? [];
+        if (in_array('*', $perms)) {
+            return true;
+        }
+        return in_array($permission, $perms);
     }
 
     public function role()

@@ -51,48 +51,52 @@
 
     <nav class="flex-1 overflow-y-auto py-2 px-4 space-y-2 hide-scrollbar pb-6">
 
-        {{-- DASHBOARD --}}
         @php
-            // Cek apakah route saat ini adalah 'admin.dashboard'
-            $isDashboard = request()->routeIs('admin.dashboard');
+            // Ambil array izin akses dari role user yang sedang login
+            $userPerms = optional(auth()->user()->role)->permissions ?? [];
+            $hasFullAccess = in_array('*', $userPerms);
         @endphp
-        <a href="{{ route('admin.dashboard') }}"
-            class="relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
-                  {{ $isDashboard ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
-            <div class="absolute left-0 top-0 h-full w-[3.5rem] flex items-center justify-center">
-                <i class="fa-solid fa-home text-lg group-hover/item:scale-110 transition-transform"></i>
-            </div>
-            <span
-                class="pl-[3.5rem] font-medium whitespace-nowrap transition-opacity duration-300 opacity-0 md:group-hover:opacity-100"
-                :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">Dashboard</span>
-        </a>
+
+        {{-- DASHBOARD (Hanya untuk Full Access / Admin) --}}
+        @if($hasFullAccess)
+            @php
+                $isDashboard = request()->routeIs('admin.dashboard');
+            @endphp
+            <a href="{{ route('admin.dashboard') }}"
+                class="relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
+                      {{ $isDashboard ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
+                <div class="absolute left-0 top-0 h-full w-[3.5rem] flex items-center justify-center">
+                    <i class="fa-solid fa-home text-lg group-hover/item:scale-110 transition-transform"></i>
+                </div>
+                <span
+                    class="pl-[3.5rem] font-medium whitespace-nowrap transition-opacity duration-300 opacity-0 md:group-hover:opacity-100"
+                    :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">Dashboard</span>
+            </a>
+        @endif
 
         {{-- MASTER DATA --}}
         @php
-            // Cek apakah URL saat ini mengandung 'admin/master-data' atau sub-menu aktif
-            $isMasterDataGroup =
-                request()->is('admin/master-data*') ||
-                request()->routeIs('admin.produk.index') ||
-                request()->routeIs('admin.kategori.index') ||
-                request()->routeIs('admin.satuan.index') ||
-                request()->routeIs('admin.servis.index') ||
-                request()->routeIs('admin.staf.index') ||
-                request()->routeIs('admin.supplier.index') ||
-                request()->routeIs('admin.customer.index') ||
-                request()->routeIs('admin.sales.index') ||
-                request()->routeIs('admin.stok.index') ||
-                request()->is('admin/data-produk*') ||
-                request()->is('admin/kategori-produk*') ||
-                request()->is('admin/satuan-produk*') ||
-                request()->is('admin/servis*') ||
-                request()->is('admin/staf*') ||
-                request()->is('admin/supplier*') ||
-                request()->is('admin/customer*') ||
-                request()->is('admin/sales*') ||
-                request()->is('admin/stok*');
+            $isMasterDataGroup = request()->is('admin/master-data*') || request()->routeIs('admin.produk.index') || request()->routeIs('admin.kategori.index') || request()->routeIs('admin.satuan.index') || request()->routeIs('admin.servis.index') || request()->routeIs('admin.staf.index') || request()->routeIs('admin.supplier.index') || request()->routeIs('admin.customer.index') || request()->routeIs('admin.sales.index') || request()->routeIs('admin.stok.index') || request()->is('admin/data-produk*') || request()->is('admin/kategori-produk*') || request()->is('admin/satuan-produk*') || request()->is('admin/servis*') || request()->is('admin/staf*') || request()->is('admin/supplier*') || request()->is('admin/customer*') || request()->is('admin/sales*') || request()->is('admin/stok*');
 
-        @endphp <div x-data="{ openMasterData: {{ $isMasterDataGroup ? 'true' : 'false' }} }" class="relative">
+            $subMenuItems = [
+                ['label' => 'Data Produk', 'route' => 'admin.data-produk.index', 'perm' => 'Master Data_Data Produk'],
+                ['label' => 'Data Kategori Produk', 'route' => 'admin.kategori.index', 'perm' => 'Master Data_Data Kategori'],
+                ['label' => 'Data Satuan Produk', 'route' => 'admin.satuan.index', 'perm' => 'Master Data_Data Satuan'],
+                ['label' => 'Data Servis', 'route' => 'admin.servis.index', 'perm' => 'Master Data_Data Servis'],
+                ['label' => 'Data Staf', 'route' => 'admin.staf.index', 'perm' => 'Master Data_Data Staf'],
+                ['label' => 'Data Supplier', 'route' => 'admin.supplier.index', 'perm' => 'Master Data_Data Supplier'],
+                ['label' => 'Data Customer', 'route' => 'admin.customer.index', 'perm' => 'Master Data_Data Customer'],
+                ['label' => 'Stok In/Out', 'route' => 'admin.stok.index', 'perm' => 'Master Data_Stok In/Out'],
+            ];
 
+            // Saring menu berdasarkan permission
+            $allowedMasterData = array_filter($subMenuItems, function($item) use ($userPerms, $hasFullAccess) {
+                return $hasFullAccess || in_array($item['perm'], $userPerms);
+            });
+        @endphp
+
+        @if(count($allowedMasterData) > 0)
+        <div x-data="{ openMasterData: {{ $isMasterDataGroup ? 'true' : 'false' }} }" class="relative">
             <button @click="openMasterData = !openMasterData"
                 class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
                            {{ $isMasterDataGroup ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
@@ -116,23 +120,8 @@
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="(sidebarOpen || sidebarHover) ? 'block' : 'hidden md:group-hover:block'">
 
-                @php
-                    // 1. Definisikan array sub-menu di sini sebelum di-looping
-                    $subMenuItems = [
-                        ['label' => 'Data Produk', 'route' => 'admin.data-produk.index'], // Pastikan nama routenya sesuai dengan web.php kamu ya
-                        ['label' => 'Data Kategori Produk', 'route' => 'admin.kategori.index'],
-                        ['label' => 'Data Satuan Produk', 'route' => 'admin.satuan.index'],
-                        ['label' => 'Data Servis', 'route' => 'admin.servis.index'],
-                        ['label' => 'Data Staf', 'route' => 'admin.staf.index'],
-                        ['label' => 'Data Supplier', 'route' => 'admin.supplier.index'],
-                        ['label' => 'Data Customer', 'route' => 'admin.customer.index'],
-                        ['label' => 'Stok In/Out', 'route' => 'admin.stok.index'],
-                    ];
-                @endphp
-
-                @foreach ($subMenuItems as $subItem)
+                @foreach ($allowedMasterData as $subItem)
                     @php
-                        // 2. Cek apakah route ada, lalu cek apakah sedang aktif
                         $isActive = Route::has($subItem['route']) ? request()->routeIs($subItem['route']) : false;
                     @endphp
 
@@ -152,18 +141,30 @@
                         </span>
                     </a>
                 @endforeach
-
             </div>
         </div>
+        @endif
 
         {{-- TRANSAKSI --}}
         @php
-            // Cek apakah URL saat ini berawalan 'admin/transaksi'
             $isTransaksiGroup = request()->is('admin/transaksi*');
+            
+            $subTransaksi = [
+                ['label' => 'Entry Penjualan', 'route' => 'admin.penjualan.entry', 'perm' => 'Transaksi_Entry Penjualan'],
+                ['label' => 'Daftar Penjualan', 'route' => 'admin.penjualan.daftar', 'perm' => 'Transaksi_Daftar Penjualan'],
+                ['label' => 'Entry Pembelian', 'route' => 'admin.pembelian.entry', 'perm' => 'Transaksi_Entry Pembelian'],
+                ['label' => 'Daftar Pembelian', 'route' => 'admin.pembelian.daftar', 'perm' => 'Transaksi_Daftar Pembelian'],
+                ['label' => 'Hutang', 'route' => 'admin.transaksi.hutang', 'perm' => 'Transaksi_Hutang'],
+                ['label' => 'Piutang', 'route' => 'admin.transaksi.piutang', 'perm' => 'Transaksi_Piutang'],
+            ];
+
+            $allowedTransaksi = array_filter($subTransaksi, function($item) use ($userPerms, $hasFullAccess) {
+                return $hasFullAccess || in_array($item['perm'], $userPerms);
+            });
         @endphp
 
+        @if(count($allowedTransaksi) > 0)
         <div x-data="{ openTransaksi: {{ $isTransaksiGroup ? 'true' : 'false' }} }" class="relative">
-
             <button @click="openTransaksi = !openTransaksi"
                 class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
                            {{ $isTransaksiGroup ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
@@ -187,21 +188,9 @@
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
 
-                @php
-                    $subTransaksi = [
-                        ['label' => 'Entry Penjualan', 'route' => 'admin.penjualan.entry'],
-                        ['label' => 'Daftar Penjualan', 'route' => 'admin.penjualan.daftar'],
-                        ['label' => 'Entry Pembelian', 'route' => 'admin.pembelian.entry'],
-                        ['label' => 'Daftar Pembelian', 'route' => 'admin.pembelian.daftar'],
-                        ['label' => 'Hutang', 'route' => 'admin.transaksi.hutang'],
-                        ['label' => 'Piutang', 'route' => 'admin.transaksi.piutang'],
-                    ];
-                @endphp
-
-                @foreach ($subTransaksi as $sub)
+                @foreach ($allowedTransaksi as $sub)
                     @php
-                        $isActive =
-                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                        $isActive = $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
                     @endphp
                     <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
                         class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
@@ -215,12 +204,21 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
         {{-- PRODUKSI --}}
         @php
             $isProduksiGroup = request()->is('admin/produksi*');
+            $subProduksi = [
+                ['label' => 'Update Produksi', 'route' => 'admin.produksi.update-produksi', 'perm' => 'Produksi_Update Produksi'],
+                ['label' => 'Update Desain', 'route' => 'admin.produksi.update-desain', 'perm' => 'Produksi_Update Desain'],
+            ];
+            $allowedProduksi = array_filter($subProduksi, function($item) use ($userPerms, $hasFullAccess) {
+                return $hasFullAccess || in_array($item['perm'], $userPerms);
+            });
         @endphp
 
+        @if(count($allowedProduksi) > 0)
         <div x-data="{ openProduksi: {{ $isProduksiGroup ? 'true' : 'false' }} }" class="relative">
             <button @click="openProduksi = !openProduksi"
                 class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
@@ -245,17 +243,9 @@
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
 
-                @php
-                    $subProduksi = [
-                        ['label' => 'Update Produksi', 'route' => 'admin.produksi.update-produksi'],
-                        ['label' => 'Update Desain', 'route' => 'admin.produksi.update-desain'],
-                    ];
-                @endphp
-
-                @foreach ($subProduksi as $sub)
+                @foreach ($allowedProduksi as $sub)
                     @php
-                        $isActive =
-                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                        $isActive = $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
                     @endphp
                     <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
                         class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
@@ -269,12 +259,22 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
         {{-- KEUANGAN --}}
         @php
             $isKeuanganGroup = request()->is('admin/keuangan*');
+            $subKeuangan = [
+                ['label' => 'Kas', 'route' => 'admin.keuangan.kas', 'perm' => 'Keuangan_Kas'],
+                ['label' => 'Laba Rugi', 'route' => 'admin.keuangan.laba-rugi', 'perm' => 'Keuangan_Laba Rugi'],
+                ['label' => 'Pengeluaran Lainnya', 'route' => 'admin.keuangan.pengeluaran-lainnya', 'perm' => 'Keuangan_Pengeluaran Lainnya'],
+            ];
+            $allowedKeuangan = array_filter($subKeuangan, function($item) use ($userPerms, $hasFullAccess) {
+                return $hasFullAccess || in_array($item['perm'], $userPerms);
+            });
         @endphp
 
+        @if(count($allowedKeuangan) > 0)
         <div x-data="{ openKeuangan: {{ $isKeuanganGroup ? 'true' : 'false' }} }" class="relative">
             <button @click="openKeuangan = !openKeuangan"
                 class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
@@ -299,18 +299,9 @@
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
 
-                @php
-                    $subKeuangan = [
-                        ['label' => 'Kas', 'route' => 'admin.keuangan.kas'],
-                        ['label' => 'Laba Rugi', 'route' => 'admin.keuangan.laba-rugi'],
-                        ['label' => 'Pengeluaran Lainnya', 'route' => 'admin.keuangan.pengeluaran-lainnya'],
-                    ];
-                @endphp
-
-                @foreach ($subKeuangan as $sub)
+                @foreach ($allowedKeuangan as $sub)
                     @php
-                        $isActive =
-                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                        $isActive = $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
                     @endphp
                     <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
                         class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
@@ -324,12 +315,23 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
         {{-- KONTEN --}}
         @php
             $isKontenGroup = request()->is('admin/konten*');
+            $subKonten = [
+                ['label' => 'Mitra', 'route' => 'admin.konten.mitra', 'perm' => 'Konten_Mitra'],
+                ['label' => 'Produk', 'route' => 'admin.konten.produk', 'perm' => 'Konten_Produk (Konten)'],
+                ['label' => 'Portofolio', 'route' => 'admin.konten.portofolio', 'perm' => 'Konten_Portofolio'],
+                ['label' => 'Testimoni', 'route' => 'admin.konten.testimoni', 'perm' => 'Konten_Testimoni'],
+            ];
+            $allowedKonten = array_filter($subKonten, function($item) use ($userPerms, $hasFullAccess) {
+                return $hasFullAccess || in_array($item['perm'], $userPerms);
+            });
         @endphp
 
+        @if(count($allowedKonten) > 0)
         <div x-data="{ openKonten: {{ $isKontenGroup ? 'true' : 'false' }} }" class="relative">
             <button @click="openKonten = !openKonten"
                 class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
@@ -354,19 +356,9 @@
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
 
-                @php
-                    $subKonten = [
-                        ['label' => 'Mitra', 'route' => 'admin.konten.mitra'],
-                        ['label' => 'Produk', 'route' => 'admin.konten.produk'],
-                        ['label' => 'Portofolio', 'route' => 'admin.konten.portofolio'],
-                        ['label' => 'Testimoni', 'route' => 'admin.konten.testimoni'],
-                    ];
-                @endphp
-
-                @foreach ($subKonten as $sub)
+                @foreach ($allowedKonten as $sub)
                     @php
-                        $isActive =
-                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                        $isActive = $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
                     @endphp
                     <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
                         class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
@@ -380,12 +372,26 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
         {{-- LAPORAN --}}
         @php
             $isLaporanGroup = request()->is('admin/laporan*');
+            $subLaporan = [
+                ['label' => 'Laporan Barang', 'route' => 'admin.laporan.barang', 'perm' => 'Laporan_Laporan Barang'],
+                ['label' => 'Laporan Penjualan', 'route' => 'admin.laporan.penjualan', 'perm' => 'Laporan_Laporan Penjualan'],
+                ['label' => 'Laporan Pembelian', 'route' => 'admin.laporan.pembelian', 'perm' => 'Laporan_Laporan Pembelian'],
+                ['label' => 'Laporan Keuangan', 'route' => 'admin.laporan.keuangan', 'perm' => 'Laporan_Laporan Keuangan'],
+                ['label' => 'Laporan Stok', 'route' => 'admin.laporan.stok', 'perm' => 'Laporan_Laporan Stok'],
+                ['label' => 'Laporan Hutang', 'route' => 'admin.laporan.hutang', 'perm' => 'Laporan_Laporan Hutang'],
+                ['label' => 'Laporan Piutang', 'route' => 'admin.laporan.piutang', 'perm' => 'Laporan_Laporan Piutang'],
+            ];
+            $allowedLaporan = array_filter($subLaporan, function($item) use ($userPerms, $hasFullAccess) {
+                return $hasFullAccess || in_array($item['perm'], $userPerms);
+            });
         @endphp
 
+        @if(count($allowedLaporan) > 0)
         <div x-data="{ openLaporan: {{ $isLaporanGroup ? 'true' : 'false' }} }" class="relative">
             <button @click="openLaporan = !openLaporan"
                 class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
@@ -410,22 +416,9 @@
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
 
-                @php
-                    $subLaporan = [
-                        ['label' => 'Laporan Barang', 'route' => 'admin.laporan.barang'],
-                        ['label' => 'Laporan Penjualan', 'route' => 'admin.laporan.penjualan'],
-                        ['label' => 'Laporan Pembelian', 'route' => 'admin.laporan.pembelian'],
-                        ['label' => 'Laporan Keuangan', 'route' => 'admin.laporan.keuangan'],
-                        ['label' => 'Laporan Stok', 'route' => 'admin.laporan.stok'],
-                        ['label' => 'Laporan Hutang', 'route' => 'admin.laporan.hutang'],
-                        ['label' => 'Laporan Piutang', 'route' => 'admin.laporan.piutang'],
-                    ];
-                @endphp
-
-                @foreach ($subLaporan as $sub)
+                @foreach ($allowedLaporan as $sub)
                     @php
-                        $isActive =
-                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                        $isActive = $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
                     @endphp
                     <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
                         class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
@@ -439,12 +432,22 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
         {{-- USER --}}
         @php
             $isUserGroup = request()->is('admin/user*');
+            $subUser = [
+                ['label' => 'Manajemen Role', 'route' => 'admin.user.role', 'perm' => 'User_Manajemen Role'],
+                ['label' => 'Histori Pengguna', 'route' => 'admin.user.histori', 'perm' => 'User_Histori Pengguna'],
+                ['label' => 'Manajemen Pengguna', 'route' => 'admin.user.pengguna', 'perm' => 'User_Manajemen Pengguna'],
+            ];
+            $allowedUser = array_filter($subUser, function($item) use ($userPerms, $hasFullAccess) {
+                return $hasFullAccess || in_array($item['perm'], $userPerms);
+            });
         @endphp
 
+        @if(count($allowedUser) > 0)
         <div x-data="{ openUser: {{ $isUserGroup ? 'true' : 'false' }} }" class="relative">
             <button @click="openUser = !openUser"
                 class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
@@ -469,18 +472,9 @@
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
 
-                @php
-                    $subUser = [
-                        ['label' => 'Manajemen Role', 'route' => 'admin.user.role'],
-                        ['label' => 'Histori Pengguna', 'route' => 'admin.user.histori'],
-                        ['label' => 'Manajemen Pengguna', 'route' => 'admin.user.pengguna'],
-                    ];
-                @endphp
-
-                @foreach ($subUser as $sub)
+                @foreach ($allowedUser as $sub)
                     @php
-                        $isActive =
-                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                        $isActive = $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
                     @endphp
                     <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
                         class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
@@ -494,31 +488,38 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
-        {{-- GRAFIK --}}
-        @php
-            $isGrafik = request()->routeIs('admin.grafik.index');
-        @endphp
-
-        <a href="{{ route('admin.grafik.index') }}"
-            class="relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
-                  {{ $isGrafik ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
-
-            <div class="absolute left-0 top-0 h-full w-[3.5rem] flex items-center justify-center">
-                <i class="fa-solid fa-chart-line text-lg group-hover/item:scale-110 transition-transform"></i>
-            </div>
-
-            <div class="pl-[3.5rem] pr-3 flex-1 flex justify-between items-center transition-opacity duration-300 opacity-0 md:group-hover:opacity-100"
-                :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">
-                <span class="font-medium whitespace-nowrap">Grafik</span>
-            </div>
-        </a>
+        {{-- GRAFIK (Tampil kalau punya akses ke Laporan atau Full Access) --}}
+        @if($hasFullAccess)
+            @php
+                $isGrafik = request()->routeIs('admin.grafik.index');
+            @endphp
+            <a href="{{ route('admin.grafik.index') }}"
+                class="relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
+                      {{ $isGrafik ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
+                <div class="absolute left-0 top-0 h-full w-[3.5rem] flex items-center justify-center">
+                    <i class="fa-solid fa-home text-lg group-hover/item:scale-110 transition-transform"></i>
+                </div>
+                <span
+                    class="pl-[3.5rem] font-medium whitespace-nowrap transition-opacity duration-300 opacity-0 md:group-hover:opacity-100"
+                    :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">Grafik</span>
+            </a>
+        @endif
 
         {{-- TOOLS --}}
         @php
             $isToolsGroup = request()->is('admin/tools*');
+            $subTools = [
+                ['label' => 'Generate Barcode', 'route' => 'admin.tools.generate-barcode', 'perm' => 'Tools_Generate Barcode'],
+                ['label' => 'Backup Data', 'route' => 'admin.tools.backup-data', 'perm' => 'Tools_Backup Data'],
+            ];
+            $allowedTools = array_filter($subTools, function($item) use ($userPerms, $hasFullAccess) {
+                return $hasFullAccess || in_array($item['perm'], $userPerms);
+            });
         @endphp
 
+        @if(count($allowedTools) > 0)
         <div x-data="{ openTools: {{ $isToolsGroup ? 'true' : 'false' }} }" class="relative">
             <button @click="openTools = !openTools"
                 class="w-full relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
@@ -543,17 +544,9 @@
                 class="mt-2 space-y-1 overflow-hidden transition-all duration-300"
                 :class="sidebarOpen ? 'block' : 'hidden md:group-hover:block'">
 
-                @php
-                    $subTools = [
-                        ['label' => 'Generate Barcode', 'route' => 'admin.tools.generate-barcode'],
-                        ['label' => 'Backup Data', 'route' => 'admin.tools.backup-data'],
-                    ];
-                @endphp
-
-                @foreach ($subTools as $sub)
+                @foreach ($allowedTools as $sub)
                     @php
-                        $isActive =
-                            $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
+                        $isActive = $sub['route'] && Route::has($sub['route']) ? request()->routeIs($sub['route']) : false;
                     @endphp
                     <a href="{{ $sub['route'] && Route::has($sub['route']) ? route($sub['route']) : '#' }}"
                         class="flex items-center px-4 py-2.5 rounded-lg transition-all duration-300 pl-[3.5rem] relative group/sub
@@ -567,56 +560,42 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
     </nav>
 </aside>
 
-<!-- ======================================================== -->
-<!-- SCRIPT UNTUK FITUR REAL-TIME SEARCH MENU SIDEBAR         -->
-<!-- ======================================================== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. Menangkap elemen input pencarian (menggunakan placeholder karena tidak ada atribut ID)
         const searchInput = document.querySelector('input[placeholder="Cari Menu ..."]');
-        
-        // 2. Menangkap elemen <nav> yang membungkus semua menu
         const nav = document.querySelector('nav');
-        
-        // 3. Menangkap semua menu utama (anak langsung dari <nav>). 
-        // <a> untuk single link (Dashboard, Grafik), <div> untuk dropdown (Master Data, dll)
         const navElements = Array.from(nav.children);
 
-        // 4. Event Listener setiap kali user mengetik
         searchInput.addEventListener('input', function(e) {
             const keyword = e.target.value.toLowerCase();
 
             navElements.forEach(item => {
-                
-                // JIKA MENU ADALAH SINGLE LINK (Contoh: Dashboard, Grafik)
                 if (item.tagName.toLowerCase() === 'a') {
                     const text = item.textContent.toLowerCase();
                     if (text.includes(keyword)) {
-                        item.style.display = ''; // Munculkan
+                        item.style.display = ''; 
                     } else {
-                        item.style.display = 'none'; // Sembunyikan
+                        item.style.display = 'none'; 
                     }
                 } 
-                // JIKA MENU ADALAH DROPDOWN GROUP (Contoh: Master Data, Transaksi, dll)
-                else if (item.tagName.toLowerCase() === 'div') {
+                else if (item.tagName.toLowerCase() === 'div' && item.hasAttribute('x-data')) {
                     const parentBtn = item.querySelector('button');
-                    if (!parentBtn) return; // Skip jika bukan grup dropdown
+                    if (!parentBtn) return;
 
                     const parentText = parentBtn.textContent.toLowerCase();
                     const subContainer = item.querySelector('div[x-show]');
-                    const subLinks = subContainer.querySelectorAll('a');
+                    if (!subContainer) return;
                     
+                    const subLinks = subContainer.querySelectorAll('a');
                     let hasVisibleSub = false;
 
-                    // Cek satu-satu sub-menu di dalamnya
                     subLinks.forEach(sub => {
                         const subText = sub.textContent.toLowerCase();
-                        // Tampilkan sub-menu jika namanya cocok dengan ketikan, 
-                        // ATAU jika nama parent-nya yang dicari (maka tampilkan semua sub)
                         if (subText.includes(keyword) || parentText.includes(keyword)) {
                             sub.style.display = ''; 
                             hasVisibleSub = true;
@@ -625,15 +604,11 @@
                         }
                     });
 
-                    // Tampilkan grup parent jika ada sub-menu yang cocok atau parent-nya cocok
                     if (hasVisibleSub || parentText.includes(keyword)) {
                         item.style.display = ''; 
-                        
-                        // BUKA PAKSA dropdown jika ada kata kunci yang diketik
                         if (keyword !== '') {
                             subContainer.style.display = 'block';
                         } else {
-                            // Jika input dihapus/kosong, hapus override agar kembali diatur oleh Alpine.js
                             subContainer.style.display = ''; 
                         }
                     } else {

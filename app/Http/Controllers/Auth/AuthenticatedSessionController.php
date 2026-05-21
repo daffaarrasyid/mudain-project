@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\ActivityLog;
+use App\Models\Histori;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Catat login ke Histori
+        Histori::create([
+            'user_id'   => Auth::id(),
+            'aktivitas' => 'Login ke sistem',
+        ]);
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -37,7 +44,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Catat logout sebelum session dihancurkan
+        // Catat logout di Histori sebelum session dihancurkan
+        $histori = Histori::where('user_id', Auth::id())
+            ->whereNull('waktu_logout')
+            ->latest()
+            ->first();
+
+        if ($histori) {
+            $histori->update(['waktu_logout' => now()]);
+        }
+
+        // Catat logout di ActivityLog juga
         ActivityLog::record('logout', 'Logout dari dashboard admin', 'Auth', $request);
 
         Auth::guard('web')->logout();

@@ -10,6 +10,8 @@ class CheckPermission
 {
     /**
      * Peta: route name prefix => permission key (format: "Modul_SubModul")
+     * Jika route name adalah resource/action seperti admin.data-produk.index,
+     * maka akan cocok dengan prefix admin.data-produk.
      * Untuk Owner/Super Admin dengan permissions ['*'], semua akses diizinkan.
      */
     protected array $routePermissionMap = [
@@ -18,10 +20,10 @@ class CheckPermission
         'admin.supplier'      => 'Master Data_Data Supplier',
         'admin.kategori'      => 'Master Data_Data Kategori',
         'admin.satuan'        => 'Master Data_Data Satuan',
-        'admin.servis'        => 'Master Data_Data Kategori', // servis termasuk master data umum
-        'admin.staf'          => 'Master Data_Data Kategori',
-        'admin.customer'      => 'Master Data_Data Produk',
-        'admin.stok'          => 'Master Data_Data Produk',
+        'admin.servis'        => 'Master Data_Data Servis',
+        'admin.staf'          => 'Master Data_Data Staf',
+        'admin.customer'      => 'Master Data_Data Customer',
+        'admin.stok'          => 'Master Data_Stok In/Out',
 
         // Transaksi - Penjualan
         'admin.penjualan.entry'   => 'Transaksi_Entry Penjualan',
@@ -50,8 +52,8 @@ class CheckPermission
         'admin.keuangan.kas'                  => 'Keuangan_Kas',
         'admin.keuangan.kas.store'            => 'Keuangan_Kas',
         'admin.keuangan.laba-rugi'            => 'Keuangan_Laba Rugi',
-        'admin.keuangan.pengeluaran-lainnya'  => 'Keuangan_Kas',
-        'admin.keuangan.pengeluaran-lainnya.store' => 'Keuangan_Kas',
+        'admin.keuangan.pengeluaran-lainnya'  => 'Keuangan_Pengeluaran Lainnya',
+        'admin.keuangan.pengeluaran-lainnya.store' => 'Keuangan_Pengeluaran Lainnya',
 
         // Konten
         'admin.konten.mitra'       => 'Konten_Mitra',
@@ -80,16 +82,16 @@ class CheckPermission
         'admin.laporan.kas.export'       => 'Laporan_Laporan Keuangan',
         'admin.laporan.laba-kotor.export'  => 'Laporan_Laporan Keuangan',
         'admin.laporan.laba-bersih.export' => 'Laporan_Laporan Keuangan',
-        'admin.laporan.barang'           => 'Laporan_Laporan Produksi',
-        'admin.laporan.barang.export'    => 'Laporan_Laporan Produksi',
-        'admin.laporan.stok'             => 'Laporan_Laporan Produksi',
-        'admin.laporan.stok.export'      => 'Laporan_Laporan Produksi',
-        'admin.laporan.hutang'           => 'Transaksi_Hutang',
-        'admin.laporan.hutang.export'    => 'Transaksi_Hutang',
-        'admin.laporan.piutang'          => 'Transaksi_Piutang',
-        'admin.laporan.piutang.export'   => 'Transaksi_Piutang',
+        'admin.laporan.barang'           => 'Laporan_Laporan Barang',
+        'admin.laporan.barang.export'    => 'Laporan_Laporan Barang',
+        'admin.laporan.stok'             => 'Laporan_Laporan Stok',
+        'admin.laporan.stok.export'      => 'Laporan_Laporan Stok',
+        'admin.laporan.hutang'           => 'Laporan_Laporan Hutang',
+        'admin.laporan.hutang.export'    => 'Laporan_Laporan Hutang',
+        'admin.laporan.piutang'          => 'Laporan_Laporan Piutang',
+        'admin.laporan.piutang.export'   => 'Laporan_Laporan Piutang',
 
-        // User & Role Management — khusus superadmin (tidak ada permission key = otomatis blok non-superadmin)
+        // User & Role Management — khusus superadmin
         'admin.user.role'            => '__superadmin__',
         'admin.user.role.store'      => '__superadmin__',
         'admin.user.role.update'     => '__superadmin__',
@@ -99,6 +101,19 @@ class CheckPermission
         'admin.user.pengguna.update' => '__superadmin__',
         'admin.user.pengguna.destroy'=> '__superadmin__',
         'admin.user.histori'         => '__superadmin__',
+        'admin.user.histori.clear'   => '__superadmin__',
+        'admin.user.histori.export'  => '__superadmin__',
+
+        // Tools — khusus superadmin
+        'admin.tools.generate-barcode'     => '__superadmin__',
+        'admin.tools.backup-data'          => '__superadmin__',
+        'admin.tools.backup-data.process'  => '__superadmin__',
+
+        // Grafik — khusus superadmin
+        'admin.grafik.index'               => '__superadmin__',
+
+        // Dashboard & Chart (diizinkan untuk semua, akan di-filter di controller jika perlu)
+        // Tidak perlu di-protect di middleware
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -112,8 +127,8 @@ class CheckPermission
 
         $routeName = $request->route()?->getName();
 
-        // Route tidak ada di map — bebas diakses (dashboard, dll)
-        if (!$routeName || !array_key_exists($routeName, $this->routePermissionMap)) {
+        // Jika tidak ada route name atau route publik (non-admin) — bebas diakses
+        if (!$routeName) {
             return $next($request);
         }
 
@@ -121,12 +136,23 @@ class CheckPermission
         $role = $user->load('role')->role;
         $permissions = $role?->permissions ?? [];
 
-        // Superadmin (wildcard '*') — izinkan semua
+        // Superadmin (wildcard '*') — izinkan semua route admin
         if (in_array('*', $permissions)) {
             return $next($request);
         }
 
-        $required = $this->routePermissionMap[$routeName];
+        // Tentukan permission yang diperlukan berdasarkan route name atau prefix route name
+        $required = $this->getRequiredPermission($routeName);
+
+        // Jika route adalah admin route tapi tidak ada di permission map — BLOK dengan strict (default deny)
+        if (str_starts_with($routeName, 'admin.') && !$required) {
+            abort(403, 'Akses ke halaman ini tidak diizinkan.');
+        }
+
+        // Jika route bukan admin atau tidak butuh permission khusus — lanjut
+        if (!$required) {
+            return $next($request);
+        }
 
         // Route yang membutuhkan superadmin
         if ($required === '__superadmin__') {
@@ -139,5 +165,20 @@ class CheckPermission
         }
 
         return $next($request);
+    }
+
+    private function getRequiredPermission(string $routeName): ?string
+    {
+        if (array_key_exists($routeName, $this->routePermissionMap)) {
+            return $this->routePermissionMap[$routeName];
+        }
+
+        foreach ($this->routePermissionMap as $prefix => $permission) {
+            if (str_starts_with($routeName, $prefix . '.')) {
+                return $permission;
+            }
+        }
+
+        return null;
     }
 }
