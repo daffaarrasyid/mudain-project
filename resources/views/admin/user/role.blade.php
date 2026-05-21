@@ -73,9 +73,9 @@
                 </button>
             </div>
             <div class="relative w-full sm:w-64">
-                <input type="text" placeholder="Cari role..."
-                    class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00]">
-                <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl">
+                <input type="text" id="searchInput" placeholder="Cari role..."
+                    class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00] transition-colors">
+                <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl flex items-center justify-center hover:bg-[#cc5200]">
                     <i class="fa-solid fa-search"></i>
                 </button>
             </div>
@@ -92,10 +92,9 @@
                         <th class="px-6 py-4 text-center">Opsi</th>
                     </tr>
                 </thead>
-                <tbody class="text-sm text-gray-600">
+                <tbody class="text-sm text-gray-600" id="tableBody">
                     @forelse ($roles as $i => $role)
-                        <tr
-                            class="border-b border-gray-50 even:bg-gray-50/50 hover:bg-orange-50/40 transition-colors align-top">
+                        <tr class="data-row border-b border-gray-50 even:bg-gray-50/50 hover:bg-orange-50/40 transition-colors align-top">
                             <td class="px-6 py-4 text-gray-400 font-medium">{{ $i + 1 }}</td>
                             <td class="px-6 py-4">
                                 <span class="text-sm font-medium text-gray-700">
@@ -165,7 +164,11 @@
             </table>
         </div>
 
-        <div class="mt-4 text-sm text-gray-400">Total {{ $roles->count() }} role terdaftar</div>
+        <div class="mt-4 text-sm text-gray-500">
+            Menampilkan <span id="showFrom">1</span> sampai
+            <span id="showTo">{{ $roles->count() }}</span> dari
+            <span class="font-bold text-[#E65C00]">{{ $roles->count() }}</span> data
+        </div>
 
         {{-- ============================================================ --}}
         {{-- MODAL LIHAT IZIN AKSES --}}
@@ -438,3 +441,34 @@
 
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const tableRows   = document.querySelectorAll('.data-row');
+        const showFrom    = document.getElementById('showFrom');
+        const showTo      = document.getElementById('showTo');
+        const totalRows   = tableRows.length;
+
+        function updateCount() {
+            const visible = Array.from(tableRows).filter(r => r.style.display !== 'none').length;
+            showFrom.textContent = visible > 0 ? 1 : 0;
+            showTo.textContent   = visible;
+        }
+
+        searchInput.addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase();
+
+            tableRows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                row.style.display = rowText.includes(keyword) ? '' : 'none';
+            });
+
+            updateCount();
+        });
+
+        updateCount();
+    });
+</script>
+@endpush

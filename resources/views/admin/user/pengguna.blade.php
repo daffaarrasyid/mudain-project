@@ -54,15 +54,13 @@
                 <i class="fa-solid fa-plus mr-1"></i> Tambah Pengguna
             </button>
         </div>
-        <form method="GET" action="{{ route('admin.user.pengguna') }}" class="flex items-center gap-2 w-full md:w-auto">
-            <div class="relative w-full sm:w-64">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / username..."
-                    class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00]">
-                <button type="submit" class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl">
-                    <i class="fa-solid fa-search"></i>
-                </button>
-            </div>
-        </form>
+        <div class="relative w-full sm:w-64">
+            <input type="text" id="searchInput" placeholder="Cari nama / username..."
+                class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00] transition-colors">
+            <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl flex items-center justify-center hover:bg-[#cc5200]">
+                <i class="fa-solid fa-search"></i>
+            </button>
+        </div>
     </div>
 
     {{-- Table --}}
@@ -80,9 +78,9 @@
                     <th class="px-5 py-4 text-center">Opsi</th>
                 </tr>
             </thead>
-            <tbody class="text-sm text-gray-600">
+            <tbody class="text-sm text-gray-600" id="tableBody">
                 @forelse($users as $i => $user)
-                <tr class="border-b border-gray-50 even:bg-gray-50/50 hover:bg-orange-50/40 transition-colors">
+                <tr class="data-row border-b border-gray-50 even:bg-gray-50/50 hover:bg-orange-50/40 transition-colors">
                     <td class="px-5 py-4 text-gray-400">{{ $users->firstItem() + $i }}</td>
                     <td class="px-5 py-4 font-medium text-gray-700">{{ $user->name }}</td>
                     <td class="px-5 py-4 text-gray-500">{{ $user->username ?? '-' }}</td>
@@ -143,9 +141,13 @@
         </table>
     </div>
 
-    {{-- Pagination --}}
+    {{-- Info & Pagination --}}
     <div class="flex flex-col sm:flex-row items-center justify-between mt-5 text-sm text-gray-500 gap-3">
-        <div>Menampilkan {{ $users->firstItem() ?? 0 }}–{{ $users->lastItem() ?? 0 }} dari {{ $users->total() }} pengguna</div>
+        <div>
+            Menampilkan <span id="showFrom">{{ $users->firstItem() ?? 0 }}</span> sampai
+            <span id="showTo">{{ $users->lastItem() ?? 0 }}</span> dari
+            <span class="font-bold text-[#E65C00]">{{ $users->total() }}</span> data
+        </div>
         <div>{{ $users->links('vendor.pagination.simple-tailwind') }}</div>
     </div>
 
@@ -334,3 +336,33 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const tableRows   = document.querySelectorAll('.data-row');
+        const showFrom    = document.getElementById('showFrom');
+        const showTo      = document.getElementById('showTo');
+
+        function updateCount() {
+            const visible = Array.from(tableRows).filter(r => r.style.display !== 'none').length;
+            showFrom.textContent = visible > 0 ? 1 : 0;
+            showTo.textContent   = visible;
+        }
+
+        searchInput.addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase();
+
+            tableRows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                row.style.display = rowText.includes(keyword) ? '' : 'none';
+            });
+
+            updateCount();
+        });
+
+        // Tidak perlu updateCount() saat load karena nilai awal sudah dari server
+    });
+</script>
+@endpush

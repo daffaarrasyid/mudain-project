@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Terapkan ke semua web request secara global
         $middleware->web(append: [
             \App\Http\Middleware\CheckPermission::class,
+            \App\Http\Middleware\LogActivity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

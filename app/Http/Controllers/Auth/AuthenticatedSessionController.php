@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\ActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Catat logout sebelum session dihancurkan
+        ActivityLog::record('logout', 'Logout dari dashboard admin', 'Auth', $request);
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
@@ -45,3 +49,4 @@ class AuthenticatedSessionController extends Controller
         return redirect('/login');
     }
 }
+

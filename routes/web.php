@@ -188,6 +188,8 @@ Route::put('/admin/user/role/{id}', [UserController::class, 'updateRole'])->name
 Route::delete('/admin/user/role/{id}', [UserController::class, 'destroyRole'])->name('admin.user.role.destroy');
 // Route untuk halaman Histori Pengguna
 Route::get('/admin/user/histori', [UserController::class, 'histori'])->name('admin.user.histori');
+Route::delete('/admin/user/histori', [UserController::class, 'clearHistori'])->name('admin.user.histori.clear');
+Route::get('/admin/user/histori/export', [UserController::class, 'exportHistori'])->name('admin.user.histori.export');
 // Route untuk halaman Manajemen Pengguna (CRUD)
 Route::get('/admin/user/pengguna', [UserController::class, 'pengguna'])->name('admin.user.pengguna');
 Route::post('/admin/user/pengguna', [UserController::class, 'storePengguna'])->name('admin.user.pengguna.store');

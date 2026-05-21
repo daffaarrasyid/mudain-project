@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserController extends Controller
 {
@@ -146,12 +148,74 @@ class UserController extends Controller
         return redirect()->route('admin.user.pengguna')->with('success', 'Pengguna berhasil dihapus.');
     }
 
-    // ============================================================
-    // HISTORI
-    // ============================================================
-
     public function histori()
     {
-        return view('admin.user.histori');
+        $query = ActivityLog::with('user')->latest();
+
+        // Filter berdasarkan pencarian
+        if (request('search')) {
+            $q = request('search');
+            $query->where(function($q2) use ($q) {
+                $q2->where('user_name', 'like', "%$q%")
+                   ->orWhere('user_role', 'like', "%$q%")
+                   ->orWhere('description', 'like', "%$q%")
+                   ->orWhere('module', 'like', "%$q%");
+            });
+        }
+
+        // Filter berdasarkan action
+        if (request('action') && request('action') !== 'all') {
+            $query->where('action', request('action'));
+        }
+
+        // Filter berdasarkan modul
+        if (request('module') && request('module') !== 'all') {
+            $query->where('module', request('module'));
+        }
+
+        $logs    = $query->paginate(20)->withQueryString();
+        $modules = ActivityLog::select('module')->distinct()->whereNotNull('module')->pluck('module');
+
+        return view('admin.user.histori', compact('logs', 'modules'));
+    }
+
+    public function clearHistori()
+    {
+        ActivityLog::truncate();
+        return redirect()->route('admin.user.histori')->with('success', 'Semua log aktivitas berhasil dihapus.');
+    }
+
+    public function exportHistori()
+    {
+        $query = ActivityLog::with('user')->latest();
+
+        // Filter berdasarkan pencarian
+        if (request('search')) {
+            $q = request('search');
+            $query->where(function($q2) use ($q) {
+                $q2->where('user_name', 'like', "%$q%")
+                   ->orWhere('user_role', 'like', "%$q%")
+                   ->orWhere('description', 'like', "%$q%")
+                   ->orWhere('module', 'like', "%$q%");
+            });
+        }
+
+        // Filter berdasarkan action
+        if (request('action') && request('action') !== 'all') {
+            $query->where('action', request('action'));
+        }
+
+        // Filter berdasarkan modul
+        if (request('module') && request('module') !== 'all') {
+            $query->where('module', request('module'));
+        }
+
+        $logs = $query->get();
+
+        $pdf = Pdf::loadView('admin.user.pdf-histori', compact('logs'));
+        
+        ob_clean();
+        
+        return $pdf->stream('Laporan_Histori_Aktivitas_' . date('Y-m-d') . '.pdf');
     }
 }
