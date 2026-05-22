@@ -57,8 +57,8 @@
                     <th class="px-6 py-4">Jumlah</th>
                     <th class="px-6 py-4">Nilai</th>
                     <th class="px-6 py-4">Jenis</th>
+                    <th class="px-6 py-4">Sumber</th>
                     <th class="px-6 py-4">Tanggal</th>
-                    <th class="px-6 py-4">Keterangan</th>
                     <th class="px-6 py-4 text-center">Opsi</th>
                 </tr>
             </thead>
@@ -70,11 +70,41 @@
                     <td class="px-6 py-4">{{ $stok->produk->satuan->nama_satuan ?? '-' }}</td>
                     <td class="px-6 py-4 font-bold text-gray-800">{{ number_format($stok->jumlah, 0, ',', '.') }}</td>
                     <td class="px-6 py-4">Rp {{ number_format($stok->nilai, 0, ',', '.') }}</td>
-                    <td class="px-6 py-4 font-semibold {{ $stok->jenis == 'Keluar' ? 'text-red-500' : 'text-green-500' }}">
-                        {{ $stok->jenis == 'Keluar' ? 'Stok Keluar' : 'Stok Masuk' }}
+                    <td class="px-6 py-4">
+                        @if($stok->jenis == 'Keluar')
+                            <span class="inline-flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-600 text-xs font-bold px-2.5 py-1 rounded-full">
+                                <i class="fa-solid fa-arrow-up text-[10px]"></i> Stok Keluar
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-600 text-xs font-bold px-2.5 py-1 rounded-full">
+                                <i class="fa-solid fa-arrow-down text-[10px]"></i> Stok Masuk
+                            </span>
+                        @endif
                     </td>
-                    <td class="px-6 py-4 text-gray-500">{{ \Carbon\Carbon::parse($stok->tanggal)->format('Y-m-d H:i') }}</td>
-                    <td class="px-6 py-4 italic text-gray-400">{{ $stok->keterangan ?? '-' }}</td>
+                    <td class="px-6 py-4">
+                        @php
+                            $ket = $stok->keterangan ?? '';
+                            $isPenjualan = str_contains($ket, 'Penjualan Invoice');
+                            $isPembelian = str_contains($ket, 'Pembelian Faktur');
+                        @endphp
+                        @if($isPenjualan)
+                            <span class="inline-flex items-center gap-1.5 bg-purple-50 border border-purple-200 text-purple-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                                <i class="fa-solid fa-receipt text-[10px]"></i>
+                                {{ $ket }}
+                            </span>
+                        @elseif($isPembelian)
+                            <span class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                                <i class="fa-solid fa-truck text-[10px]"></i>
+                                {{ $ket }}
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-500 text-xs font-semibold px-2.5 py-1 rounded-full">
+                                <i class="fa-solid fa-pen text-[10px]"></i>
+                                {{ $ket ?: 'Manual' }}
+                            </span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 text-gray-500 text-xs">{{ \Carbon\Carbon::parse($stok->tanggal)->format('d M Y, H:i') }}</td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex flex-col gap-1.5 items-center justify-center">
                             <!-- Edit dikunci untuk keamanan audit stok -->

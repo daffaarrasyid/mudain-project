@@ -81,6 +81,12 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $produk = Produk::findOrFail($id);
+
+        // Cek apakah produk sudah digunakan di transaksi pembelian
+        if ($produk->pembelianDetails()->exists()) {
+            return back()->with('error', 'Produk "' . $produk->nama_item . '" tidak dapat dihapus karena sudah memiliki riwayat transaksi pembelian.');
+        }
+
         // Hapus file gambar fisik dari server
         if ($produk->gambar) {
             Storage::disk('public')->delete($produk->gambar);

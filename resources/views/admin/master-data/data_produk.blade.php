@@ -20,6 +20,12 @@
         <button @click="show = false"><i class="fa-solid fa-xmark"></i></button>
     </div>
     @endif
+    @if(session('error'))
+    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl flex items-center justify-between transition-all duration-500">
+        <div class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> <span>{{ session('error') }}</span></div>
+        <button @click="show = false"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    @endif
     @if ($errors->any())
     <div class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
         <div class="flex items-center gap-2 font-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Gagal Menyimpan Data!</div>

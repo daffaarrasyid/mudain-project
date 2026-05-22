@@ -74,18 +74,22 @@
             <div class="flex items-center relative">
                 <label class="w-1/4 text-sm font-bold text-gray-700" x-text="selectedLayanan"></label>
                 <div class="w-3/4 flex relative" @click.away="searchOpen = false">
-                    <input type="text" x-model="searchKeyword" @input="searchOpen = true; findItem()" @focus="searchOpen = true" placeholder="Ketik Kode/Nama..." class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-l-lg px-3 py-2 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none border-r-0">
+                    <input type="text" x-model="searchKeyword"
+                        @focus="searchOpen = true; findItem()"
+                        @input="searchOpen = true; findItem()"
+                        placeholder="Ketik Kode/Nama..."
+                        class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-l-lg px-3 py-2 focus:ring-1 focus:ring-[#E65C00] focus:border-[#E65C00] outline-none border-r-0">
                     <button class="bg-[#E65C00] text-white px-4 rounded-r-lg transition-colors cursor-default">
                         <i class="fa-solid fa-search"></i>
                     </button>
                     
-                    <ul x-show="searchOpen && searchKeyword.length > 0" x-transition.opacity class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-100 shadow-xl rounded-xl max-h-48 overflow-y-auto z-50 py-1" style="display: none;">
+                    <ul x-show="searchOpen && (searchResults.length > 0 || searchKeyword.length === 0)" x-transition.opacity class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-100 shadow-xl rounded-xl max-h-48 overflow-y-auto z-50 py-1" style="display: none;">
                         <template x-for="item in searchResults" :key="item.id">
                             <li @click="selectItem(item)" class="px-4 py-2 hover:bg-orange-50 cursor-pointer text-sm border-b border-gray-50 last:border-0 transition-colors">
                                 <span class="font-bold text-[#E65C00]" x-text="item.kode"></span> - <span class="text-gray-700" x-text="item.nama"></span>
                             </li>
                         </template>
-                        <li x-show="searchResults.length === 0" class="px-4 py-2 text-sm text-gray-500 italic text-center">Tidak ditemukan...</li>
+                        <li x-show="searchResults.length === 0 && searchKeyword.length > 0" class="px-4 py-2 text-sm text-gray-500 italic text-center">Tidak ditemukan...</li>
                     </ul>
                 </div>
             </div>
@@ -306,35 +310,28 @@
 
             findItem() {
                 const keyword = this.searchKeyword.toLowerCase();
-                if(keyword.length < 1) {
-                    this.searchResults = [];
-                    return;
-                }
 
-                if(this.selectedLayanan === 'Produk') {
-                    this.searchResults = this.databaseProduk.filter(p => 
-                        p.kode_barang.toLowerCase().includes(keyword) || 
-                        p.nama_item.toLowerCase().includes(keyword)
-                    ).map(p => ({
-                        id: p.id,
-                        kode: p.kode_barang,
-                        nama: p.nama_item,
-                        hargaUmum: p.harga_jual_umum,
-                        hargaPelanggan: p.harga_pelanggan
+                let source;
+                if (this.selectedLayanan === 'Produk') {
+                    source = this.databaseProduk.map(p => ({
+                        id: p.id, kode: p.kode_barang, nama: p.nama_item,
+                        hargaUmum: p.harga_jual_umum, hargaPelanggan: p.harga_pelanggan
                     }));
                 } else {
-                    // Logic Servis: Ngambil harga dari harga_dasar
-                    this.searchResults = this.databaseService.filter(p => 
-                        p.kode_servis.toLowerCase().includes(keyword) || 
-                        p.nama_servis.toLowerCase().includes(keyword)
-                    ).map(p => ({
-                        id: p.id,
-                        kode: p.kode_servis,
-                        nama: p.nama_servis,
-                        hargaUmum: p.harga_dasar, 
-                        hargaPelanggan: p.harga_dasar
+                    source = this.databaseService.map(p => ({
+                        id: p.id, kode: p.kode_servis, nama: p.nama_servis,
+                        hargaUmum: p.harga_dasar, hargaPelanggan: p.harga_dasar
                     }));
                 }
+
+                // Jika kosong: tampilkan semua (sudah sort asc dari controller)
+                // Jika ada keyword: filter realtime
+                this.searchResults = keyword.length
+                    ? source.filter(p =>
+                        p.kode.toLowerCase().includes(keyword) ||
+                        p.nama.toLowerCase().includes(keyword)
+                      )
+                    : source;
             },
 
             selectItem(item) {

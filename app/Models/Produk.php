@@ -16,6 +16,6 @@ class Produk extends Model
 
     public function kategori() { return $this->belongsTo(Kategori::class); }
     public function satuan() { return $this->belongsTo(Satuan::class); }
-    // Tambahkan ini
     public function supplier() { return $this->belongsTo(Supplier::class); }
+    public function pembelianDetails() { return $this->hasMany(PembelianDetail::class, 'produk_id'); }
 }

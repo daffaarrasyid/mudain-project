@@ -47,37 +47,89 @@
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center space-y-4">
-            <!-- Pencarian Penjualan -->
-            <div class="flex items-center relative">
+            <!-- Tombol Pilih Penjualan -->
+            <div class="flex items-center">
                 <label class="w-1/3 text-sm font-bold text-gray-700">Pilih Penjualan</label>
-                <div class="w-2/3 flex relative" @click.away="invOpen = false">
-                    <input type="text" x-model="searchInvoice" @input="invOpen = true; findInvoice()" @focus="invOpen = true" placeholder="Ketik Kode Invoice..." class="w-full bg-orange-50 border border-orange-200 text-orange-700 font-bold text-sm rounded-l-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] outline-none border-r-0 placeholder:font-normal">
-                    <button class="bg-[#E65C00] text-white px-4 rounded-r-lg transition-colors cursor-default"><i class="fa-solid fa-file-invoice"></i></button>
-                    
-                    <!-- Dropdown Invoice -->
-                    <ul x-show="invOpen && resInvoice.length > 0" class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-100 shadow-xl rounded-xl max-h-40 overflow-y-auto z-50">
-                        <template x-for="inv in resInvoice" :key="inv.id">
-                            <li @click="selectInvoice(inv)" class="px-4 py-3 hover:bg-orange-50 cursor-pointer text-sm border-b border-gray-50 flex flex-col">
-                                <span class="font-bold text-[#E65C00]" x-text="inv.invoice"></span>
-                                <span class="text-xs text-gray-500" x-text="'Tgl: ' + formatTanggal(inv.created_at)"></span>
+                <div class="w-2/3">
+                    <button type="button" @click="modalInvoice = true"
+                        class="w-full text-left bg-orange-50 border border-orange-200 text-sm rounded-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] outline-none flex items-center justify-between hover:bg-orange-100 transition-colors">
+                        <span :class="selectedInvoiceId ? 'font-bold text-[#E65C00]' : 'text-gray-400 font-normal'" x-text="selectedInvoiceId ? searchInvoice : 'Klik untuk pilih penjualan...'"></span>
+                        <i class="fa-solid fa-file-invoice text-[#E65C00]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dropdown Supplier (muncul saat fokus, sort asc) -->
+            <div class="flex items-center relative">
+                <label class="w-1/3 text-sm font-bold text-gray-700">Supplier</label>
+                <div class="w-2/3 flex relative" @click.away="supOpen = false">
+                    <input type="text" x-model="searchSupplier"
+                        @focus="supOpen = true; findSupplier()"
+                        @input="supOpen = true; findSupplier()"
+                        placeholder="Ketik atau pilih supplier..."
+                        class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-l-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] outline-none border-r-0">
+                    <button class="bg-[#E65C00] text-white px-4 rounded-r-lg cursor-default"><i class="fa-solid fa-search"></i></button>
+                    <ul x-show="supOpen && resSupplier.length > 0" x-transition.opacity
+                        class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-100 shadow-xl rounded-xl max-h-48 overflow-y-auto z-50" style="display:none">
+                        <template x-for="sup in resSupplier" :key="sup.id">
+                            <li @click="selectSupplier(sup)" class="px-4 py-2.5 hover:bg-orange-50 cursor-pointer text-sm border-b border-gray-50 last:border-0">
+                                <span class="font-medium text-gray-700" x-text="sup.nama_supplier"></span>
                             </li>
                         </template>
                     </ul>
                 </div>
             </div>
-            
-            <div class="flex items-center relative">
-                <label class="w-1/3 text-sm font-bold text-gray-700">Supplier</label>
-                <div class="w-2/3 flex relative" @click.away="supOpen = false">
-                    <input type="text" x-model="searchSupplier" @input="supOpen = true; findSupplier()" @focus="supOpen = true" placeholder="Ketik nama supplier..." class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-l-lg px-3 py-2.5 focus:ring-1 focus:ring-[#E65C00] outline-none border-r-0">
-                    <button class="bg-[#E65C00] text-white px-4 rounded-r-lg transition-colors cursor-default"><i class="fa-solid fa-search"></i></button>
-                    <!-- Dropdown Supplier -->
-                    <ul x-show="supOpen && resSupplier.length > 0" class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-100 shadow-xl rounded-xl max-h-40 overflow-y-auto z-50">
-                        <template x-for="sup in resSupplier" :key="sup.id">
-                            <li @click="selectSupplier(sup)" class="px-4 py-2 hover:bg-orange-50 cursor-pointer text-sm border-b border-gray-50" x-text="sup.nama_supplier"></li>
-                        </template>
-                    </ul>
+        </div>
+    </div>
+
+    <!-- MODAL PILIH PENJUALAN -->
+    <div x-show="modalInvoice" style="display:none" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-transition.opacity>
+        <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl m-auto flex flex-col" style="max-height:85vh" @click.away="modalInvoice = false" x-transition>
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">Pilih Penjualan</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Menampilkan order dengan stok bahan minus</p>
                 </div>
+                <button @click="modalInvoice = false" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <!-- Search Bar -->
+            <div class="px-6 py-3 border-b border-gray-100">
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" x-model="modalSearch" @input="filterModal()"
+                        placeholder="Cari nomor invoice atau nama customer..."
+                        class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E65C00]/40 focus:border-[#E65C00]">
+                </div>
+            </div>
+            <!-- List Penjualan (Scrollable) -->
+            <div class="overflow-y-auto flex-1 px-2 py-2">
+                <template x-if="modalFiltered.length === 0">
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-200"></i>
+                        <p class="text-sm">Tidak ada penjualan dengan stok bahan minus.</p>
+                    </div>
+                </template>
+                <template x-for="inv in modalFiltered" :key="inv.id">
+                    <div @click="selectInvoice(inv); modalInvoice = false"
+                        class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-orange-50 cursor-pointer transition-colors mb-1 border border-transparent hover:border-orange-100"
+                        :class="selectedInvoiceId == inv.id ? 'bg-orange-50 border-orange-200' : ''">
+                        <div>
+                            <p class="font-bold text-[#E65C00] text-sm" x-text="inv.invoice"></p>
+                            <p class="text-xs text-gray-500 mt-0.5" x-text="(inv.customer ? inv.customer.nama_customer : 'Unknown') + ' · ' + formatTanggal(inv.created_at)"></p>
+                            <!-- Info stok minus -->
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                <template x-for="d in inv.details.filter(d => d.produk && d.produk.stok < 0)" :key="d.id">
+                                    <span class="inline-flex items-center gap-1 bg-red-50 border border-red-200 text-red-600 text-xs px-2 py-0.5 rounded-full">
+                                        <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
+                                        <span x-text="d.produk.nama_item + ' (stok: ' + d.produk.stok + ')'"></span>
+                                    </span>
+                                </template>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-circle-check text-lg" :class="selectedInvoiceId == inv.id ? 'text-[#E65C00]' : 'text-gray-200'"></i>
+                    </div>
+                </template>
             </div>
         </div>
     </div>
@@ -218,13 +270,14 @@
         return {
             dbSupplier: @json($suppliers),
             dbPenjualan: @json($penjualans),
-            
+
             tanggalFaktur: '{{ date("Y-m-d") }}',
-            
-            // State Invoice
+
+            // State Invoice Modal
+            modalInvoice: false,
+            modalSearch: '',
+            modalFiltered: [],
             searchInvoice: '',
-            invOpen: false,
-            resInvoice: [],
             selectedInvoiceId: '',
             listPesanan: [],
 
@@ -240,30 +293,48 @@
             inputBayar: '',
             sisaHutang: 0,
 
-            // === FUNGSI INVOICE PENJUALAN ===
-            findInvoice() {
-                const kw = this.searchInvoice.toLowerCase();
-                this.resInvoice = kw.length ? this.dbPenjualan.filter(p => p.invoice.toLowerCase().includes(kw)) : [];
+            init() {
+                // Saat init, siapkan semua data modal (sudah difilter di backend)
+                this.modalFiltered = this.dbPenjualan;
+                // Supplier: sort ascending sudah dari backend
+                this.resSupplier = this.dbSupplier;
+            },
+
+            // === FUNGSI MODAL PILIH PENJUALAN ===
+            filterModal() {
+                const kw = this.modalSearch.toLowerCase();
+                this.modalFiltered = kw.length
+                    ? this.dbPenjualan.filter(p =>
+                        p.invoice.toLowerCase().includes(kw) ||
+                        (p.customer && p.customer.nama_customer.toLowerCase().includes(kw))
+                      )
+                    : this.dbPenjualan;
             },
             selectInvoice(inv) {
                 this.selectedInvoiceId = inv.id;
                 this.searchInvoice = inv.invoice;
-                this.invOpen = false;
-                
+                this.modalSearch = '';
+                this.modalFiltered = this.dbPenjualan;
                 // Load barang dari invoice ke tabel, dikunci qty-nya
-                this.listPesanan = inv.details.map(d => ({
-                    id: d.produk_id,
-                    nama: d.produk ? d.produk.nama_item : 'Produk Dihapus',
-                    qty: d.qty,
-                    harga_beli: d.produk ? d.produk.harga_beli : 0, // Ambil base modal
-                    selected: false // Harus diceklis manual sama admin
-                }));
+                this.listPesanan = inv.details
+                    .filter(d => d.produk_id !== null)
+                    .map(d => ({
+                        id: d.produk_id,
+                        nama: d.produk ? d.produk.nama_item : 'Produk Dihapus',
+                        qty: d.qty,
+                        harga_beli: d.produk ? d.produk.harga_beli : 0,
+                        selected: false
+                    }));
             },
 
-            // === FUNGSI SUPPLIER ===
+            // === FUNGSI SUPPLIER (muncul saat fokus, filter realtime) ===
             findSupplier() {
                 const kw = this.searchSupplier.toLowerCase();
-                this.resSupplier = kw.length ? this.dbSupplier.filter(s => s.nama_supplier.toLowerCase().includes(kw)) : [];
+                // Jika kosong: tampilkan semua (sudah sort asc dari backend)
+                // Jika ada kata kunci: filter by nama yang dimulai/mengandung kw
+                this.resSupplier = kw.length
+                    ? this.dbSupplier.filter(s => s.nama_supplier.toLowerCase().includes(kw))
+                    : this.dbSupplier;
             },
             selectSupplier(sup) {
                 this.selectedSupplier = sup.id;
@@ -277,8 +348,8 @@
             },
             get totalSemua() {
                 return this.listPesanan
-                        .filter(i => i.selected)
-                        .reduce((sum, item) => sum + (parseInt(item.harga_beli || 0) * parseInt(item.qty)), 0);
+                    .filter(i => i.selected)
+                    .reduce((sum, item) => sum + (parseInt(item.harga_beli || 0) * parseInt(item.qty)), 0);
             },
             get grandTotal() {
                 const gt = this.totalSemua - (parseInt(this.diskonGlobal) || 0);
@@ -287,15 +358,21 @@
             kalkulasiHutang() {
                 const bayar = parseInt(this.inputBayar) || 0;
                 this.sisaHutang = this.grandTotal - bayar;
-                if(this.sisaHutang < 0) this.sisaHutang = 0;
+                if (this.sisaHutang < 0) this.sisaHutang = 0;
             },
             resetForm() {
-                this.searchInvoice = ''; this.selectedInvoiceId = ''; this.listPesanan = [];
-                this.searchSupplier = ''; this.selectedSupplier = ''; diskonGlobal = 0;
+                this.searchInvoice = '';
+                this.selectedInvoiceId = '';
+                this.listPesanan = [];
+                this.searchSupplier = '';
+                this.selectedSupplier = '';
+                this.diskonGlobal = 0;
+                this.modalSearch = '';
+                this.modalFiltered = this.dbPenjualan;
             },
             formatTanggal(tgl) {
-                if(!tgl) return '';
-                return new Date(tgl).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+                if (!tgl) return '';
+                return new Date(tgl).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             },
             formatRupiah(angka) {
                 return new Intl.NumberFormat('id-ID').format(angka || 0);

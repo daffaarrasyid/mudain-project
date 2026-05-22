@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
@@ -18,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         // 1. Kosongkan tabel (opsional, jaga-jaga kalau db blm kosong)
         $tables = [
-            'users', 'kategoris', 'satuans', 'servis', 'suppliers', 'customers', 'stafs', 
+            'users', 'roles', 'kategoris', 'satuans', 'servis', 'suppliers', 'customers', 'stafs', 
             'produks', 'stoks', 'penjualans', 'penjualan_details', 'pembelians', 
             'pembelian_details', 'kas', 'mitras', 'konten_produks', 'portofolios', 'testimonis'
         ];
@@ -26,18 +27,32 @@ class DatabaseSeeder extends Seeder
             DB::table($table)->truncate();
         }
 
-        // 2. SEEDER USERS
+        // 2. SEEDER ROLES
+        DB::table('roles')->insert([
+            [
+                'id' => 1, 'nama' => 'Admin',
+                'permissions' => json_encode(['*']),
+                'created_at' => now(), 'updated_at' => now()
+            ],
+            [
+                'id' => 2, 'nama' => 'Kasir',
+                'permissions' => json_encode(['penjualan', 'kas']),
+                'created_at' => now(), 'updated_at' => now()
+            ],
+        ]);
+
+        // 3. SEEDER USERS
         DB::table('users')->insert([
             [
                 'id' => 1, 'name' => 'Taufik', 'username' => 'taufik', 'role_id' => 1,
                 'email' => 'taufik@example.com', 'telepon' => null, 'alamat' => null,
-                'status' => 'Aktif', 'email_verified_at' => '2026-05-10 06:13:22',
-                'password' => '$2y$12$Sm0UV2NxEk1jBtvZ5zA4e.lbc3dlgndevvJ6tIxkGhPBnIrFW5tG.', // password
-                'remember_token' => 'gXAdVN9iMu', 'created_at' => '2026-05-10 06:13:23', 'updated_at' => '2026-05-10 06:13:23'
+                'status' => 'Aktif', 'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+                'remember_token' => null, 'created_at' => now(), 'updated_at' => now()
             ]
         ]);
 
-        // 3. MASTER DATA DASAR
+        // 4. MASTER DATA DASAR
         DB::table('kategoris')->insert([
             ['id' => 1, 'nama_kategori' => 'Percetakan', 'created_at' => '2026-05-10 04:33:10', 'updated_at' => '2026-05-10 04:33:10'],
             ['id' => 2, 'nama_kategori' => 'Konveksi', 'created_at' => '2026-05-10 04:33:17', 'updated_at' => '2026-05-10 04:33:17']
@@ -76,8 +91,8 @@ class DatabaseSeeder extends Seeder
         // 4. DATA PRODUK & STOK
         DB::table('produks')->insert([
             ['id' => 1, 'gambar' => null, 'kode_barang' => 'WKS-0001', 'nama_item' => 'Workshirt', 'kategori_id' => 2, 'satuan_id' => 1, 'supplier_id' => 2, 'harga_beli' => 120000, 'harga_jual_umum' => 150000, 'harga_pelanggan' => 140000, 'stok' => 10, 'created_at' => '2026-05-10 05:45:42', 'updated_at' => '2026-05-10 05:48:01'],
-            ['id' => 2, 'gambar' => null, 'kode_barang' => 'LNY-0001', 'nama_item' => 'Lanyard Custom', 'kategori_id' => 1, 'satuan_id' => 1, 'supplier_id' => 1, 'harga_beli' => 10000, 'harga_jual_umum' => 15000, 'harga_pelanggan' => 12000, 'stok' => 0, 'created_at' => '2026-05-10 05:46:38', 'updated_at' => '2026-05-10 05:46:38'],
-            ['id' => 3, 'gambar' => null, 'kode_barang' => 'PDH-0001', 'nama_item' => 'PDH', 'kategori_id' => 2, 'satuan_id' => 1, 'supplier_id' => 3, 'harga_beli' => 120000, 'harga_jual_umum' => 160000, 'harga_pelanggan' => 145000, 'stok' => 0, 'created_at' => '2026-05-10 05:47:19', 'updated_at' => '2026-05-10 05:47:19']
+            ['id' => 2, 'gambar' => null, 'kode_barang' => 'LNY-0001', 'nama_item' => 'Lanyard Custom', 'kategori_id' => 1, 'satuan_id' => 1, 'supplier_id' => 1, 'harga_beli' => 10000, 'harga_jual_umum' => 15000, 'harga_pelanggan' => 12000, 'stok' => -25, 'created_at' => '2026-05-10 05:46:38', 'updated_at' => '2026-05-10 05:46:38'],
+            ['id' => 3, 'gambar' => null, 'kode_barang' => 'PDH-0001', 'nama_item' => 'PDH', 'kategori_id' => 2, 'satuan_id' => 1, 'supplier_id' => 3, 'harga_beli' => 120000, 'harga_jual_umum' => 160000, 'harga_pelanggan' => 145000, 'stok' => -30, 'created_at' => '2026-05-10 05:47:19', 'updated_at' => '2026-05-10 05:47:19']
         ]);
 
         DB::table('stoks')->insert([
@@ -94,9 +109,9 @@ class DatabaseSeeder extends Seeder
         DB::table('penjualan_details')->insert([
             ['id' => 1, 'penjualan_id' => 2, 'produk_id' => 1, 'harga_satuan' => 140000, 'qty' => 25, 'subtotal' => 3500000, 'tahap_produksi' => 'Potong Bahan', 'progress' => 20, 'catatan_produksi' => 'Potong bahan untuk workshirt', 'produksi_updated_by' => 1, 'servis_id' => null, 'created_at' => '2026-05-10 06:17:26', 'updated_at' => '2026-05-10 06:43:56'],
             ['id' => 2, 'penjualan_id' => 2, 'produk_id' => 2, 'harga_satuan' => 12000, 'qty' => 25, 'subtotal' => 300000, 'tahap_produksi' => 'Belum Diproses', 'progress' => 0, 'catatan_produksi' => null, 'produksi_updated_by' => null, 'servis_id' => null, 'created_at' => '2026-05-10 06:17:26', 'updated_at' => '2026-05-10 06:17:26'],
-            ['id' => 5, 'penjualan_id' => 4, 'produk_id' => 3, 'harga_satuan' => 145000, 'qty' => 30, 'subtotal' => 4350000, 'tahap_produksi' => 'Belum Diproses', 'progress' => 0, 'catatan_produksi' => null, 'produksi_updated_by' => null, 'servis_id' => null, 'created_at' => '2026-05-18 14:52:51', 'updated_at' => '2026-05-18 14:52:51'],
+            ['id' => 5, 'penjualan_id' => 4, 'produk_id' => 3, 'harga_satuan' => 145000, 'qty' => 30, 'subtotal' => 4350000, 'tahap_produksi' => 'Selesai', 'progress' => 100, 'catatan_produksi' => null, 'produksi_updated_by' => null, 'servis_id' => null, 'created_at' => '2026-05-18 14:52:51', 'updated_at' => '2026-05-18 14:52:51'],
             ['id' => 6, 'penjualan_id' => 4, 'produk_id' => null, 'harga_satuan' => 799999, 'qty' => 1, 'subtotal' => 799999, 'tahap_produksi' => 'Belum Diproses', 'progress' => 100, 'catatan_produksi' => null, 'produksi_updated_by' => 1, 'servis_id' => 1, 'created_at' => '2026-05-18 14:52:51', 'updated_at' => '2026-05-19 01:58:24'],
-            ['id' => 7, 'penjualan_id' => 5, 'produk_id' => 2, 'harga_satuan' => 15000, 'qty' => 50, 'subtotal' => 750000, 'tahap_produksi' => 'cetak', 'progress' => 60, 'catatan_produksi' => null, 'produksi_updated_by' => 1, 'servis_id' => null, 'created_at' => '2026-05-19 01:56:48', 'updated_at' => '2026-05-19 01:58:51']
+            ['id' => 7, 'penjualan_id' => 5, 'produk_id' => 2, 'harga_satuan' => 15000, 'qty' => 50, 'subtotal' => 750000, 'tahap_produksi' => 'cetak', 'progress' => 100, 'catatan_produksi' => null, 'produksi_updated_by' => 1, 'servis_id' => null, 'created_at' => '2026-05-19 01:56:48', 'updated_at' => '2026-05-19 01:58:51']
         ]);
 
         // 6. TRANSAKSI PEMBELIAN

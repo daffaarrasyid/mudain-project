@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Produk;
+use App\Models\Stok;
 use App\Models\Servis; // <-- Panggil model Servis di sini
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
@@ -30,8 +31,8 @@ class PenjualanController extends Controller
         }
 
         $customers = Customer::all();
-        $produks = Produk::all();
-        $servis = Servis::all();
+        $produks = Produk::orderBy('nama_item', 'asc')->get();
+        $servis = Servis::orderBy('nama_servis', 'asc')->get();
 
         return view('admin.transaksi.entry-penjualan', compact('invoice', 'customers', 'produks', 'servis'));
     }
@@ -65,11 +66,27 @@ class PenjualanController extends Controller
                 PenjualanDetail::create([
                     'penjualan_id' => $penjualan->id,
                     'produk_id' => $item['id'],
-                    'servis_id' => null, // Pastikan ini null
+                    'servis_id' => null,
                     'harga_satuan' => $item['harga'],
                     'qty' => $item['qty'],
                     'subtotal' => $item['total'],
                 ]);
+
+                // Kurangi stok produk (bisa menjadi negatif jika stok awalnya 0)
+                $produk = Produk::find($item['id']);
+                if ($produk) {
+                    $produk->decrement('stok', $item['qty']);
+
+                    // Catat ke tabel Stock In/Out
+                    Stok::create([
+                        'produk_id'  => $produk->id,
+                        'jenis'      => 'Keluar',
+                        'jumlah'     => $item['qty'],
+                        'nilai'      => $item['harga'] * $item['qty'],
+                        'tanggal'    => now(),
+                        'keterangan' => 'Penjualan Invoice ' . $request->invoice,
+                    ]);
+                }
             }
 
             // 3. Simpan detail KERANJANG SERVIS

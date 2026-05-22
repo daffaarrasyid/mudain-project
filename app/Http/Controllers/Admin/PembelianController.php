@@ -9,6 +9,7 @@ use App\Models\Penjualan;
 use App\Models\Pembelian;
 use App\Models\PembelianDetail;
 use App\Models\Produk;
+use App\Models\Stok;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,11 +17,29 @@ class PembelianController extends Controller
 {
     public function entry()
     {
-        // 1. Tarik data dari database
-        $suppliers = Supplier::all();
-        $penjualans = Penjualan::with('details.produk')->latest()->get();
+        // 1. Tarik semua supplier (sort ascending)
+        $suppliers = Supplier::orderBy('nama_supplier', 'asc')->get();
 
-        // 2. Lempar (passing) datanya ke View pakai compact()
+        // 2. Filter penjualan: hanya yang punya produk stok minus
+        //    DAN belum semua detail produksinya selesai (progress < 100)
+        $penjualans = Penjualan::with(['details.produk', 'customer'])
+            ->latest()
+            ->get()
+            ->filter(function ($penjualan) {
+                // Syarat 1: Semua detail produksinya belum 100% (masih ada yang perlu diproses)
+                $adaYangBelumSelesai = $penjualan->details->contains(fn($d) => $d->progress < 100);
+                if (!$adaYangBelumSelesai) return false;
+
+                // Syarat 2: Ada minimal 1 produk dengan stok minus (< 0)
+                $adaStokMinus = $penjualan->details->contains(function ($d) {
+                    return $d->produk && $d->produk->stok < 0;
+                });
+
+                return $adaStokMinus;
+            })
+            ->values(); // Re-index koleksi
+
+        // 3. Lempar datanya ke View
         return view('admin.transaksi.entry-pembelian', compact('suppliers', 'penjualans'));
     }
 
@@ -60,12 +79,28 @@ class PembelianController extends Controller
             foreach ($cart as $item) {
                 PembelianDetail::create([
                     'pembelian_id' => $pembelian->id,
-                    'produk_id' => $item['id'],
-                    'harga_beli' => $item['harga_beli'],
-                    'harga_jual' => 0, // Dikosongkan karena tidak perlu update harga jual
-                    'qty' => $item['qty'],
-                    'subtotal' => $item['total'],
+                    'produk_id'   => $item['id'],
+                    'harga_beli'  => $item['harga_beli'],
+                    'harga_jual'  => 0,
+                    'qty'         => $item['qty'],
+                    'subtotal'    => $item['total'],
                 ]);
+
+                // Tambahkan/pulihkan stok produk
+                $produk = Produk::find($item['id']);
+                if ($produk) {
+                    $produk->increment('stok', $item['qty']);
+
+                    // Catat ke tabel Stock In/Out
+                    Stok::create([
+                        'produk_id'  => $produk->id,
+                        'jenis'      => 'Masuk',
+                        'jumlah'     => $item['qty'],
+                        'nilai'      => $item['harga_beli'] * $item['qty'],
+                        'tanggal'    => now(),
+                        'keterangan' => 'Pembelian Faktur ' . $faktur,
+                    ]);
+                }
             }
 
             DB::commit();
