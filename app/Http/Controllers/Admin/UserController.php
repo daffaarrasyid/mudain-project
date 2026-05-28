@@ -71,7 +71,12 @@ class UserController extends Controller
 
     public function pengguna()
     {
-        $users = User::with('role')->latest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
+        $users = User::with('role')->latest()->paginate($perPage)->withQueryString();
         $roles = Role::orderBy('nama')->get();
         return view('admin.user.pengguna', compact('users', 'roles'));
     }
@@ -151,6 +156,11 @@ class UserController extends Controller
 
     public function histori()
     {
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
         $query = ActivityLog::with('user')->latest();
         
         // Filter berdasarkan pencarian
@@ -174,7 +184,7 @@ class UserController extends Controller
             $query->where('module', request('module'));
         }
 
-        $logs    = $query->paginate(20)->withQueryString();
+        $logs    = $query->paginate($perPage)->withQueryString();
         $modules = ActivityLog::select('module')->distinct()->whereNotNull('module')->pluck('module');
     
         return view('admin.user.histori', compact('logs', 'modules'));

@@ -54,12 +54,22 @@
                 <i class="fa-solid fa-plus mr-1"></i> Tambah Pengguna
             </button>
         </div>
-        <div class="relative w-full sm:w-64">
-            <input type="text" id="searchInput" placeholder="Cari nama / username..."
-                class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00] transition-colors">
-            <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl flex items-center justify-center hover:bg-[#cc5200]">
-                <i class="fa-solid fa-search"></i>
-            </button>
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+            <div class="flex items-center gap-2 text-sm text-gray-500 w-full sm:w-auto justify-start sm:justify-end">
+                <span>Tampilkan</span>
+                <select id="perPageSelect" class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] focus:border-[#E65C00] block py-2 px-3 outline-none cursor-pointer">
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                </select>
+            </div>
+            <div class="relative w-full sm:w-64">
+                <input type="text" id="searchInput" placeholder="Cari nama / username..."
+                    class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#E65C00]/50 focus:border-[#E65C00] transition-colors">
+                <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl flex items-center justify-center hover:bg-[#cc5200]">
+                    <i class="fa-solid fa-search"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -148,7 +158,27 @@
             <span id="showTo">{{ $users->lastItem() ?? 0 }}</span> dari
             <span class="font-bold text-[#E65C00]">{{ $users->total() }}</span> data
         </div>
-        <div>{{ $users->links('vendor.pagination.simple-tailwind') }}</div>
+        <div class="flex items-center gap-1 text-sm">
+            @if($users->onFirstPage())
+                <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+            @else
+                <a href="{{ $users->previousPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-left text-xs"></i></a>
+            @endif
+
+            @foreach ($users->getUrlRange(1, $users->lastPage()) as $page => $url)
+                @if ($page == $users->currentPage())
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">{{ $page }}</button>
+                @else
+                    <a href="{{ $url }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm">{{ $page }}</a>
+                @endif
+            @endforeach
+
+            @if($users->hasMorePages())
+                <a href="{{ $users->nextPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-right text-xs"></i></a>
+            @else
+                <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+            @endif
+        </div>
     </div>
 
     {{-- ===================== MODAL TAMBAH ===================== --}}
@@ -351,18 +381,28 @@
             showTo.textContent   = visible;
         }
 
-        searchInput.addEventListener('input', function(e) {
-            const keyword = e.target.value.toLowerCase();
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const keyword = e.target.value.toLowerCase();
 
-            tableRows.forEach(row => {
-                const rowText = row.textContent.toLowerCase();
-                row.style.display = rowText.includes(keyword) ? '' : 'none';
+                tableRows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    row.style.display = rowText.includes(keyword) ? '' : 'none';
+                });
+
+                updateCount();
             });
+        }
 
-            updateCount();
-        });
-
-        // Tidak perlu updateCount() saat load karena nilai awal sudah dari server
+        const perPageSelect = document.getElementById('perPageSelect');
+        if (perPageSelect) {
+            perPageSelect.addEventListener('change', function() {
+                const url = new URL(window.location.href);
+                url.searchParams.set('per_page', this.value);
+                url.searchParams.set('page', 1);
+                window.location.href = url.toString();
+            });
+        }
     });
 </script>
 @endpush

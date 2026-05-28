@@ -5,19 +5,36 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Kas;
+use App\Models\Penjualan;
+use App\Models\Pembelian;
 use Illuminate\Support\Facades\Auth;
 
 class KeuanganController extends Controller
 {
     public function kas()
     {
-        // Narik riwayat kas terbaru
-        $kas = Kas::with('user')->latest()->paginate(15);
-        
-        // Ngitung Saldo Saat Ini (Total Masuk - Total Keluar)
-        $totalMasuk = Kas::where('tipe', 'Masuk')->sum('nominal');
-        $totalKeluar = Kas::where('tipe', 'Keluar')->sum('nominal');
+        $allKas = Kas::getDynamicKas();
+
+        // 5. Ngitung Saldo Saat Ini
+        $totalMasuk = $allKas->where('tipe', 'Masuk')->sum('nominal');
+        $totalKeluar = $allKas->where('tipe', 'Keluar')->sum('nominal');
         $saldo = $totalMasuk - $totalKeluar;
+
+        // 6. Buat pagination manual
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+        $page = request()->get('page', 1);
+        $sliced = $allKas->slice(($page - 1) * $perPage, $perPage)->values();
+        
+        $kas = new \Illuminate\Pagination\LengthAwarePaginator(
+            $sliced,
+            $allKas->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('admin.keuangan.kas', compact('kas', 'saldo'));
     }
@@ -51,17 +68,28 @@ class KeuanganController extends Controller
     // Fungsi untuk menampilkan halaman Laba Rugi
     public function labaRugi()
     {
-        // 1. Hitung Total Pemasukan (Dari Penjualan dll)
-        $totalPemasukan = Kas::where('tipe', 'Masuk')->sum('nominal');
-        
-        // 2. Hitung Total Pengeluaran (Dari Pembelian, Operasional, dll)
-        $totalPengeluaran = Kas::where('tipe', 'Keluar')->sum('nominal');
-        
-        // 3. Laba Bersih = Pemasukan - Pengeluaran
+        $allRiwayat = Kas::getDynamicLabaRugi();
+
+        // 5. Hitung Laba Rugi Aggregates
+        $totalPemasukan = $allRiwayat->where('tipe', 'Masuk')->sum('nominal');
+        $totalPengeluaran = $allRiwayat->where('tipe', 'Keluar')->sum('nominal');
         $labaBersih = $totalPemasukan - $totalPengeluaran;
 
-        // 4. Tarik riwayat mutasinya buat ditampilin di tabel
-        $riwayat = Kas::with('user')->latest()->paginate(15);
+        // 6. Buat pagination manual
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+        $page = request()->get('page', 1);
+        $sliced = $allRiwayat->slice(($page - 1) * $perPage, $perPage)->values();
+        
+        $riwayat = new \Illuminate\Pagination\LengthAwarePaginator(
+            $sliced,
+            $allRiwayat->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('admin.keuangan.laba-rugi', compact('labaBersih', 'totalPemasukan', 'totalPengeluaran', 'riwayat'));
     }

@@ -13,7 +13,12 @@ class SupplierController extends Controller
 {
     public function index()
     {
-        $suppliers = Supplier::oldest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
+        $suppliers = Supplier::oldest()->paginate($perPage)->withQueryString();
         
         // Generate Kode Supplier Otomatis (Format: SP-00001)
         $lastSupplier = Supplier::latest('id')->first();

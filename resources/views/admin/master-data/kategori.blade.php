@@ -31,15 +31,14 @@
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
             <div class="flex items-center gap-2 text-sm text-gray-500 w-full sm:w-auto">
                 <span>Tampilkan</span>
-                <select class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] outline-none py-2 px-3">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
+                <select id="perPageSelect" class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] focus:border-[#E65C00] block py-2 px-3 outline-none cursor-pointer">
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                 </select>
             </div>
             <div class="relative w-full sm:w-64">
-                <!-- Tambahkan id="searchInput" -->
-                <input type="text" id="searchInput" placeholder="Cari..." class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00] transition-colors">
+                <input type="text" id="searchInput" placeholder="Cari..." class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#E65C00]/50 focus:border-[#E65C00] transition-colors">
                 <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl flex items-center justify-center hover:bg-[#cc5200]">
                     <i class="fa-solid fa-search"></i>
                 </button>
@@ -86,25 +85,27 @@
     </div>
 
     <div class="flex flex-col sm:flex-row items-center justify-between mt-8 text-sm text-gray-500 gap-4">
-        <!-- Menampilkan X sampai Y dari Z Data (Sesuai request lu) -->
         <div>
             Menampilkan <span class="font-bold text-gray-700">{{ $kategoris->firstItem() ?? 0 }}</span> 
             sampai <span class="font-bold text-gray-700">{{ $kategoris->lastItem() ?? 0 }}</span> 
             dari <span class="font-bold text-[#E65C00]">{{ $kategoris->total() }}</span> data
         </div>
 
-        <div class="flex items-center gap-2 text-sm">
-            <!-- Tombol Prev -->
+        <div class="flex items-center gap-1 text-sm">
             @if($kategoris->onFirstPage())
                 <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-left text-xs"></i></button>
             @else
                 <a href="{{ $kategoris->previousPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-left text-xs"></i></a>
             @endif
 
-            <!-- (Sebagai contoh desain lu, gue tampilin statis angka 1) Nanti lo bisa custom loop buat multiple pages jika perlu -->
-            <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">{{ $kategoris->currentPage() }}</button>
+            @foreach ($kategoris->getUrlRange(1, $kategoris->lastPage()) as $page => $url)
+                @if ($page == $kategoris->currentPage())
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">{{ $page }}</button>
+                @else
+                    <a href="{{ $url }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm">{{ $page }}</a>
+                @endif
+            @endforeach
 
-            <!-- Tombol Next -->
             @if($kategoris->hasMorePages())
                 <a href="{{ $kategoris->nextPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-right text-xs"></i></a>
             @else
@@ -212,20 +213,25 @@
         const searchInput = document.getElementById('searchInput');
         const tableRows = document.querySelectorAll('.data-row');
 
-        searchInput.addEventListener('input', function(e) {
-            const keyword = e.target.value.toLowerCase();
-
-            tableRows.forEach(row => {
-                // Mengambil seluruh teks di dalam baris (Nama Kategori)
-                const rowText = row.textContent.toLowerCase();
-                
-                if (rowText.includes(keyword)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const keyword = e.target.value.toLowerCase();
+                tableRows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    row.style.display = rowText.includes(keyword) ? '' : 'none';
+                });
             });
-        });
+        }
+
+        const perPageSelect = document.getElementById('perPageSelect');
+        if (perPageSelect) {
+            perPageSelect.addEventListener('change', function() {
+                const url = new URL(window.location.href);
+                url.searchParams.set('per_page', this.value);
+                url.searchParams.set('page', 1);
+                window.location.href = url.toString();
+            });
+        }
     });
 </script>
 @endsection

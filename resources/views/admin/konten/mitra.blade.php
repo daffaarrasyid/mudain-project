@@ -26,10 +26,20 @@
                     Tambah Mitra
                 </button>
             </div>
-            <div class="flex flex-col sm:flex-row items-center gap-3">
-                <div class="relative w-full sm:w-64">
-                    <input type="text" placeholder="Cari Mitra" class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00]">
-                    <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl"><i class="fa-solid fa-search"></i></button>
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <span>Tampilkan</span>
+                    <select id="perPageSelect" class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] focus:border-[#E65C00] block py-2 px-3 outline-none cursor-pointer">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                    </select>
+                </div>
+                <div class="relative flex-1 md:w-64">
+                    <input type="text" id="searchInput" placeholder="Cari Mitra..." class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#E65C00]/50 focus:border-[#E65C00] transition-colors">
+                    <button class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl flex items-center justify-center hover:bg-[#cc5200] transition-colors">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -47,7 +57,7 @@
                 </thead>
                 <tbody class="text-sm text-gray-600">
                     @forelse ($mitras as $item)
-                        <tr class="border-b border-gray-50 even:bg-gray-50/70 hover:bg-orange-50/40 transition-colors">
+                        <tr class="data-row border-b border-gray-50 even:bg-gray-50/70 hover:bg-orange-50/40 transition-colors">
                             <td class="px-6 py-4">
                                 <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center p-2">
                                     <img src="{{ asset('storage/' . $item->logo) }}" alt="Logo" class="w-full h-full object-contain">
@@ -88,9 +98,27 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-between mt-6 text-sm text-gray-500 gap-4">
-            <div>Menampilkan {{ $mitras->firstItem() ?? 0 }} sampai {{ $mitras->lastItem() ?? 0 }} dari {{ $mitras->total() }} data</div>
+            <div>Menampilkan <span class="font-bold text-gray-700">{{ $mitras->firstItem() ?? 0 }}</span> sampai <span class="font-bold text-gray-700">{{ $mitras->lastItem() ?? 0 }}</span> dari <span class="font-bold text-[#E65C00]">{{ $mitras->total() }}</span> data</div>
             <div class="flex gap-1">
-                {{ $mitras->links('pagination::tailwind') }}
+                @if($mitras->onFirstPage())
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                @else
+                    <a href="{{ $mitras->previousPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-left text-xs"></i></a>
+                @endif
+
+                @foreach ($mitras->getUrlRange(1, $mitras->lastPage()) as $page => $url)
+                    @if ($page == $mitras->currentPage())
+                        <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">{{ $page }}</button>
+                    @else
+                        <a href="{{ $url }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm">{{ $page }}</a>
+                    @endif
+                @endforeach
+
+                @if($mitras->hasMorePages())
+                    <a href="{{ $mitras->nextPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-right text-xs"></i></a>
+                @else
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                @endif
             </div>
         </div>
 
@@ -186,4 +214,32 @@
         </div>
 
     </div>
+
+    <!-- SCRIPT PENCARIAN REAL-TIME & LIMIT -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const tableRows = document.querySelectorAll('.data-row');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const keyword = e.target.value.toLowerCase();
+                    tableRows.forEach(row => {
+                        const rowText = row.textContent.toLowerCase();
+                        row.style.display = rowText.includes(keyword) ? '' : 'none';
+                    });
+                });
+            }
+
+            const perPageSelect = document.getElementById('perPageSelect');
+            if (perPageSelect) {
+                perPageSelect.addEventListener('change', function() {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('per_page', this.value);
+                    url.searchParams.set('page', 1);
+                    window.location.href = url.toString();
+                });
+            }
+        });
+    </script>
 @endsection

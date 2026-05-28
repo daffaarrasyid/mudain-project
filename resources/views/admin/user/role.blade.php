@@ -4,12 +4,14 @@
 
     @php
         $modules = [
-            'Master Data' => ['Data Produk', 'Data Supplier', 'Data Kategori', 'Data Satuan'],
+            'Master Data' => ['Data Produk', 'Data Kategori', 'Data Satuan', 'Data Servis', 'Data Staf', 'Data Supplier', 'Data Customer', 'Stok In/Out'],
             'Transaksi' => ['Entry Penjualan', 'Daftar Penjualan', 'Entry Pembelian', 'Daftar Pembelian', 'Hutang', 'Piutang'],
             'Produksi' => ['Update Produksi', 'Update Desain', 'Daftar Produksi'],
-            'Keuangan' => ['Kas', 'Laba Rugi'],
-            'Konten' => ['Mitra', 'Produk (Konten)', 'Portofolio', 'Testimoni'],
-            'Laporan' => ['Laporan Penjualan', 'Laporan Pembelian', 'Laporan Keuangan', 'Laporan Produksi'],
+            'Keuangan' => ['Kas', 'Laba Rugi', 'Pengeluaran Lainnya'],
+            'Konten' => ['Mitra', 'Produk', 'Portofolio', 'Testimoni'],
+            'Laporan' => ['Laporan Barang', 'Laporan Penjualan', 'Laporan Pembelian', 'Laporan Keuangan', 'Laporan Stok', 'Laporan Hutang', 'Laporan Piutang', 'Laporan Produksi'],
+            'User' => ['Manajemen Role', 'Histori Pengguna', 'Manajemen Pengguna'],
+            'Tools' => ['Backup Data'],
         ];
     @endphp
 

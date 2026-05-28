@@ -12,13 +12,19 @@ class PiutangController extends Controller
 {
     public function index()
     {
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
         // Tarik data penjualan yang kembaliannya minus (artinya ngutang/kurang bayar), 
         // atau yang punya riwayat pembayaran (untuk nampilin yang udah lunas dari hasil cicilan).
         $piutangs = Penjualan::with(['customer', 'riwayat_pembayarans'])
                     ->where('kembalian', '<', 0)
                     ->orWhereHas('riwayat_pembayarans')
                     ->latest()
-                    ->paginate(20);
+                    ->paginate($perPage)
+                    ->withQueryString();
                     
         return view('admin.transaksi.piutang', compact('piutangs'));
     }

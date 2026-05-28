@@ -9,7 +9,12 @@ class ServisController extends Controller
 {
     public function index()
     {
-        $servis = Servis::latest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
+        $servis = Servis::latest()->paginate($perPage)->withQueryString();
         
         $lastData = Servis::latest('id')->first();
         $newCode = $lastData ? 'SRV-' . str_pad((int)substr($lastData->kode_servis, 4) + 1, 3, '0', STR_PAD_LEFT) : 'SRV-001';

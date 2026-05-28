@@ -51,10 +51,10 @@
         <div class="flex items-center gap-3 w-full md:w-auto">
             <div class="flex items-center gap-2 text-sm text-gray-500">
                 <span>Tampilkan</span>
-                <select class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] focus:border-[#E65C00] block py-2 px-3 outline-none cursor-pointer">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
+                <select id="perPageSelect" class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] focus:border-[#E65C00] block py-2 px-3 outline-none cursor-pointer">
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                 </select>
             </div>
             <div class="relative flex-1 md:w-64">
@@ -138,7 +138,13 @@
                 <a href="{{ $produks->previousPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-left text-xs"></i></a>
             @endif
 
-            <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">{{ $produks->currentPage() }}</button>
+            @foreach ($produks->getUrlRange(1, $produks->lastPage()) as $page => $url)
+                @if ($page == $produks->currentPage())
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">{{ $page }}</button>
+                @else
+                    <a href="{{ $url }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm">{{ $page }}</a>
+                @endif
+            @endforeach
 
             @if($produks->hasMorePages())
                 <a href="{{ $produks->nextPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-right text-xs"></i></a>
@@ -349,13 +355,25 @@
         const searchInput = document.getElementById('searchInput');
         const tableRows = document.querySelectorAll('.data-row');
 
-        searchInput.addEventListener('input', function(e) {
-            const keyword = e.target.value.toLowerCase();
-            tableRows.forEach(row => {
-                const rowText = row.textContent.toLowerCase();
-                row.style.display = rowText.includes(keyword) ? '' : 'none';
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const keyword = e.target.value.toLowerCase();
+                tableRows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    row.style.display = rowText.includes(keyword) ? '' : 'none';
+                });
             });
-        });
+        }
+
+        const perPageSelect = document.getElementById('perPageSelect');
+        if (perPageSelect) {
+            perPageSelect.addEventListener('change', function() {
+                const url = new URL(window.location.href);
+                url.searchParams.set('per_page', this.value);
+                url.searchParams.set('page', 1);
+                window.location.href = url.toString();
+            });
+        }
     });
 </script>
 @endsection

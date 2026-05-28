@@ -24,8 +24,9 @@ class DashboardController extends Controller
         $penjualanHariIni = Penjualan::whereDate('created_at', Carbon::today())->count();
         
         // Data Ringkasan Kas
-        $kasMasukHariIni = Kas::whereDate('created_at', Carbon::today())->where('tipe', 'Masuk')->sum('nominal');
-        $kasKeluarHariIni = Kas::whereDate('created_at', Carbon::today())->where('tipe', 'Keluar')->sum('nominal');
+        $kasHariIni = Kas::getDynamicKas(Carbon::today(), Carbon::today()->endOfDay());
+        $kasMasukHariIni = $kasHariIni->where('tipe', 'Masuk')->sum('nominal');
+        $kasKeluarHariIni = $kasHariIni->where('tipe', 'Keluar')->sum('nominal');
 
         // History Login Pengguna (4 Terakhir)
         $historis = Histori::with('user.role')->latest()->take(4)->get();
@@ -52,7 +53,7 @@ class DashboardController extends Controller
         }
 
         if ($chartType == 'pendapatan') {
-            $kas = Kas::whereBetween('created_at', [$awal, $akhir])->get();
+            $kas = Kas::getDynamicKas($awal, $akhir);
             $labels = []; $masuk = []; $keluar = [];
             
             $format = $filter == 'tahun_ini' ? 'M Y' : 'd M';
@@ -78,8 +79,9 @@ class DashboardController extends Controller
         }
 
         if ($chartType == 'kas') {
-            $masuk = Kas::whereBetween('created_at', [$awal, $akhir])->where('tipe', 'Masuk')->sum('nominal');
-            $keluar = Kas::whereBetween('created_at', [$awal, $akhir])->where('tipe', 'Keluar')->sum('nominal');
+            $kas = Kas::getDynamicKas($awal, $akhir);
+            $masuk = $kas->where('tipe', 'Masuk')->sum('nominal');
+            $keluar = $kas->where('tipe', 'Keluar')->sum('nominal');
             return response()->json(['labels' => ['Kas Masuk', 'Kas Keluar'], 'data' => [$masuk, $keluar]]);
         }
     }

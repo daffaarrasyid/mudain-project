@@ -66,11 +66,21 @@
     {{-- Filter Bar --}}
     <div class="flex flex-col sm:flex-row gap-3 mb-5">
 
+        {{-- Tampilkan Dropdown --}}
+        <div class="flex items-center gap-2 text-sm text-gray-500 justify-start">
+            <span>Tampilkan</span>
+            <select id="perPageSelect" class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] focus:border-[#E65C00] block py-2 px-3 outline-none cursor-pointer">
+                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+            </select>
+        </div>
+
         {{-- Search Real-time --}}
         <div class="relative flex-1">
             <input type="text" id="searchInput" value="{{ request('search') }}"
                 placeholder="Cari nama, aktivitas, modul, deskripsi..."
-                class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-10 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00] transition-colors">
+                class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#E65C00]/50 focus:border-[#E65C00] transition-colors">
             <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
             <button id="clearSearch" type="button" style="display:none;"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
@@ -225,10 +235,31 @@
     {{-- Pagination --}}
     <div class="flex flex-col sm:flex-row items-center justify-between mt-5 text-sm text-gray-500 gap-3">
         <div>
-            Menampilkan {{ $logs->firstItem() ?? 0 }}–{{ $logs->lastItem() ?? 0 }}
-            dari <span class="font-semibold text-gray-700">{{ $logs->total() }}</span> log aktivitas
+            Menampilkan <span class="font-bold text-gray-700">{{ $logs->firstItem() ?? 0 }}</span> sampai
+            <span class="font-bold text-gray-700">{{ $logs->lastItem() ?? 0 }}</span> dari
+            <span class="font-bold text-[#E65C00]">{{ $logs->total() }}</span> log aktivitas
         </div>
-        <div>{{ $logs->links('vendor.pagination.simple-tailwind') }}</div>
+        <div class="flex items-center gap-1 text-sm">
+            @if($logs->onFirstPage())
+                <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+            @else
+                <a href="{{ $logs->previousPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-left text-xs"></i></a>
+            @endif
+
+            @foreach ($logs->getUrlRange(1, $logs->lastPage()) as $page => $url)
+                @if ($page == $logs->currentPage())
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">{{ $page }}</button>
+                @else
+                    <a href="{{ $url }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm">{{ $page }}</a>
+                @endif
+            @endforeach
+
+            @if($logs->hasMorePages())
+                <a href="{{ $logs->nextPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-right text-xs"></i></a>
+            @else
+                <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+            @endif
+        </div>
     </div>
 
     {{-- Modal Detail Log --}}
@@ -354,18 +385,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Toggle tombol clear pada search input
-        clearBtn.style.display = keyword ? 'block' : 'none';
+        if (clearBtn) clearBtn.style.display = keyword ? 'block' : 'none';
 
         // Tampilkan/sembunyikan tombol Reset utama
         const isFiltered = keyword || action || module;
-        resetBtn.style.display = isFiltered ? 'flex' : 'none';
+        if (resetBtn) resetBtn.style.display = isFiltered ? 'flex' : 'none';
 
         // Info jumlah hasil
         if (isFiltered) {
-            searchInfo.classList.remove('hidden');
-            searchInfoTx.textContent = `Menampilkan ${visible} dari ${rows.length} log pada halaman ini`;
+            if (searchInfo) searchInfo.classList.remove('hidden');
+            if (searchInfoTx) searchInfoTx.textContent = `Menampilkan ${visible} dari ${rows.length} log pada halaman ini`;
         } else {
-            searchInfo.classList.add('hidden');
+            if (searchInfo) searchInfo.classList.add('hidden');
         }
 
         // Update URL tombol export
@@ -383,26 +414,40 @@ document.addEventListener('DOMContentLoaded', function () {
     window.applyFilters = applyFilters;
 
     // Live search saat mengetik
-    searchInput.addEventListener('input', applyFilters);
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
 
     // Tombol clear (×) di dalam input search
-    clearBtn.addEventListener('click', function () {
-        searchInput.value = '';
-        applyFilters();
-        searchInput.focus();
-    });
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            applyFilters();
+            searchInput.focus();
+        });
+    }
 
     // Tombol Reset — bersihkan semua filter sekaligus
-    resetBtn.addEventListener('click', function () {
-        searchInput.value    = '';
-        filterAction.value   = '';
-        filterModule.value   = '';
-        applyFilters();
-        searchInput.focus();
-    });
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+            searchInput.value    = '';
+            filterAction.value   = '';
+            filterModule.value   = '';
+            applyFilters();
+            searchInput.focus();
+        });
+    }
+
+    const perPageSelect = document.getElementById('perPageSelect');
+    if (perPageSelect) {
+        perPageSelect.addEventListener('change', function() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', this.value);
+            url.searchParams.set('page', 1);
+            window.location.href = url.toString();
+        });
+    }
 
     // Sembunyikan tombol Reset saat awal load (jika tidak ada filter aktif)
-    resetBtn.style.display = 'none';
+    if (resetBtn) resetBtn.style.display = 'none';
 
     // Jalankan filter saat load jika ada nilai awal dari URL
     applyFilters();

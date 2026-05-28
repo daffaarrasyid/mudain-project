@@ -499,7 +499,7 @@
                 class="relative flex items-center h-12 rounded-xl transition-all duration-300 overflow-hidden group/item
                       {{ $isGrafik ? 'bg-gradient-to-r from-[#E65C00] to-[#F9D423] text-white shadow-md' : 'text-gray-500 hover:bg-orange-50 hover:text-[#E65C00]' }}">
                 <div class="absolute left-0 top-0 h-full w-[3.5rem] flex items-center justify-center">
-                    <i class="fa-solid fa-home text-lg group-hover/item:scale-110 transition-transform"></i>
+                    <i class="fa-solid fa-chart-line text-lg group-hover/item:scale-110 transition-transform"></i>
                 </div>
                 <span
                     class="pl-[3.5rem] font-medium whitespace-nowrap transition-opacity duration-300 opacity-0 md:group-hover:opacity-100"
@@ -511,7 +511,6 @@
         @php
             $isToolsGroup = request()->is('admin/tools*');
             $subTools = [
-                ['label' => 'Generate Barcode', 'route' => 'admin.tools.generate-barcode', 'perm' => 'Tools_Generate Barcode'],
                 ['label' => 'Backup Data', 'route' => 'admin.tools.backup-data', 'perm' => 'Tools_Backup Data'],
             ];
             $allowedTools = array_filter($subTools, function($item) use ($userPerms, $hasFullAccess) {

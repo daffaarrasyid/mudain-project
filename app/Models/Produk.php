@@ -18,4 +18,5 @@ class Produk extends Model
     public function satuan() { return $this->belongsTo(Satuan::class); }
     public function supplier() { return $this->belongsTo(Supplier::class); }
     public function pembelianDetails() { return $this->hasMany(PembelianDetail::class, 'produk_id'); }
+    public function penjualanDetails() { return $this->hasMany(PenjualanDetail::class, 'produk_id'); }
 }

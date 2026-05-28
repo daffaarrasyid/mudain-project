@@ -13,7 +13,12 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = Customer::oldest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
+        $customers = Customer::oldest()->paginate($perPage)->withQueryString();
         
         // Generate Kode Customer (Format: CS-000001)
         $lastCustomer = Customer::latest('id')->first();

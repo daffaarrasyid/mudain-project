@@ -11,8 +11,13 @@ class StokController extends Controller
 {
     public function index()
     {
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
         // Ambil data stok dan relasinya
-        $stoks = Stok::with('produk.satuan')->latest()->paginate(10);
+        $stoks = Stok::with('produk.satuan')->latest()->paginate($perPage)->withQueryString();
         
         // Ambil data produk untuk datalist (pencarian)
         $daftarProduk = Produk::all();

@@ -12,12 +12,18 @@ class HutangController extends Controller
 {
     public function index()
     {
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
         // Tarik data pembelian yang sisa hutangnya LEBIH DARI 0
         // Sekalian bawa relasi supplier dan riwayat pembayarannya
         $hutangs = Pembelian::with(['supplier', 'riwayat_pembayarans'])
                     ->where('sisa_hutang', '>', 0)
                     ->latest()
-                    ->paginate(20);
+                    ->paginate($perPage)
+                    ->withQueryString();
                     
         return view('admin.transaksi.hutang', compact('hutangs'));
     }

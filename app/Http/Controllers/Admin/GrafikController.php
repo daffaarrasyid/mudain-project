@@ -31,7 +31,7 @@ class GrafikController extends Controller
         }
 
         // 2. DATA PENDAPATAN VS PENGELUARAN (LINE CHART)
-        $dataKas = Kas::whereBetween('created_at', [$awal, $akhir])->get();
+        $dataKas = Kas::getDynamicKas($awal, $akhir);
         $totalMasuk = $dataKas->where('tipe', 'Masuk')->sum('nominal');
         $totalKeluar = $dataKas->where('tipe', 'Keluar')->sum('nominal');
 

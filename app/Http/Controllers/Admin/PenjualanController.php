@@ -103,22 +103,6 @@ class PenjualanController extends Controller
                 ]);
             }
 
-            // === CATAT KE BUKU KAS ===
-            // 1. Generate Kode Kas (KS-0000001 dst)
-            $lastKas = \App\Models\Kas::where('kode_kas', 'LIKE', 'KS-%')->latest('id')->first();
-            $lastCount = $lastKas ? (int) substr($lastKas->kode_kas, 3) : 0;
-            $kodeKas = 'KS-' . str_pad($lastCount + 1, 7, '0', STR_PAD_LEFT);
-
-            // 2. Simpan ke tabel Kas
-            \App\Models\Kas::create([
-                'kode_kas' => $kodeKas,
-                'tipe' => 'Masuk',
-                'jenis' => 'Penjualan',
-                'nominal' => $request->bayar, // Uang yang beneran dibayar customer saat itu
-                'keterangan' => 'Pembayaran Invoice ' . $request->invoice,
-                'user_id' => Auth::id()
-            ]);
-
             DB::commit();
             return redirect()->route('admin.penjualan.entry')->with('success', 'Transaksi berhasil disimpan!');
 
@@ -128,11 +112,15 @@ class PenjualanController extends Controller
         }
     }
 
-    // UPDATE fungsi daftar()
     public function daftar()
     {
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
         // Eager load details.produk DAN details.servis
-        $penjualans = Penjualan::with(['user', 'customer', 'details.produk', 'details.servis'])->latest()->paginate(15);
+        $penjualans = Penjualan::with(['user', 'customer', 'details.produk', 'details.servis'])->latest()->paginate($perPage)->withQueryString();
         return view('admin.transaksi.daftar-penjualan', compact('penjualans'));
     }
 

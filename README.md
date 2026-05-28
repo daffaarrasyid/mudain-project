@@ -1,58 +1,175 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <a href="#" target="_blank">
+    <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="320" alt="Laravel Logo">
+  </a>
 </p>
 
-## About Laravel
+<h1 align="center">🚀 Mudain Project ERP & POS System</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <strong>Sistem Manajemen Penjualan (POS), Inventaris, Produksi, Keuangan & Profil Perusahaan Terintegrasi</strong>
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<p align="center">
+  <a href="#-teknologi-yang-digunakan"><img src="https://img.shields.io/badge/Laravel-13.x-red?style=for-the-badge&logo=laravel" alt="Laravel 13"></a>
+  <a href="#-teknologi-yang-digunakan"><img src="https://img.shields.io/badge/PHP-8.3%2B-blue?style=for-the-badge&logo=php" alt="PHP 8.3"></a>
+  <a href="#-teknologi-yang-digunakan"><img src="https://img.shields.io/badge/Tailwind_CSS-3.x-38bdf8?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS"></a>
+  <a href="#-teknologi-yang-digunakan"><img src="https://img.shields.io/badge/Vite-6.x-646cff?style=for-the-badge&logo=vite" alt="Vite"></a>
+</p>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📌 Tentang Mudain Project
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**Mudain Project** adalah sebuah sistem enterprise resource planning (ERP) mini dan point of sale (POS) terintegrasi yang dirancang khusus untuk memenuhi kebutuhan bisnis kustomisasi produk (seperti konveksi, percetakan, merchandise, dll.) serta retail umum. 
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Aplikasi ini menggabungkan landing page profil perusahaan (Company Profile) yang elegan untuk pelanggan dengan sistem backoffice admin yang sangat powerful dan lengkap. Sistem backoffice mencakup manajemen stok barang, pelacakan proses produksi kustom secara visual (workflow order tracker), manajemen keuangan komprehensif (buku kas & laporan laba rugi otomatis), hingga sistem otorisasi multi-role berbasis hak akses granular.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Sistem ini dikembangkan menggunakan **Laravel 13**, **Vite**, dan **Tailwind CSS** untuk menyajikan performa tinggi, tampilan modern (sleek UI), serta UX yang interaktif.
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## ✨ Fitur-Fitur Utama
 
-```bash
-composer require laravel/boost --dev
+Sistem terbagi menjadi dua bagian utama: **Halaman Customer** (Frontend/Company Profile) dan **Dashboard Admin** (Backend).
 
-php artisan boost:install
-```
+### 🌐 1. Halaman Customer (Company Profile)
+*   **Beranda**: Tampilan utama interaktif dengan karosel portofolio, katalog produk unggulan, statistik pencapaian, dan testimoni pelanggan.
+*   **Tentang Kami**: Informasi detail sejarah, visi misi, serta profil perusahaan.
+*   **Katalog Produk**: Daftar lengkap produk/kategori jasa yang ditawarkan beserta visual berkualitas.
+*   **Hubungi Kami**: Form kontak, integrasi peta lokasi, dan link sosial media resmi.
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 💼 2. Dashboard Admin & Backoffice (ERP & POS)
+*   📊 **Dashboard Analytics & Chart**: Visualisasi ringkasan transaksi, penjualan harian, piutang, hutang, serta chart performa penjualan dinamis menggunakan Chart.js.
+*   📦 **Master Data Terstruktur**:
+    *   **Data Produk**: Kelola produk fisik lengkap dengan gambar, harga beli, harga jual umum, harga pelanggan (reseller), dan stok terupdate. Mendukung **Import Excel**.
+    *   **Kategori & Satuan**: Manajemen klasifikasi barang (Contoh: Konveksi, Percetakan) dan unit (Pcs, Meter, Lusin, Kodi).
+    *   **Data Jasa & Servis**: Manajemen tarif jasa eksternal (Fotografer, Videografer) beserta penugasan staf terkait.
+    *   **Staf**: Manajemen data karyawan internal yang ditugaskan ke bagian servis/produksi.
+    *   **Supplier & Customer**: Basis data mitra bisnis dan pelanggan dengan dukungan **Import Excel** & **Export PDF**.
+    *   **Manajemen Stok (In/Out)**: Pencatatan mutasi stok barang masuk atau keluar secara transparan beserta kalkulasi nilainya.
+*   🛍️ **Sistem POS & Pembelian**:
+    *   **Transaksi Penjualan (POS)**: Entri kasir modern untuk mencatat pesanan produk umum atau kustom, kalkulasi diskon, status pembayaran (Lunas/Kredit), hingga cetak **Invoice PDF**.
+    *   **Transaksi Pembelian**: Manajemen pemesanan bahan/barang kepada supplier untuk mengisi stok atau memenuhi pesanan penjualan spesifik.
+    *   **Hutang & Piutang (AP/AR)**: Pelacakan otomatis sisa piutang pelanggan atau hutang ke supplier, lengkap dengan **fitur pembayaran cicilan / riwayat angsuran**.
+*   🏭 **Workflow Manajemen Produksi & Desain**:
+    *   **Update Desain**: Unggah gambar konsep desain, catat nama desainer, deskripsi pengerjaan, dan simpan untuk diakses tim produksi.
+    *   **Progress Tracking**: Pemantauan tahapan pengerjaan setiap produk dalam pesanan (Contoh: Potong Bahan, Sablon, Jahit, Finishing) lengkap dengan indikator persentase kemajuan (0% - 100%).
+*   💵 **Manajemen Keuangan Terintegrasi**:
+    *   **Buku Kas Digital**: Pencatatan arus kas masuk/keluar secara langsung dari transaksi POS, angsuran piutang/hutang, maupun pengeluaran operasional non-transaksi lainnya.
+    *   **Kalkulator Laba Rugi**: Menghitung secara otomatis laba kotor, beban operasional tambahan, dan laba bersih secara real-time.
+*   📋 **Laporan & Ekspor Data Komprehensif**:
+    *   Ekspor PDF dan Excel untuk semua data vital: Laporan Barang, Penjualan, Pembelian, Kas, Laba Rugi (Kotor & Bersih), Stok, Hutang, dan Piutang.
+*   🔒 **Keamanan & Otorisasi Pengguna**:
+    *   **Role & Permissions**: Penentuan level akses pengguna secara granular (Contoh: Owner/Super Admin, Sales, Desainer, Admin Konten, Finance, Purchasing).
+    *   **Activity Log**: Catatan riwayat aktivitas pengguna untuk mengaudit tindakan penambahan, pengubahan, atau penghapusan data.
+*   🛠️ **Developer Tools**:
+    *   **System Backup**: Backup database sistem secara cepat untuk proteksi data.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🛠️ Teknologi yang Digunakan
 
-## Code of Conduct
+*   **Framework PHP**: Laravel 13.x (Modern MVC Architecture)
+*   **Bahasa Pemrograman**: PHP 8.3+ & JavaScript (ES6+)
+*   **Desain & Styling**: Tailwind CSS 3.x (Fully Responsive & Clean UI)
+*   **Build Tool**: Vite 6.x
+*   **Database**: MySQL / PostgreSQL / SQLite
+*   **Library Ekspor**: Barryvdh Laravel DomPDF & Maatwebsite Laravel Excel
+*   **Chart Rendering**: Chart.js (Interactive Diagrams)
+*   **Icon System**: FontAwesome / Heroicons
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🚀 Panduan Instalasi & Menjalankan Project
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Ikuti langkah-langkah berikut untuk menjalankan project ini di server lokal (Localhost):
 
-## License
+### Prasyarat
+Pastikan komputer Anda sudah terinstal:
+*   [PHP >= 8.3](https://www.php.net/downloads.php) (beserta ekstensi php-sqlite, php-xml, php-mbstring, php-gd)
+*   [Composer >= 2.x](https://getcomposer.org/)
+*   [Node.js >= 20.x](https://nodejs.org/) & NPM
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Langkah-Langkah
+
+1.  **Clone atau Unduh Repository Ini**
+    ```bash
+    git clone https://github.com/username/mudain-project.git
+    cd mudain-project
+    ```
+
+2.  **Instal Dependensi PHP (Composer)**
+    ```bash
+    composer install
+    ```
+
+3.  **Instal Dependensi Frontend (NPM)**
+    ```bash
+    npm install
+    ```
+
+4.  **Konfigurasi Environment File**
+    Salin file `.env.example` menjadi `.env`
+    ```bash
+    cp .env.example .env
+    ```
+    Buka file `.env` di text editor Anda, lalu sesuaikan koneksi database Anda. Secara default, project ini dikonfigurasi untuk menggunakan SQLite:
+    ```env
+    DB_CONNECTION=sqlite
+    # Jika menggunakan SQLite, pastikan database.sqlite sudah dibuat di folder database
+    ```
+
+5.  **Generate Application Key**
+    ```bash
+    php artisan key:generate
+    ```
+
+6.  **Jalankan Migrasi Database dan Seeders**
+    ```bash
+    php artisan migrate --seed
+    ```
+    *Perintah di atas akan membuat semua tabel database beserta data awal (Master Kategori, Satuan, Akun Admin Utama, Role default).*
+
+7.  **Jalankan Development Server**
+    Project ini mendukung eksekusi serentak menggunakan paket bawaan `npx concurrently` yang sudah disiapkan di `composer.json`. Cukup jalankan perintah:
+    ```bash
+    npm run dev
+    ```
+    Atau Anda bisa menjalankannya secara terpisah di dua terminal berbeda:
+    *   **Terminal 1 (PHP Server):**
+        ```bash
+        php artisan serve
+        ```
+    *   **Terminal 2 (Vite Asset Watcher):**
+        ```bash
+        npm run dev
+        ```
+
+8.  **Akses Aplikasi**
+    Buka browser Anda dan akses alamat berikut:
+    *   Halaman Landing Page: `http://127.0.0.1:8000`
+    *   Halaman Login Admin: `http://127.0.0.1:8000/login`
+
+---
+
+## 🔑 Kredensial Login Bawaan (Default Account)
+
+Gunakan akun berikut setelah Anda menjalankan seeder untuk masuk ke dashboard admin:
+
+| No | Username | Password | Role | Status Akses |
+|----|----------|----------|------|--------------|
+| 1  | `taufik` | `password` | **Owner / Super Admin** | Full Akses (`*`) |
+
+---
+
+## 📚 Dokumen Pendukung lainnya
+
+Untuk dokumentasi teknis yang lebih mendalam mengenai database schema, relasi model, alur kerja sistem, manajemen permissions, serta struktur kode, silakan merujuk ke file:
+👉 **[DOKUMENTASI TEKNIS DETIL (DOCUMENTATION.md)](file:///c:/Users/Daffa/Documents/Coolyeah/Academic/Semester%204/Pemrograman%20Web/mudain-project/DOCUMENTATION.md)**
+
+---
+
+<p align="center">
+  Dibuat dengan ❤️ untuk memenuhi tugas kuliah Pemrograman Web - Semester 4.
+</p>

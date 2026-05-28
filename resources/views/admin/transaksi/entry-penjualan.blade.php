@@ -135,7 +135,7 @@
             <table class="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
                 <thead>
                     <tr class="text-gray-800 text-sm font-bold border-b-2 border-gray-100">
-                        <th class="py-3 px-2">Barcode</th>
+                        <th class="py-3 px-2">Kode Barang</th>
                         <th class="py-3 px-2">Nama Item</th>
                         <th class="py-3 px-2 text-right">Harga Umum</th>
                         <th class="py-3 px-2 text-right">Harga Pelanggan</th>

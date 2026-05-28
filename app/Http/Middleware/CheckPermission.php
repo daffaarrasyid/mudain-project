@@ -105,7 +105,6 @@ class CheckPermission
         'admin.user.histori.export'  => '__superadmin__',
 
         // Tools — khusus superadmin
-        'admin.tools.generate-barcode'     => '__superadmin__',
         'admin.tools.backup-data'          => '__superadmin__',
         'admin.tools.backup-data.process'  => '__superadmin__',
 

@@ -111,10 +111,14 @@ class PembelianController extends Controller
         }
     }
 
-    // Fungsi untuk nampilin Daftar Pembelian
     public function daftar()
     {
-        $pembelians = Pembelian::with(['supplier', 'penjualan', 'details.produk'])->latest()->paginate(15);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
+        $pembelians = Pembelian::with(['supplier', 'penjualan', 'details.produk'])->latest()->paginate($perPage)->withQueryString();
         return view('admin.transaksi.daftar-pembelian', compact('pembelians'));
     }
 

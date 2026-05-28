@@ -10,7 +10,12 @@ class StafController extends Controller
 {
     public function index()
     {
-        $stafs = Staf::with('servis')->oldest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
+        $stafs = Staf::with('servis')->oldest()->paginate($perPage)->withQueryString();
         $dataServis = Servis::all();
         
         $lastData = Staf::latest('id')->first();

@@ -8,6 +8,8 @@ use App\Models\Produk;
 use App\Models\Supplier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Penjualan;
+use App\Models\Pembelian;
+use App\Models\Kas;
 
 class LaporanController extends Controller
 {
@@ -158,7 +160,7 @@ class LaporanController extends Controller
         $awal = $request->tanggal_awal . ' 00:00:00';
         $akhir = $request->tanggal_akhir . ' 23:59:59';
 
-        $kas = \App\Models\Kas::with('user')->whereBetween('created_at', [$awal, $akhir])->orderBy('created_at', 'asc')->get();
+        $kas = $this->getDynamicKas($awal, $akhir);
 
         $totalMasuk = $kas->where('tipe', 'Masuk')->sum('nominal');
         $totalKeluar = $kas->where('tipe', 'Keluar')->sum('nominal');
@@ -176,9 +178,8 @@ class LaporanController extends Controller
         $awal = $request->tanggal_awal . ' 00:00:00';
         $akhir = $request->tanggal_akhir . ' 23:59:59';
 
-        // Laba Kotor biasanya cuma ngitung transaksi Penjualan (Masuk) & Pembelian Stok (Keluar)
-        $transaksi = \App\Models\Kas::whereIn('jenis', ['Penjualan', 'Pembelian'])
-                        ->whereBetween('created_at', [$awal, $akhir])->orderBy('created_at', 'asc')->get();
+        // Laba Kotor biasanya cuma ngitung transaksi Penjualan (Masuk) & Pembelian Stok (Keluar) dari data riil
+        $transaksi = $this->getDynamicLabaRugi($awal, $akhir)->whereIn('jenis', ['Penjualan', 'Pembelian'])->values();
 
         $namaFile = 'Laba_Kotor_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.csv';
         $headers = ["Content-type" => "text/csv", "Content-Disposition" => "attachment; filename=$namaFile", "Pragma" => "no-cache"];
@@ -194,7 +195,8 @@ class LaporanController extends Controller
                 $keluar = $trx->tipe == 'Keluar' ? $trx->nominal : 0;
                 $totalPendapatan += $masuk; $totalHPP += $keluar;
 
-                fputcsv($file, [$trx->created_at->format('d/m/Y H:i'), $trx->kode_kas, $trx->jenis, $trx->tipe, $masuk, $keluar]);
+                $formattedDate = \Carbon\Carbon::parse($trx->created_at)->format('d/m/Y H:i');
+                fputcsv($file, [$formattedDate, $trx->kode_kas, $trx->jenis, $trx->tipe, $masuk, $keluar]);
             }
             fputcsv($file, ['', '', '', 'TOTAL', $totalPendapatan, $totalHPP]);
             fputcsv($file, ['', '', '', 'LABA KOTOR', $totalPendapatan - $totalHPP, '']);
@@ -210,7 +212,7 @@ class LaporanController extends Controller
         $awal = $request->tanggal_awal . ' 00:00:00';
         $akhir = $request->tanggal_akhir . ' 23:59:59';
 
-        $transaksi = \App\Models\Kas::whereBetween('created_at', [$awal, $akhir])->orderBy('created_at', 'asc')->get();
+        $transaksi = $this->getDynamicLabaRugi($awal, $akhir);
 
         $namaFile = 'Laba_Bersih_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.csv';
         $headers = ["Content-type" => "text/csv", "Content-Disposition" => "attachment; filename=$namaFile", "Pragma" => "no-cache"];
@@ -226,13 +228,24 @@ class LaporanController extends Controller
                 $keluar = $trx->tipe == 'Keluar' ? $trx->nominal : 0;
                 $totalMasuk += $masuk; $totalKeluar += $keluar;
 
-                fputcsv($file, [$trx->created_at->format('d/m/Y H:i'), $trx->kode_kas, $trx->jenis, $trx->keterangan, $trx->tipe, $masuk, $keluar]);
+                $formattedDate = \Carbon\Carbon::parse($trx->created_at)->format('d/m/Y H:i');
+                fputcsv($file, [$formattedDate, $trx->kode_kas, $trx->jenis, $trx->keterangan, $trx->tipe, $masuk, $keluar]);
             }
             fputcsv($file, ['', '', '', '', 'TOTAL', $totalMasuk, $totalKeluar]);
             fputcsv($file, ['', '', '', '', 'LABA BERSIH', $totalMasuk - $totalKeluar, '']);
             fclose($file);
         };
         return response()->stream($callback, 200, $headers);
+    }
+
+    private function getDynamicKas($awal, $akhir)
+    {
+        return Kas::getDynamicKas($awal, $akhir)->sortBy('created_at')->values();
+    }
+
+    private function getDynamicLabaRugi($awal, $akhir)
+    {
+        return Kas::getDynamicLabaRugi($awal, $akhir)->sortBy('created_at')->values();
     }
 
 

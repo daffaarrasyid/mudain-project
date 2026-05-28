@@ -8,12 +8,6 @@ use Illuminate\Support\Facades\File;
 
 class ToolsController extends Controller
 {
-    // Fungsi untuk menampilkan halaman Generate Barcode
-    public function generateBarcode()
-    {
-        return view('admin.tools.generate-barcode');
-    }
-
     // Fungsi untuk menampilkan halaman Backup Data
     public function backupData()
     {

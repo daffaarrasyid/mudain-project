@@ -13,10 +13,16 @@ class ProduksiController extends Controller
     // Fungsi untuk menampilkan halaman Update Produksi
     public function updateProduksi()
     {
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
         // Tarik semua detail pesanan untuk dikerjakan tim produksi
-        $produksis = PenjualanDetail::with(['penjualan.customer', 'produk', 'operator'])
+        $produksis = PenjualanDetail::with(['penjualan.customer', 'produk', 'servis', 'operator'])
                         ->latest('updated_at')
-                        ->paginate(20);
+                        ->paginate($perPage)
+                        ->withQueryString();
 
         return view('admin.produksi.update-produksi', compact('produksis'));
     }
@@ -60,8 +66,13 @@ class ProduksiController extends Controller
 
     public function updateDesain()
     {
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
         // Tarik semua data penjualan (invoice)
-        $desains = \App\Models\Penjualan::with('customer')->latest()->paginate(20);
+        $desains = \App\Models\Penjualan::with('customer')->latest()->paginate($perPage)->withQueryString();
         return view('admin.produksi.update-desain', compact('desains'));
     }
 

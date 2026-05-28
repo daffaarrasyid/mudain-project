@@ -12,7 +12,11 @@ class KontenController extends Controller
     // 1. Tampilkan Halaman Mitra
     public function mitra()
     {
-        $mitras = Mitra::latest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+        $mitras = Mitra::latest()->paginate($perPage)->withQueryString();
         return view('admin.konten.mitra', compact('mitras'));
     }
 
@@ -88,7 +92,11 @@ class KontenController extends Controller
     // 1. Tampilkan Halaman Produk
     public function produk()
     {
-        $produks = \App\Models\KontenProduk::latest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+        $produks = \App\Models\KontenProduk::latest()->paginate($perPage)->withQueryString();
         return view('admin.konten.produk', compact('produks'));
     }
 
@@ -151,7 +159,11 @@ class KontenController extends Controller
     // 1. Tampilkan Halaman Portofolio
     public function portofolio()
     {
-        $portofolios = \App\Models\Portofolio::latest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+        $portofolios = \App\Models\Portofolio::latest()->paginate($perPage)->withQueryString();
         return view('admin.konten.portofolio', compact('portofolios'));
     }
 
@@ -221,7 +233,11 @@ class KontenController extends Controller
     // 1. Tampilkan Halaman Testimoni
     public function testimoni()
     {
-        $testimonis = \App\Models\Testimoni::latest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+        $testimonis = \App\Models\Testimoni::latest()->paginate($perPage)->withQueryString();
         return view('admin.konten.testimoni', compact('testimonis'));
     }
 

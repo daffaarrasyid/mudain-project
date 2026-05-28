@@ -10,8 +10,13 @@ class KategoriController extends Controller
 {
     public function index()
     {
-        // Ambil data, paginasi 10 data per halaman (ascending order)
-        $kategoris = Kategori::oldest()->paginate(10);
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
+        // Ambil data, paginasi data per halaman (ascending order)
+        $kategoris = Kategori::oldest()->paginate($perPage)->withQueryString();
         return view('admin.master-data.kategori', compact('kategoris'));
     }
 

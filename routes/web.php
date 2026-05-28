@@ -67,7 +67,6 @@ Route::get('/dashboard', function () {
         'Laporan_Laporan Penjualan' => 'admin.laporan.penjualan',
         'Konten_Mitra' => 'admin.konten.mitra',
         'User_Manajemen Pengguna' => 'admin.user.pengguna',
-        'Tools_Generate Barcode' => 'admin.tools.generate-barcode',
     ];
 
     // 3. Cek satu per satu, dia punya izin yang mana?
@@ -240,8 +239,6 @@ Route::delete('/admin/user/pengguna/{id}', [UserController::class, 'destroyPengg
 // Route untuk halaman Grafik
 Route::get('/admin/grafik', [GrafikController::class, 'index'])->name('admin.grafik.index');
 
-// Route untuk halaman Generate Barcode
-Route::get('/admin/tools/generate-barcode', [ToolsController::class, 'generateBarcode'])->name('admin.tools.generate-barcode');
 //Route untuk halaman Backup Data
 Route::get('/admin/tools/backup-data', [ToolsController::class, 'backupData'])->name('admin.tools.backup-data');
 Route::post('/admin/tools/backup-data/process', [ToolsController::class, 'processBackup'])->name('admin.tools.backup-data.process');

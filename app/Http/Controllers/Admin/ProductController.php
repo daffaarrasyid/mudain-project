@@ -16,8 +16,13 @@ class ProductController extends Controller
 {
     public function index()
     {
+        $perPage = request('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50])) {
+            $perPage = 10;
+        }
+
         // Ambil data produk berserta relasinya
-        $produks = Produk::with(['kategori', 'satuan', 'supplier'])->latest()->paginate(10);
+        $produks = Produk::with(['kategori', 'satuan', 'supplier'])->latest()->paginate($perPage)->withQueryString();
         // Lempar data kategori & satuan untuk dropdown di form modal
         $kategoris = Kategori::all();
         $satuans = Satuan::all();
@@ -85,6 +90,11 @@ class ProductController extends Controller
         // Cek apakah produk sudah digunakan di transaksi pembelian
         if ($produk->pembelianDetails()->exists()) {
             return back()->with('error', 'Produk "' . $produk->nama_item . '" tidak dapat dihapus karena sudah memiliki riwayat transaksi pembelian.');
+        }
+
+        // Cek apakah produk sudah digunakan di transaksi penjualan
+        if ($produk->penjualanDetails()->exists()) {
+            return back()->with('error', 'Produk "' . $produk->nama_item . '" tidak dapat dihapus karena sudah memiliki riwayat transaksi penjualan.');
         }
 
         // Hapus file gambar fisik dari server

@@ -18,19 +18,18 @@
                 <h2 class="text-2xl font-bold text-gray-800">Update Produksi (Make-to-Order)</h2>
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                <div class="flex items-center gap-2 text-sm text-gray-500 w-full sm:w-auto justify-start sm:justify-end">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="flex items-center gap-2 text-sm text-gray-500">
                     <span>Tampilkan</span>
-                    <select
-                        class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] outline-none py-2 px-3 cursor-pointer">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
+                    <select id="perPageSelect" class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-[#E65C00] focus:border-[#E65C00] block py-2 px-3 outline-none cursor-pointer">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                     </select>
                 </div>
-                <div class="relative w-full sm:w-64">
+                <div class="relative flex-1 md:w-64">
                     <input type="text" id="searchInput" placeholder="Cari Invoice / Barang..."
-                        class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#E65C00] transition-colors">
+                        class="w-full bg-gray-50 border border-gray-200 text-sm rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#E65C00]/50 focus:border-[#E65C00] transition-colors">
                     <button
                         class="absolute right-0 top-0 h-full w-10 text-white bg-[#E65C00] rounded-r-xl flex items-center justify-center hover:bg-[#cc5200] transition-colors">
                         <i class="fa-solid fa-search"></i>
@@ -45,7 +44,7 @@
                     <tr class="text-gray-800 text-sm font-bold border-b-2 border-gray-100">
                         <th class="px-6 py-4">No.</th>
                         <th class="px-6 py-4">Invoice</th>
-                        <th class="px-6 py-4">Nama Barang</th>
+                        <th class="px-6 py-4">Nama Barang/Jasa</th>
                         <th class="px-6 py-4 text-center">Qty</th>
                         <th class="px-6 py-4">Waktu Update</th>
                         <th class="px-6 py-4">Tahap Produksi</th>
@@ -61,7 +60,7 @@
                             <td class="px-6 py-4 font-medium" x-text="index + 1"></td>
                             <td class="px-6 py-4 font-bold text-[#E65C00]" x-text="prod.penjualan?.invoice"></td>
                             <td class="px-6 py-4 font-bold text-gray-800"
-                                x-text="prod.produk?.nama_item || 'Item Terhapus'"></td>
+                                x-text="prod.produk?.nama_item || prod.servis?.nama_servis || 'Item Terhapus'"></td>
                             <td class="px-6 py-4 text-center font-bold" x-text="prod.qty"></td>
                             <td class="px-6 py-4" x-text="formatTanggalJam(prod.updated_at)"></td>
                             <td class="px-6 py-4 font-semibold text-gray-700" x-text="prod.tahap_produksi"></td>
@@ -106,8 +105,26 @@
             <div>Menampilkan <span class="font-bold text-gray-700">{{ $produksis->firstItem() ?? 0 }}</span> sampai <span
                     class="font-bold text-gray-700">{{ $produksis->lastItem() ?? 0 }}</span> dari <span
                     class="font-bold text-[#E65C00]">{{ $produksis->total() }}</span> antrean</div>
-            <div class="flex items-center gap-2 text-sm">
-                {{ $produksis->links('pagination::tailwind') }}
+            <div class="flex gap-1">
+                @if($produksis->onFirstPage())
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                @else
+                    <a href="{{ $produksis->previousPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-left text-xs"></i></a>
+                @endif
+
+                @foreach ($produksis->getUrlRange(1, $produksis->lastPage()) as $page => $url)
+                    @if ($page == $produksis->currentPage())
+                        <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E65C00] text-white font-bold shadow-md">{{ $page }}</button>
+                    @else
+                        <a href="{{ $url }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm">{{ $page }}</a>
+                    @endif
+                @endforeach
+
+                @if($produksis->hasMorePages())
+                    <a href="{{ $produksis->nextPageUrl() }}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 bg-white border border-gray-200 hover:bg-[#E65C00] hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-chevron-right text-xs"></i></a>
+                @else
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 cursor-not-allowed"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                @endif
             </div>
         </div>
 
@@ -134,9 +151,9 @@
                     <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
                         <div class="flex justify-between text-sm mb-1"><span class="text-gray-500">Invoice:</span><span
                                 class="font-bold text-gray-800" x-text="activeData.penjualan?.invoice"></span></div>
-                        <div class="flex justify-between text-sm mb-1"><span class="text-gray-500">Barang:</span><span
+                        <div class="flex justify-between text-sm mb-1"><span class="text-gray-500">Barang/Jasa:</span><span
                                 class="font-bold text-gray-800"
-                                x-text="(activeData.produk?.nama_item || '') + ' (' + activeData.qty + ' Qty)'"></span>
+                                x-text="(activeData.produk?.nama_item || activeData.servis?.nama_servis || '') + ' (' + activeData.qty + ' Qty)'"></span>
                         </div>
                         <div class="flex justify-between text-sm border-t border-blue-200 pt-2 mt-2"><span
                                 class="text-gray-500">Progress Saat Ini:</span><span
@@ -202,7 +219,7 @@
                 </div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">Reset Catatan Produksi?</h3>
                 <p class="text-sm text-gray-500 mb-6">Yakin ingin mereset log produksi <span
-                        class="font-bold text-gray-800" x-text="activeData.produk?.nama_item"></span> kembali ke <span
+                        class="font-bold text-gray-800" x-text="activeData.produk?.nama_item || activeData.servis?.nama_servis"></span> kembali ke <span
                         class="text-red-500 font-bold">0% (Belum Diproses)</span>?</p>
 
                 <div class="flex flex-col sm:flex-row justify-center gap-3">
@@ -274,13 +291,25 @@
             const searchInput = document.getElementById('searchInput');
             const tableRows = document.querySelectorAll('.data-row');
 
-            searchInput.addEventListener('input', function(e) {
-                const keyword = e.target.value.toLowerCase();
-                tableRows.forEach(row => {
-                    const rowText = row.textContent.toLowerCase();
-                    row.style.display = rowText.includes(keyword) ? '' : 'none';
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const keyword = e.target.value.toLowerCase();
+                    tableRows.forEach(row => {
+                        const rowText = row.textContent.toLowerCase();
+                        row.style.display = rowText.includes(keyword) ? '' : 'none';
+                    });
                 });
-            });
+            }
+
+            const perPageSelect = document.getElementById('perPageSelect');
+            if (perPageSelect) {
+                perPageSelect.addEventListener('change', function() {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('per_page', this.value);
+                    url.searchParams.set('page', 1);
+                    window.location.href = url.toString();
+                });
+            }
         });
     </script>
 @endsection
