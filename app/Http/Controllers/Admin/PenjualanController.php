@@ -16,28 +16,66 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PenjualanController extends Controller
 {
-    // Halaman Entry Penjualan (Kasir)
-    public function entry()
+    // Halaman Entry Penjualan (Kasir / Edit Mode)
+    public function entry(Request $request)
     {
-        // Generate Invoice Unik (Contoh: BLP-20260508-0001)
-        $dateStr = now()->format('Ymd');
-        $lastPenjualan = Penjualan::where('invoice', 'LIKE', 'BLP-' . $dateStr . '-%')->latest()->first();
-
-        if ($lastPenjualan) {
-            $lastCount = (int) substr($lastPenjualan->invoice, -4);
-            $invoice = 'BLP-' . $dateStr . '-' . str_pad($lastCount + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $invoice = 'BLP-' . $dateStr . '-0001';
-        }
-
         $customers = Customer::all();
         $produks = Produk::orderBy('nama_item', 'asc')->get();
         $servis = Servis::orderBy('nama_servis', 'asc')->get();
 
-        return view('admin.transaksi.entry-penjualan', compact('invoice', 'customers', 'produks', 'servis'));
+        $editPenjualan = null;
+        $editProdukCart = [];
+        $editServiceCart = [];
+
+        if ($request->has('edit_id')) {
+            $editPenjualan = Penjualan::with(['customer', 'details.produk', 'details.servis'])->findOrFail($request->edit_id);
+            // Cek progress produksi
+            if (($editPenjualan->average_progress ?? 0) >= 100) {
+                return redirect()->route('admin.penjualan.daftar')->withErrors(['error' => 'Transaksi tidak dapat di-edit karena produksi sudah selesai 100%!']);
+            }
+            $invoice = $editPenjualan->invoice;
+            
+            // Map data details ke JSON format yang bisa dipahami Alpine di entry-penjualan
+            foreach ($editPenjualan->details as $detail) {
+                if ($detail->produk_id) {
+                    $editProdukCart[] = [
+                        'id' => $detail->produk_id,
+                        'kode' => $detail->produk->kode_barang ?? 'Item Dihapus',
+                        'nama' => $detail->produk->nama_item ?? 'Item Dihapus',
+                        'hargaUmum' => (float)($detail->produk->harga_jual_umum ?? $detail->harga_satuan),
+                        'hargaPelanggan' => (float)($detail->produk->harga_pelanggan ?? $detail->harga_satuan),
+                        'harga' => (float)$detail->harga_satuan,
+                        'qty' => (int)$detail->qty,
+                        'total' => (float)$detail->subtotal
+                    ];
+                } elseif ($detail->servis_id) {
+                    $editServiceCart[] = [
+                        'id' => $detail->servis_id,
+                        'kode' => $detail->servis->kode_servis ?? 'Jasa Dihapus',
+                        'nama' => $detail->servis->nama_servis ?? 'Jasa Dihapus',
+                        'harga' => (float)$detail->harga_satuan,
+                        'qty' => (int)$detail->qty,
+                        'total' => (float)$detail->subtotal
+                    ];
+                }
+            }
+        } else {
+            // Generate Invoice Unik (Contoh: BLP-20260508-0001)
+            $dateStr = now()->format('Ymd');
+            $lastPenjualan = Penjualan::where('invoice', 'LIKE', 'BLP-' . $dateStr . '-%')->latest()->first();
+
+            if ($lastPenjualan) {
+                $lastCount = (int) substr($lastPenjualan->invoice, -4);
+                $invoice = 'BLP-' . $dateStr . '-' . str_pad($lastCount + 1, 4, '0', STR_PAD_LEFT);
+            } else {
+                $invoice = 'BLP-' . $dateStr . '-0001';
+            }
+        }
+
+        return view('admin.transaksi.entry-penjualan', compact('invoice', 'customers', 'produks', 'servis', 'editPenjualan', 'editProdukCart', 'editServiceCart'));
     }
 
-    // Proses Simpan Transaksi
+    // Proses Simpan Transaksi (Create / Update)
     public function store(Request $request)
     {
         // Decode data cart dari JSON Alpine (Dipisah antara Produk dan Servis)
@@ -50,17 +88,50 @@ class PenjualanController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. Simpan header penjualan
-            $penjualan = Penjualan::create([
-                'invoice' => $request->invoice,
-                'user_id' => Auth::id() ?? 1,
-                'customer_id' => $request->customer_id,
-                'total_harga' => $request->total_harga,
-                'bayar' => $request->bayar,
-                'kembalian' => $request->kembalian,
-                'status_pembayaran' => $request->status_pembayaran,
-                'jatuh_tempo' => $request->kembalian < 0 ? $request->jatuh_tempo : null,
-            ]);
+            if ($request->filled('edit_id')) {
+                // LOGIKA UPDATE
+                $penjualan = Penjualan::with('details')->findOrFail($request->edit_id);
+
+                if (($penjualan->average_progress ?? 0) >= 100) {
+                    return back()->withErrors(['error' => 'Transaksi tidak dapat di-edit karena produksi sudah selesai 100%!']);
+                }
+
+                // Pulangkan stok produk lama sebelum dihapus
+                foreach ($penjualan->details as $oldDetail) {
+                    if ($oldDetail->produk_id) {
+                        $produk = Produk::find($oldDetail->produk_id);
+                        if ($produk) {
+                            $produk->increment('stok', $oldDetail->qty);
+                        }
+                    }
+                }
+
+                // Hapus detail lama dan rekaman stok lama
+                $penjualan->details()->delete();
+                Stok::where('keterangan', 'Penjualan Invoice ' . $penjualan->invoice)->delete();
+
+                // Update penjualan header
+                $penjualan->update([
+                    'customer_id' => $request->customer_id,
+                    'total_harga' => $request->total_harga,
+                    'bayar' => $request->bayar,
+                    'kembalian' => $request->kembalian,
+                    'status_pembayaran' => $request->status_pembayaran,
+                    'jatuh_tempo' => $request->kembalian < 0 ? $request->jatuh_tempo : null,
+                ]);
+            } else {
+                // LOGIKA CREATE BARU
+                $penjualan = Penjualan::create([
+                    'invoice' => $request->invoice,
+                    'user_id' => Auth::id() ?? 1,
+                    'customer_id' => $request->customer_id,
+                    'total_harga' => $request->total_harga,
+                    'bayar' => $request->bayar,
+                    'kembalian' => $request->kembalian,
+                    'status_pembayaran' => $request->status_pembayaran,
+                    'jatuh_tempo' => $request->kembalian < 0 ? $request->jatuh_tempo : null,
+                ]);
+            }
 
             // 2. Simpan detail KERANJANG PRODUK
             foreach ($cartProduk as $item) {
@@ -85,7 +156,7 @@ class PenjualanController extends Controller
                         'jumlah'     => $item['qty'],
                         'nilai'      => $item['harga'] * $item['qty'],
                         'tanggal'    => now(),
-                        'keterangan' => 'Penjualan Invoice ' . $request->invoice,
+                        'keterangan' => 'Penjualan Invoice ' . $penjualan->invoice,
                     ]);
                 }
             }
@@ -94,8 +165,8 @@ class PenjualanController extends Controller
             foreach ($cartService as $item) {
                 PenjualanDetail::create([
                     'penjualan_id' => $penjualan->id,
-                    'produk_id' => null, // Pastikan ini null
-                    'servis_id' => $item['id'], // ID dari servis
+                    'produk_id' => null, 
+                    'servis_id' => $item['id'], 
                     'harga_satuan' => $item['harga'],
                     'qty' => $item['qty'],
                     'subtotal' => $item['total'],
@@ -105,6 +176,10 @@ class PenjualanController extends Controller
             }
 
             DB::commit();
+
+            if ($request->filled('edit_id')) {
+                return redirect()->route('admin.penjualan.daftar')->with('success', 'Transaksi invoice ' . $penjualan->invoice . ' berhasil diperbarui!');
+            }
             return redirect()->route('admin.penjualan.entry')->with('success', 'Transaksi berhasil disimpan!');
 
         } catch (\Exception $e) {

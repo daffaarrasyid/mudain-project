@@ -116,11 +116,11 @@
                                         <i class="fa-solid fa-print"></i> Cetak
                                     </a>
 
-                                    @if ($trx->status_pembayaran == 'Kredit')
-                                        <button @click="openEdit({{ $index }})"
+                                    @if (($trx->average_progress ?? 0) < 100)
+                                        <a href="{{ route('admin.penjualan.entry', ['edit_id' => $trx->id]) }}"
                                             class="bg-[#F59E0B] hover:bg-[#D97706] text-white px-2 py-1.5 rounded text-[10px] sm:text-xs font-semibold shadow-sm transition-colors flex items-center justify-center gap-1">
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
-                                        </button>
+                                        </a>
                                     @else
                                         <div></div>
                                     @endif
@@ -269,70 +269,7 @@
             </div>
         </div>
 
-        <div x-show="modalEdit" style="display: none;"
-            class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overflow-x-hidden p-4 bg-black/50 backdrop-blur-sm"
-            x-transition.opacity>
-            <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 md:p-8 m-auto"
-                @click.away="modalEdit = false" x-transition>
-                <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-5">
-                    <h3 class="text-xl font-bold text-gray-800">Pembayaran Cicilan/Kredit</h3>
-                    <button @click="modalEdit = false" class="text-gray-400 hover:text-gray-600 transition-colors"><i
-                            class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
 
-                <form :action="`/admin/penjualan/${editData.id}/update-pembayaran`" method="POST" class="space-y-4">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 mb-4">
-                        <div class="flex justify-between text-sm mb-1 text-gray-600">
-                            <span>Invoice:</span> <span class="font-bold text-gray-800" x-text="editData.invoice"></span>
-                        </div>
-                        <div class="flex justify-between text-sm mb-1 text-gray-600">
-                            <span>Total Tagihan:</span> <span class="font-bold text-gray-800"
-                                x-text="'Rp ' + formatRupiah(editData.total_harga)"></span>
-                        </div>
-                        <div class="flex justify-between text-sm mb-1 text-gray-600">
-                            <span>Sudah Dibayar:</span> <span class="font-bold text-gray-800"
-                                x-text="'Rp ' + formatRupiah(editData.bayar)"></span>
-                        </div>
-                        <div class="flex justify-between text-sm border-t border-orange-200 pt-2 mt-2">
-                            <span class="text-red-500 font-bold">Sisa Tagihan (Kekurangan):</span>
-                            <span class="font-black text-red-500"
-                                x-text="'Rp ' + formatRupiah(Math.abs(editData.kembalian))"></span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nominal Tambahan Bayar (Rp) <span
-                                class="text-red-500">*</span></label>
-                        <input type="number" name="nominal_tambah" x-model="inputNominal" min="1" required
-                            placeholder="Contoh: 500000"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00] text-lg font-bold text-gray-800 text-right">
-
-                        <p x-show="inputNominal && parseInt(inputNominal) > Math.abs(editData.kembalian)" x-transition class="text-xs text-red-500 mt-1 font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-triangle-exclamation text-xs"></i> Nominal pembayaran melebihi sisa tagihan!
-                        </p>
-
-                        <p class="text-xs mt-2 font-medium"
-                            :class="(parseInt(inputNominal) || 0) >= Math.abs(editData.kembalian) ? 'text-green-500' :
-                                'text-gray-500'">
-                            <i class="fa-solid fa-circle-info"></i>
-                            <span
-                                x-text="(parseInt(inputNominal) || 0) >= Math.abs(editData.kembalian) ? 'Transaksi akan menjadi LUNAS setelah pembayaran ini.' : 'Transaksi akan tetap KREDIT setelah pembayaran ini.'"></span>
-                        </p>
-                    </div>
-
-                    <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
-                        <button type="button" @click="modalEdit = false"
-                            class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors">Batal</button>
-                        <button type="submit" :disabled="!inputNominal || parseInt(inputNominal) > Math.abs(editData.kembalian) || parseInt(inputNominal) <= 0"
-                            class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors shadow-lg shadow-amber-500/30 disabled:shadow-none">Bayar
-                            Cicilan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
 
         <div x-show="modalHapus" style="display: none;"
             class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
@@ -374,25 +311,16 @@
         function daftarPenjualanApp() {
             return {
                 modalDetail: false,
-                modalEdit: false,
                 modalHapus: false,
 
                 penjualans: @json($penjualans->items()),
 
                 detailData: {},
-                editData: {},
-                inputNominal: '',
                 hapusId: '',
 
                 openDetail(index) {
                     this.detailData = this.penjualans[index];
                     this.modalDetail = true;
-                },
-
-                openEdit(index) {
-                    this.editData = this.penjualans[index];
-                    this.inputNominal = '';
-                    this.modalEdit = true;
                 },
 
                 formatRupiah(angka) {

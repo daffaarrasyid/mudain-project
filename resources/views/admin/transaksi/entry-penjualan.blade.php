@@ -16,6 +16,18 @@
 
 <div x-data="posApp()" class="space-y-6 animate-[fadeIn_0.5s_ease-in-out]">
     
+    @if(isset($editPenjualan))
+    <div class="mb-4 bg-orange-50 border border-orange-200 text-orange-600 px-4 py-3 rounded-xl flex items-center justify-between animate-[fadeIn_0.5s_ease-in-out]">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square"></i> 
+            <span><strong>Mode Edit:</strong> Anda sedang mengubah transaksi invoice <strong>{{ $editPenjualan->invoice }}</strong>.</span>
+        </div>
+        <a href="{{ route('admin.penjualan.daftar') }}" class="text-xs bg-orange-600 hover:bg-orange-700 text-white font-bold px-3 py-1.5 rounded-lg transition-colors">
+            Kembali ke Daftar
+        </a>
+    </div>
+    @endif
+
     @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" class="mb-4 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl flex items-center justify-between">
         <div class="flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> <span>{{ session('success') }}</span></div>
@@ -217,6 +229,9 @@
 
             <form action="{{ route('admin.penjualan.store') }}" method="POST" class="space-y-4">
                 @csrf
+                @if(isset($editPenjualan))
+                <input type="hidden" name="edit_id" value="{{ $editPenjualan->id }}">
+                @endif
                 <input type="hidden" name="invoice" value="{{ $invoice }}">
                 <input type="hidden" name="customer_id" :value="selectedCustomer">
                 
@@ -247,7 +262,7 @@
 
                 <div x-show="kembalian < 0" x-transition.opacity class="bg-red-50 border border-red-200 p-4 rounded-xl mt-4">
                     <label class="block text-sm font-bold text-red-700 mb-2">Tanggal Jatuh Tempo Piutang <span class="text-red-500">*</span></label>
-                    <input type="date" name="jatuh_tempo" :required="kembalian < 0" class="w-full bg-white border border-red-300 text-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                    <input type="date" name="jatuh_tempo" :required="kembalian < 0" value="{{ $editPenjualan->jatuh_tempo ?? '' }}" class="w-full bg-white border border-red-300 text-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500">
                     <p class="text-xs text-red-500 mt-2 italic">Karena pembayaran berupa Kredit, wajib menentukan tanggal jatuh tempo.</p>
                 </div>
 
@@ -270,8 +285,8 @@
             databaseProduk: @json($produks),
             databaseService: @json($servis), 
             
-            selectedCustomer: '',
-            jenisCustomer: 'Umum',
+            selectedCustomer: '{{ $editPenjualan->customer_id ?? '' }}',
+            jenisCustomer: '{{ $editPenjualan->customer->jenis_customer ?? 'Umum' }}',
             selectedLayanan: 'Produk', 
             
             searchKeyword: '',
@@ -287,13 +302,19 @@
             inputQty: 1,
             inputSubtotal: 0,
 
-            cartProduk: [],
-            cartService: [],
+            cartProduk: @json($editProdukCart ?? []),
+            cartService: @json($editServiceCart ?? []),
             
             modalPayment: false,
-            inputBayar: '',
-            kembalian: 0,
-            statusPembayaran: 'Lunas',
+            inputBayar: '{{ $editPenjualan->bayar ?? '' }}',
+            kembalian: {{ $editPenjualan->kembalian ?? 0 }},
+            statusPembayaran: '{{ $editPenjualan->status_pembayaran ?? 'Lunas' }}',
+
+            init() {
+                if (this.inputBayar) {
+                    this.kalkulasiKembalian();
+                }
+            },
 
             updateCustomerType() {
                 if(this.selectedCustomer === '') {
