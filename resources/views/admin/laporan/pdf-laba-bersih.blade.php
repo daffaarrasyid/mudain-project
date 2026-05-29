@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Stok In/Out</title>
+    <title>Laporan Laba Bersih</title>
     <style>
         body { font-family: 'Helvetica', Arial, sans-serif; font-size: 11px; color: #333; line-height: 1.4; margin: 0; padding: 0; }
         .kop-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
@@ -47,10 +47,9 @@
 
     <!-- JUDUL DOCUMENT -->
     <div class="title-block">
-        <h2>Laporan Mutasi Stok Barang</h2>
+        <h2>Laporan Laba Bersih</h2>
         <span class="subtitle">
-            Periode: {{ \Carbon\Carbon::parse($request->tanggal_awal)->format('d M Y') }} - {{ \Carbon\Carbon::parse($request->tanggal_akhir)->format('d M Y') }}<br>
-            Tipe Laporan: <span class="font-bold text-orange">{{ strtoupper($request->jenis) }}</span>
+            Periode: {{ \Carbon\Carbon::parse($request->tanggal_awal)->format('d M Y') }} - {{ \Carbon\Carbon::parse($request->tanggal_akhir)->format('d M Y') }}
         </span>
     </div>
 
@@ -59,38 +58,55 @@
         <thead>
             <tr>
                 <th class="text-center" style="width: 5%;">No</th>
-                <th style="width: 18%;">Tanggal & Waktu</th>
-                <th style="width: 25%;">Nama Produk / Barang</th>
-                <th class="text-center" style="width: 10%;">Jenis</th>
-                <th class="text-center" style="width: 8%;">Qty</th>
-                <th style="width: 20%;">Keterangan</th>
-                <th class="text-center" style="width: 14%;">User / Operator</th>
+                <th style="width: 15%;">Tanggal</th>
+                <th style="width: 15%;">No Referensi</th>
+                <th style="width: 18%;">Kategori</th>
+                <th style="width: 25%;">Keterangan</th>
+                <th class="text-center" style="width: 10%;">Tipe</th>
+                <th class="text-right" style="width: 15%;">Pemasukan</th>
+                <th class="text-right" style="width: 15%;">Pengeluaran</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($riwayat as $index => $trx)
+            @forelse($transaksi as $index => $trx)
+            @php
+                $masuk = $trx->tipe == 'Masuk' ? $trx->nominal : 0;
+                $keluar = $trx->tipe == 'Keluar' ? $trx->nominal : 0;
+            @endphp
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::parse($trx->created_at)->format('d/m/Y H:i') }}</td>
-                <td class="font-bold text-orange">{{ $trx->produk->nama_item ?? 'Produk Dihapus' }}</td>
-                <td class="text-center {{ $trx->jenis == 'Masuk' ? 'text-green' : 'text-red' }}">
-                    {{ $trx->jenis }}
-                </td>
-                <td class="text-center font-bold">{{ $trx->jumlah }}</td>
+                <td class="font-bold text-orange">{{ $trx->kode_kas }}</td>
+                <td>{{ $trx->jenis }}</td>
                 <td>{{ $trx->keterangan ?? '-' }}</td>
-                <td class="text-center">{{ $trx->user->name ?? 'Admin' }}</td>
+                <td class="text-center font-bold {{ $trx->tipe == 'Masuk' ? 'text-green' : 'text-red' }}">
+                    {{ $trx->tipe }}
+                </td>
+                <td class="text-right">Rp {{ number_format($masuk, 0, ',', '.') }}</td>
+                <td class="text-right">Rp {{ number_format($keluar, 0, ',', '.') }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="text-center" style="color: #999; padding: 20px;">Tidak ada aktivitas stok pada periode ini.</td>
+                <td colspan="8" class="text-center" style="color: #999; padding: 20px;">Tidak ada transaksi laba bersih pada periode ini.</td>
             </tr>
             @endforelse
         </tbody>
+        <tfoot>
+            <tr style="background-color: #fafafa; font-weight: bold;">
+                <td colspan="6" class="text-right font-bold" style="font-size: 10px; border-top: 1px solid #eee;">TOTAL</td>
+                <td class="text-right font-bold text-green" style="font-size: 10px; border-top: 1px solid #eee;">Rp {{ number_format($totalMasuk, 0, ',', '.') }}</td>
+                <td class="text-right font-bold text-red" style="font-size: 10px; border-top: 1px solid #eee;">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</td>
+            </tr>
+            <tr style="background-color: #fff8f5; font-weight: bold;">
+                <td colspan="6" class="text-right font-bold text-orange" style="font-size: 10px; border-top: 2px solid #E65C00;">LABA BERSIH PERIODE INI</td>
+                <td colspan="2" class="text-right font-bold text-orange" style="font-size: 11px; border-top: 2px solid #E65C00;">Rp {{ number_format($labaBersih, 0, ',', '.') }}</td>
+            </tr>
+        </tfoot>
     </table>
 
     <!-- FOOTER -->
     <div class="footer">
-        <p>Dokumen ini sah dan dihasilkan secara otomatis oleh Sistem Mudain Project. CV. Muda Kita Indonesia © 2026. All Rights Reserved.</p>
+        <p>Dokumen ini sah dan dihasilkan secara otomatis oleh Sistem Mudain Project. CV Muda Kita Indonesia © 2026. All Rights Reserved.</p>
     </div>
 
 </body>

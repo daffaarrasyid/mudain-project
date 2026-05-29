@@ -40,16 +40,19 @@ class PiutangController extends Controller
         try {
             $penjualan = Penjualan::findOrFail($id);
             
+            $sisaPiutang = (float) ($penjualan->total_harga - $penjualan->bayar);
+            $nominalBayar = min((float) $request->nominal_bayar, $sisaPiutang);
+
             // Catat ke histori
             RiwayatPembayaranPenjualan::create([
                 'penjualan_id' => $penjualan->id,
-                'nominal_bayar' => $request->nominal_bayar,
+                'nominal_bayar' => $nominalBayar,
                 'tanggal_bayar' => now(),
                 'keterangan' => $request->keterangan ?? 'Pembayaran Cicilan'
             ]);
 
             // Update master penjualan
-            $bayarBaru = $penjualan->bayar + $request->nominal_bayar;
+            $bayarBaru = (float) $penjualan->bayar + $nominalBayar;
             $kembalianBaru = $bayarBaru - $penjualan->total_harga; // Kalau minus berarti masih kurang (Piutang)
 
             $penjualan->update([

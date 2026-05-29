@@ -235,6 +235,9 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Nominal Bayar (Rp) <span class="text-red-500">*</span></label>
                     <input type="number" name="bayar" x-model="inputBayar" @input="kalkulasiKembalian()" required class="w-full bg-white border border-gray-300 text-2xl font-bold rounded-xl px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-2 focus:ring-[#E65C00]/50 transition-colors text-right">
+                    <p x-show="inputBayar && parseInt(inputBayar) > grandTotal" x-transition class="text-xs text-red-500 mt-1 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation text-xs"></i> Nominal pembayaran melebihi total tagihan!
+                    </p>
                 </div>
 
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
@@ -242,9 +245,16 @@
                     <span class="font-bold text-lg" :class="kembalian < 0 ? 'text-red-500' : 'text-green-600'" x-text="kembalian < 0 ? 'KREDIT' : 'Rp ' + formatRupiah(kembalian)"></span>
                 </div>
 
+                <div x-show="kembalian < 0" x-transition.opacity class="bg-red-50 border border-red-200 p-4 rounded-xl mt-4">
+                    <label class="block text-sm font-bold text-red-700 mb-2">Tanggal Jatuh Tempo Piutang <span class="text-red-500">*</span></label>
+                    <input type="date" name="jatuh_tempo" :required="kembalian < 0" class="w-full bg-white border border-red-300 text-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                    <p class="text-xs text-red-500 mt-2 italic">Karena pembayaran berupa Kredit, wajib menentukan tanggal jatuh tempo.</p>
+                </div>
+
                 <div class="pt-4 flex gap-3">
                     <button type="button" @click="modalPayment = false" class="w-1/2 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors">Batal</button>
-                    <button type="submit" class="w-1/2 py-3 bg-[#E65C00] hover:bg-[#cc5200] text-white font-bold rounded-xl transition-colors shadow-lg shadow-orange-500/30">
+                    <button type="submit" :disabled="!inputBayar || parseInt(inputBayar) > grandTotal || parseInt(inputBayar) <= 0"
+                        class="w-1/2 py-3 bg-[#E65C00] hover:bg-[#cc5200] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors shadow-lg shadow-orange-500/30 disabled:shadow-none">
                         Proses <i class="fa-solid fa-check ml-1"></i>
                     </button>
                 </div>

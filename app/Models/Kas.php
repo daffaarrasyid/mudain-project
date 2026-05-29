@@ -29,7 +29,7 @@ class Kas extends Model
 
         foreach ($penjualans as $p) {
             $sumCicilan = $p->riwayat_pembayarans->sum('nominal_bayar');
-            $initialBayar = $p->bayar - $sumCicilan;
+            $initialBayar = min($p->bayar, $p->total_harga) - $sumCicilan;
 
             if ($initialBayar > 0) {
                 $kasPenjualan->push((object)[
@@ -73,7 +73,7 @@ class Kas extends Model
 
         foreach ($pembelians as $b) {
             $sumCicilan = $b->riwayat_pembayarans->sum('nominal_bayar');
-            $initialBayar = $b->bayar - $sumCicilan;
+            $initialBayar = min($b->bayar, $b->grand_total) - $sumCicilan;
 
             if ($initialBayar > 0) {
                 $kasPembelian->push((object)[

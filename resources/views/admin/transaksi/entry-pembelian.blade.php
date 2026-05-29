@@ -29,7 +29,7 @@
     </div>
     @endif
 
-    <div class="card-animasi-1 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card-animasi-1 grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-30">
         
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Pembelian</h2>
@@ -212,7 +212,7 @@
         <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 md:p-8 m-auto" @click.away="modalPayment = false" x-transition>
             <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-5">
                 <h3 class="text-xl font-bold text-gray-800">Pembayaran Modal</h3>
-                <button @click="modalPayment = false" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button @click="modalPayment = false" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
 
             <form action="{{ route('admin.pembelian.store') }}" method="POST" class="space-y-4">
@@ -239,6 +239,9 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Uang Dibayarkan (Rp) <span class="text-red-500">*</span></label>
                     <input type="number" name="bayar" x-model="inputBayar" @input="kalkulasiHutang()" required class="w-full bg-white border border-gray-300 text-2xl font-bold rounded-xl px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-2 focus:ring-[#E65C00]/50 transition-colors text-right">
+                    <p x-show="inputBayar && parseInt(inputBayar) > grandTotal" x-transition class="text-xs text-red-500 mt-1 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation text-xs"></i> Nominal pembayaran melebihi total tagihan!
+                    </p>
                 </div>
 
                 <div x-show="sisaHutang > 0" x-transition.opacity class="bg-red-50 border border-red-200 p-4 rounded-xl mt-4">
@@ -254,7 +257,8 @@
 
                 <div class="pt-4 flex gap-3">
                     <button type="button" @click="modalPayment = false" class="w-1/2 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors">Batal</button>
-                    <button type="submit" class="w-1/2 py-3 bg-[#E65C00] hover:bg-[#cc5200] text-white font-bold rounded-xl transition-colors shadow-lg shadow-orange-500/30">
+                    <button type="submit" :disabled="!inputBayar || parseInt(inputBayar) > grandTotal || parseInt(inputBayar) <= 0"
+                        class="w-1/2 py-3 bg-[#E65C00] hover:bg-[#cc5200] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors shadow-lg shadow-orange-500/30 disabled:shadow-none">
                         Proses <i class="fa-solid fa-check ml-1"></i>
                     </button>
                 </div>

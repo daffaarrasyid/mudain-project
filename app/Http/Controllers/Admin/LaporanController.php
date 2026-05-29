@@ -171,7 +171,7 @@ class LaporanController extends Controller
         return $pdf->stream('Laporan_Kas_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.pdf');
     }
 
-    // 2. FUNGSI EXPORT LABA KOTOR (CSV/Excel) -> (Penjualan vs Pembelian Stok)
+    // 2. FUNGSI EXPORT LABA KOTOR (PDF) -> (Penjualan vs Pembelian Stok)
     public function exportLabaKotor(Request $request)
     {
         $request->validate(['tanggal_awal' => 'required|date', 'tanggal_akhir' => 'required|date']);
@@ -181,31 +181,16 @@ class LaporanController extends Controller
         // Laba Kotor biasanya cuma ngitung transaksi Penjualan (Masuk) & Pembelian Stok (Keluar) dari data riil
         $transaksi = $this->getDynamicLabaRugi($awal, $akhir)->whereIn('jenis', ['Penjualan', 'Pembelian'])->values();
 
-        $namaFile = 'Laba_Kotor_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.csv';
-        $headers = ["Content-type" => "text/csv", "Content-Disposition" => "attachment; filename=$namaFile", "Pragma" => "no-cache"];
+        $totalPendapatan = $transaksi->where('tipe', 'Masuk')->sum('nominal');
+        $totalHPP = $transaksi->where('tipe', 'Keluar')->sum('nominal');
+        $labaKotor = $totalPendapatan - $totalHPP;
 
-        $callback = function() use($transaksi) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['Tanggal', 'No Referensi', 'Kategori', 'Tipe', 'Pendapatan (Masuk)', 'HPP/Pembelian (Keluar)']);
-            
-            $totalPendapatan = 0; $totalHPP = 0;
-
-            foreach ($transaksi as $trx) {
-                $masuk = $trx->tipe == 'Masuk' ? $trx->nominal : 0;
-                $keluar = $trx->tipe == 'Keluar' ? $trx->nominal : 0;
-                $totalPendapatan += $masuk; $totalHPP += $keluar;
-
-                $formattedDate = \Carbon\Carbon::parse($trx->created_at)->format('d/m/Y H:i');
-                fputcsv($file, [$formattedDate, $trx->kode_kas, $trx->jenis, $trx->tipe, $masuk, $keluar]);
-            }
-            fputcsv($file, ['', '', '', 'TOTAL', $totalPendapatan, $totalHPP]);
-            fputcsv($file, ['', '', '', 'LABA KOTOR', $totalPendapatan - $totalHPP, '']);
-            fclose($file);
-        };
-        return response()->stream($callback, 200, $headers);
+        $pdf = Pdf::loadView('admin.laporan.pdf-laba-kotor', compact('transaksi', 'totalPendapatan', 'totalHPP', 'labaKotor', 'request'));
+        ob_clean();
+        return $pdf->stream('Laporan_Laba_Kotor_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.pdf');
     }
 
-    // 3. FUNGSI EXPORT LABA BERSIH (CSV/Excel) -> (Semua Masuk vs Semua Keluar)
+    // 3. FUNGSI EXPORT LABA BERSIH (PDF) -> (Semua Masuk vs Semua Keluar)
     public function exportLabaBersih(Request $request)
     {
         $request->validate(['tanggal_awal' => 'required|date', 'tanggal_akhir' => 'required|date']);
@@ -214,28 +199,13 @@ class LaporanController extends Controller
 
         $transaksi = $this->getDynamicLabaRugi($awal, $akhir);
 
-        $namaFile = 'Laba_Bersih_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.csv';
-        $headers = ["Content-type" => "text/csv", "Content-Disposition" => "attachment; filename=$namaFile", "Pragma" => "no-cache"];
+        $totalMasuk = $transaksi->where('tipe', 'Masuk')->sum('nominal');
+        $totalKeluar = $transaksi->where('tipe', 'Keluar')->sum('nominal');
+        $labaBersih = $totalMasuk - $totalKeluar;
 
-        $callback = function() use($transaksi) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['Tanggal', 'No Referensi', 'Kategori', 'Keterangan', 'Tipe', 'Pemasukan', 'Pengeluaran']);
-            
-            $totalMasuk = 0; $totalKeluar = 0;
-
-            foreach ($transaksi as $trx) {
-                $masuk = $trx->tipe == 'Masuk' ? $trx->nominal : 0;
-                $keluar = $trx->tipe == 'Keluar' ? $trx->nominal : 0;
-                $totalMasuk += $masuk; $totalKeluar += $keluar;
-
-                $formattedDate = \Carbon\Carbon::parse($trx->created_at)->format('d/m/Y H:i');
-                fputcsv($file, [$formattedDate, $trx->kode_kas, $trx->jenis, $trx->keterangan, $trx->tipe, $masuk, $keluar]);
-            }
-            fputcsv($file, ['', '', '', '', 'TOTAL', $totalMasuk, $totalKeluar]);
-            fputcsv($file, ['', '', '', '', 'LABA BERSIH', $totalMasuk - $totalKeluar, '']);
-            fclose($file);
-        };
-        return response()->stream($callback, 200, $headers);
+        $pdf = Pdf::loadView('admin.laporan.pdf-laba-bersih', compact('transaksi', 'totalMasuk', 'totalKeluar', 'labaBersih', 'request'));
+        ob_clean();
+        return $pdf->stream('Laporan_Laba_Bersih_' . $request->tanggal_awal . '_sd_' . $request->tanggal_akhir . '.pdf');
     }
 
     private function getDynamicKas($awal, $akhir)

@@ -49,6 +49,11 @@ class PembelianController extends Controller
         $cart = json_decode($request->cart_data, true);
         if(empty($cart)) return back()->withErrors(['cart' => 'Belum ada item yang diceklis untuk dibeli!']);
 
+        // Explicit cast and dynamic self-capping
+        $grandTotal = (float) $request->grand_total;
+        $bayar = min((float) $request->bayar, $grandTotal);
+        $sisaHutang = max(0.0, $grandTotal - $bayar);
+
         DB::beginTransaction();
         try {
             // Tarik data penjualan aslinya
@@ -68,11 +73,11 @@ class PembelianController extends Controller
                 'user_id' => Auth::id() ?? 1,
                 'total_harga' => $request->total_harga,
                 'diskon' => $request->diskon ?? 0,
-                'grand_total' => $request->grand_total,
-                'bayar' => $request->bayar,
-                'sisa_hutang' => $request->sisa_hutang,
-                'jatuh_tempo' => $request->sisa_hutang > 0 ? $request->jatuh_tempo : null,
-                'status_pembayaran' => $request->sisa_hutang > 0 ? 'Hutang' : 'Lunas',
+                'grand_total' => $grandTotal,
+                'bayar' => $bayar,
+                'sisa_hutang' => $sisaHutang,
+                'jatuh_tempo' => $sisaHutang > 0 ? $request->jatuh_tempo : null,
+                'status_pembayaran' => $sisaHutang > 0 ? 'Hutang' : 'Lunas',
             ]);
 
             // Looping barang yang diceklis
@@ -131,13 +136,16 @@ class PembelianController extends Controller
 
         $pembelian = Pembelian::findOrFail($id);
         
+        $sisaHutang = (float) $pembelian->sisa_hutang;
+        $nominalTambah = min((float) $request->nominal_tambah, $sisaHutang);
+        
         // Akumulasi: Bayar yang lama ditambah nominal bayaran baru
-        $bayarBaru = $pembelian->bayar + $request->nominal_tambah;
-        $sisaHutangBaru = $pembelian->grand_total - $bayarBaru;
+        $bayarBaru = (float) $pembelian->bayar + $nominalTambah;
+        $sisaHutangBaru = max(0.0, (float) $pembelian->grand_total - $bayarBaru);
         
         $pembelian->update([
             'bayar' => $bayarBaru,
-            'sisa_hutang' => $sisaHutangBaru < 0 ? 0 : $sisaHutangBaru,
+            'sisa_hutang' => $sisaHutangBaru,
             'status_pembayaran' => $sisaHutangBaru <= 0 ? 'Lunas' : 'Hutang'
         ]);
 

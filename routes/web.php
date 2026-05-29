@@ -152,6 +152,7 @@ Route::prefix('admin/transaksi')->name('admin.pembelian.')->group(function () {
 // Route untuk halaman Hutang
 Route::get('/admin/transaksi/hutang', [HutangController::class, 'index'])->name('admin.transaksi.hutang');
 Route::put('/admin/transaksi/hutang/{id}/bayar', [HutangController::class, 'bayarCicilan']);
+Route::put('/admin/transaksi/hutang/{id}/update', [HutangController::class, 'updateMaster']);
 
 // Route untuk halaman Piutang
 Route::get('/admin/transaksi/piutang', [PiutangController::class, 'index'])->name('admin.transaksi.piutang');

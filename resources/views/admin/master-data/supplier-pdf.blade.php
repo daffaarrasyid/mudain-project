@@ -1,84 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Data Supplier Mudain</title>
+    <title>Laporan Data Supplier</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fff;
-            color: #333;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #E65C00;
-            padding-bottom: 15px;
-        }
-        .header h1 {
-            color: #E65C00;
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        .header p {
-            color: #666;
-            font-size: 12px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        thead {
-            background-color: #E65C00;
-            color: white;
-        }
-        th {
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-            font-size: 11px;
-        }
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #ddd;
-            font-size: 10px;
-        }
-        tbody tr:nth-child(even) {
-            background-color: #f5f5f5;
-        }
-        tbody tr:hover {
-            background-color: #e8f4f8;
-        }
-        .footer {
-            margin-top: 40px;
-            text-align: right;
-            font-size: 10px;
-            color: #666;
-        }
-        .date-info {
-            margin-top: 20px;
-            font-size: 10px;
-            color: #666;
-        }
+        body { font-family: 'Helvetica', Arial, sans-serif; font-size: 11px; color: #333; line-height: 1.4; margin: 0; padding: 0; }
+        .kop-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
+        .kop-table td { border: none !important; padding: 0 !important; }
+        .kop-line { border-top: 2px solid #E65C00; border-bottom: 1px solid #E65C00; height: 3px; margin-bottom: 20px; }
+        
+        .title-block { text-align: center; margin-bottom: 20px; }
+        .title-block h2 { font-size: 15px; font-weight: bold; color: #333; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .title-block .subtitle { font-size: 10px; color: #666; margin-top: 5px; display: block; }
+        
+        table.data-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+        table.data-table th, table.data-table td { padding: 8px 10px; text-align: left; }
+        table.data-table th { background-color: #E65C00; color: white; font-size: 10px; font-weight: bold; text-transform: uppercase; border: 1px solid #d45200; }
+        table.data-table td { border-bottom: 1px solid #eee; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; }
+        table.data-table tbody tr:nth-child(even) { background-color: #fafafa; }
+        
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        .text-orange { color: #E65C00; }
+        
+        .summary-info { margin-top: 20px; font-size: 10px; color: #555; }
+        .summary-info p { margin: 3px 0; }
+        .footer { text-align: center; margin-top: 45px; font-size: 9px; color: #888; font-style: italic; border-top: 1px solid #eee; padding-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📋 Data Supplier Mudain</h1>
-        <p>Laporan Data Supplier - {{ now()->format('d F Y') }}</p>
+
+    <!-- KOP LAPORAN -->
+    <table class="kop-table">
+        <tr>
+            <td style="width: 15%; vertical-align: middle; text-align: left;">
+                <img src="{{ public_path('assets/images/logo-mudain-orange.png') }}" style="height: 40px; display: block;" alt="Logo Mudain">
+            </td>
+            <td style="width: 85%; text-align: right; vertical-align: middle; line-height: 1.3;">
+                <span style="font-size: 18px; font-weight: bold; color: #E65C00;">CV Muda Kita Indonesia</span><br>
+                <span style="font-size: 9px; color: #555;">Jalan Nuri No. 47, Rancamanyar Regency 2, Kel. Rancamanyar, Kec. Baleendah, Kab. Bandung, Jawa Barat</span><br>
+                <span style="font-size: 9px; color: #555;">Telepon: 0851-7433-9047 | Email: Mudakita.id@gmail.com | Website: mudain.co.id</span>
+            </td>
+        </tr>
+    </table>
+    <div class="kop-line"></div>
+
+    <!-- JUDUL DOCUMENT -->
+    <div class="title-block">
+        <h2>Laporan Data Supplier</h2>
+        <span class="subtitle">Dicetak pada: {{ now()->format('d-m-Y H:i') }} WIB</span>
     </div>
 
-    <table>
+    <!-- TABEL DATA -->
+    <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 8%;">No</th>
-                <th style="width: 12%;">Kode Supplier</th>
+                <th class="text-center" style="width: 5%;">No</th>
+                <th style="width: 15%;">Kode Supplier</th>
                 <th style="width: 25%;">Nama Supplier</th>
                 <th style="width: 15%;">No. Telepon</th>
                 <th style="width: 20%;">Email</th>
@@ -88,8 +67,8 @@
         <tbody>
             @forelse($suppliers as $index => $supplier)
             <tr>
-                <td>{{ $index + 1 }}</td>
-                <td><strong>{{ $supplier->kode_supplier }}</strong></td>
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td class="font-bold text-orange">{{ $supplier->kode_supplier }}</td>
                 <td>{{ $supplier->nama_supplier }}</td>
                 <td>{{ $supplier->no_telp ?? '-' }}</td>
                 <td>{{ $supplier->email ?? '-' }}</td>
@@ -97,19 +76,21 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" style="text-align: center; color: #999;">Tidak ada data supplier</td>
+                <td colspan="6" class="text-center" style="color: #999; padding: 20px;">Tidak ada data supplier</td>
             </tr>
             @endforelse
         </tbody>
     </table>
 
-    <div class="date-info">
-        <p>Total Supplier: <strong>{{ count($suppliers) }}</strong></p>
-        <p>Dicetak pada: {{ now()->format('d-m-Y H:i') }}</p>
+    <!-- KETERANGAN / RINGKASAN -->
+    <div class="summary-info">
+        <p>Total Jumlah Supplier: <strong class="text-orange">{{ count($suppliers) }}</strong> orang / instansi</p>
     </div>
 
+    <!-- FOOTER -->
     <div class="footer">
-        <p>© 2026 PT. Mudain - All Rights Reserved</p>
+        <p>Dokumen ini sah dan dihasilkan secara otomatis oleh Sistem Mudain Project. CV. Muda Kita Indonesia © 2026. All Rights Reserved.</p>
     </div>
+
 </body>
 </html>

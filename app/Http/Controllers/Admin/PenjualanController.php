@@ -59,6 +59,7 @@ class PenjualanController extends Controller
                 'bayar' => $request->bayar,
                 'kembalian' => $request->kembalian,
                 'status_pembayaran' => $request->status_pembayaran,
+                'jatuh_tempo' => $request->kembalian < 0 ? $request->jatuh_tempo : null,
             ]);
 
             // 2. Simpan detail KERANJANG PRODUK
@@ -133,8 +134,11 @@ class PenjualanController extends Controller
 
         $penjualan = Penjualan::findOrFail($id);
 
+        $sisaPiutang = (float) ($penjualan->total_harga - $penjualan->bayar);
+        $nominalTambah = min((float) $request->nominal_tambah, $sisaPiutang);
+
         // Akumulasi: Bayar yang lama ditambah nominal bayaran baru
-        $bayarBaru = $penjualan->bayar + $request->nominal_tambah;
+        $bayarBaru = (float) $penjualan->bayar + $nominalTambah;
         $kembalianBaru = $bayarBaru - $penjualan->total_harga;
 
         $penjualan->update([

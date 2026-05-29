@@ -66,12 +66,17 @@
                         </td>
                         <td class="px-6 py-5 text-center">
                             <div class="flex flex-col gap-1.5 items-center justify-center w-[140px] mx-auto">
+                                <!-- Selalu Tampilkan Detail Histori -->
                                 <button @click="openDetail(index)" class="w-full bg-[#38BDF8] hover:bg-[#0284C7] text-white px-2 py-1.5 rounded text-[10px] sm:text-[11px] font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
                                     <i class="fa-solid fa-magnifying-glass"></i> Detail Histori
                                 </button>
                                 
-                                <button x-show="htg.sisa_hutang > 0" @click="openUpdate(index)" class="w-full bg-[#F59E0B] hover:bg-[#D97706] text-white px-2 py-1.5 rounded text-[10px] sm:text-[11px] font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-money-bill-transfer"></i> Bayar Cicilan
+                                <!-- Hanya Tampilkan Bayar Cicilan & Koreksi jika Belum Lunas -->
+                                <button x-show="htg.sisa_hutang > 0" @click="openUpdate(index)" class="w-full bg-[#10B981] hover:bg-[#059669] text-white px-2 py-1.5 rounded text-[10px] sm:text-[11px] font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-money-bill-wave"></i> Bayar Cicilan
+                                </button>
+                                <button x-show="htg.sisa_hutang > 0" @click="openKoreksi(index)" class="w-full bg-[#F59E0B] hover:bg-[#D97706] text-white px-2 py-1.5 rounded text-[10px] sm:text-[11px] font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-rotate"></i> Koreksi Data
                                 </button>
                             </div>
                         </td>
@@ -109,51 +114,56 @@
         </div>
     </div>
 
-    <div x-show="modalUpdate" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overflow-x-hidden p-4 bg-black/50 backdrop-blur-sm"
-         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-        
-        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 md:p-8 m-auto" @click.away="modalUpdate = false"
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+    <!-- MODAL BAYAR CICILAN (DIALIRKAN DENGAN PIUTANG) -->
+    <div x-show="modalUpdate" style="display: none;" class="fixed inset-0 z-[100] flex items-start justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto" x-transition.opacity>
+        <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-6 md:p-8 mt-8 mb-8" @click.away="modalUpdate = false" x-transition>
             
             <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-5">
-                <h3 class="text-xl font-bold text-gray-800">Catat Pembayaran Hutang</h3>
+                <h3 class="text-xl font-bold text-gray-800">Catat Pembayaran Cicilan Hutang</h3>
                 <button @click="modalUpdate = false" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
 
-            <form :action="`/admin/transaksi/hutang/${updateData.id}/bayar`" method="POST" class="space-y-4">
-                @csrf 
-                @method('PUT')
-                
-                <div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-4">
-                    <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-600">Supplier:</span><span class="font-bold text-gray-800" x-text="updateData.supplier?.nama_supplier"></span>
-                    </div>
-                    <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-600">Sisa Hutang Saat Ini:</span><span class="font-bold text-red-600" x-text="'Rp ' + formatRupiah(updateData.sisa_hutang)"></span>
-                    </div>
+            <div class="mb-6 space-y-4">
+                <div class="bg-red-50 border border-red-100 rounded-xl p-4">
+                    <div class="flex justify-between text-sm mb-1"><span class="text-gray-600">Supplier:</span><span class="font-bold text-gray-800" x-text="activeData.supplier?.nama_supplier || 'Umum'"></span></div>
+                    <div class="flex justify-between text-sm mb-1"><span class="text-gray-600">Sisa Hutang:</span><span class="font-black text-red-600 text-lg" x-text="'Rp ' + formatRupiah(activeData.sisa_hutang)"></span></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nominal Pembayaran (Rp) <span class="text-red-500">*</span></label>
-                        <input type="number" name="nominal_bayar" min="1" :max="updateData.sisa_hutang" placeholder="Cth: 500000" required
-                               class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00] text-xl font-bold text-right text-gray-800">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Metode Bayar <span class="text-red-500">*</span></label>
-                        <select name="metode_bayar" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]">
-                            <option value="Transfer Bank">Transfer Bank</option>
-                            <option value="Cash / Tunai">Cash / Tunai</option>
-                            <option value="E-Wallet">E-Wallet</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tgl Pembayaran</label>
-                        <input type="date" value="{{ date('Y-m-d') }}" readonly class="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-lg px-4 py-2.5 outline-none cursor-not-allowed">
-                    </div>
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="bg-gray-100 px-4 py-2 border-b border-gray-200"><span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Histori Pembayaran Sebelumnya</span></div>
+                    <table class="w-full text-left text-sm">
+                        <tbody class="text-gray-600">
+                            <!-- Pembayaran Awal / DP (Diambil dari: total bayar - total cicilan) -->
+                            <tr x-show="(activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0)) > 0" class="border-b border-gray-50 bg-gray-50/50">
+                                <td class="p-3" x-text="formatTanggal(activeData.tanggal_faktur)"></td>
+                                <td class="p-3 font-bold text-green-600" x-text="'Rp ' + formatRupiah(activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0))"></td>
+                                <td class="p-3 text-gray-500 italic">Uang Muka (DP)</td>
+                            </tr>
+                            <template x-for="riwayat in activeData.riwayat_pembayarans" :key="riwayat.id">
+                                <tr class="border-b border-gray-50">
+                                    <td class="p-3" x-text="formatTanggal(riwayat.tanggal_bayar)"></td>
+                                    <td class="p-3 font-bold text-green-600" x-text="'Rp ' + formatRupiah(riwayat.nominal_bayar)"></td>
+                                    <td class="p-3 text-gray-500" x-text="riwayat.keterangan || '-'"></td>
+                                </tr>
+                            </template>
+                            <tr x-show="(!activeData.riwayat_pembayarans || activeData.riwayat_pembayarans.length === 0) && (activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0)) <= 0">
+                                <td colspan="3" class="p-3 text-center text-gray-400 italic">Belum ada cicilan yang dicatat.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                
+            </div>
+
+            <form :action="`/admin/transaksi/hutang/${activeData.id}/bayar`" method="POST" class="space-y-4 border-t border-gray-100 pt-5">
+                @csrf @method('PUT')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nominal Pembayaran (Rp) <span class="text-red-500">*</span></label>
+                    <input type="number" name="nominal_bayar" x-model="nominalBayar" min="1" :max="activeData.sisa_hutang" placeholder="Masukkan jumlah yang dibayar..." required
+                           class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00] text-lg font-bold text-right text-gray-800">
+                    <p x-show="nominalBayar && parseInt(nominalBayar) > activeData.sisa_hutang" x-transition class="text-xs text-red-500 mt-1 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation text-xs"></i> Nominal pembayaran melebihi sisa hutang!
+                    </p>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan / Catatan</label>
                     <textarea name="keterangan" rows="2" placeholder="Contoh: Pembayaran termin 1 via BNI..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00]"></textarea>
@@ -161,12 +171,51 @@
                 
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
                     <button type="button" @click="modalUpdate = false" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors">Batal</button>
-                    <button type="submit" class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-medium rounded-xl transition-colors shadow-lg shadow-amber-500/30">Simpan Pembayaran</button>
+                    <button type="submit" :disabled="!nominalBayar || parseInt(nominalBayar) > activeData.sisa_hutang || parseInt(nominalBayar) <= 0"
+                            class="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors shadow-lg shadow-green-500/30 disabled:shadow-none">Simpan Pembayaran</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- MODAL KOREKSI DATA HUTANG -->
+    <div x-show="modalKoreksi" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overflow-x-hidden p-4 bg-black/50 backdrop-blur-sm" x-transition.opacity>
+        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 md:p-8 m-auto" @click.away="modalKoreksi = false" x-transition>
+            
+            <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-5">
+                <h3 class="text-xl font-bold text-gray-800">Koreksi Data Hutang</h3>
+                <button @click="modalKoreksi = false" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <form :action="`/admin/transaksi/hutang/${activeData.id}/update`" method="POST" class="space-y-4">
+                @csrf @method('PUT')
+                <div class="bg-orange-50 text-orange-700 text-xs p-3 rounded-lg flex items-start gap-2 mb-4">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
+                    <p>Hanya gunakan form ini jika ada kesalahan input nominal saat pembuatan nota awal atau untuk merevisi Jatuh Tempo.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Total Tagihan Hutang (Rp)</label>
+                    <input type="number" name="grand_total" x-model="activeData.grand_total" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Total Telah Dibayar Keseluruhan (Rp)</label>
+                    <input type="number" name="bayar" x-model="activeData.bayar" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Jatuh Tempo</label>
+                    <input type="date" name="jatuh_tempo" x-model="activeData.jatuh_tempo" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B]">
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+                    <button type="button" @click="modalKoreksi = false" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-medium rounded-xl transition-colors shadow-lg shadow-amber-500/30">Simpan Koreksi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DETAIL HISTORI MODAL (DIALIRKAN DENGAN PIUTANG) -->
     <div x-show="modalDetail" style="display: none;" class="fixed inset-0 z-[100] flex items-start justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto"
          x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
          x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
@@ -181,8 +230,8 @@
 
             <div class="space-y-4">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-bold text-gray-700" x-text="'Faktur: ' + detailData.faktur"></span>
-                    <span class="text-sm font-bold px-3 py-1 rounded" :class="detailData.sisa_hutang <= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" x-text="detailData.sisa_hutang <= 0 ? 'LUNAS' : 'BELUM LUNAS'"></span>
+                    <span class="text-sm font-bold text-gray-700" x-text="'Faktur: ' + activeData.faktur"></span>
+                    <span class="text-sm font-bold px-3 py-1 rounded" :class="activeData.sisa_hutang <= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" x-text="activeData.sisa_hutang <= 0 ? 'LUNAS' : 'BELUM LUNAS'"></span>
                 </div>
                 
                 <div class="overflow-x-auto border border-gray-200 rounded-lg">
@@ -196,7 +245,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <template x-for="riwayat in detailData.riwayat_pembayarans" :key="riwayat.id">
+                            <!-- Pembayaran Awal / DP (Diambil dari: total bayar - total cicilan) -->
+                            <tr x-show="(activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0)) > 0" class="border-b border-gray-50 bg-gray-50/50">
+                                <td class="p-3" x-text="formatTanggal(activeData.tanggal_faktur)"></td>
+                                <td class="p-3 font-semibold text-gray-700">-</td>
+                                <td class="p-3 font-bold text-green-600" x-text="'Rp ' + formatRupiah(activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0))"></td>
+                                <td class="p-3 text-gray-500 italic">Uang Muka (DP)</td>
+                            </tr>
+                            <template x-for="riwayat in activeData.riwayat_pembayarans" :key="riwayat.id">
                                 <tr class="border-b border-gray-50">
                                     <td class="p-3 text-gray-600" x-text="formatTanggal(riwayat.tanggal_bayar)"></td>
                                     <td class="p-3 font-medium text-gray-700" x-text="riwayat.metode_bayar"></td>
@@ -204,14 +260,14 @@
                                     <td class="p-3 text-gray-500 italic" x-text="riwayat.keterangan || '-'"></td>
                                 </tr>
                             </template>
-                            <tr x-show="!detailData.riwayat_pembayarans || detailData.riwayat_pembayarans.length === 0">
+                            <tr x-show="(!activeData.riwayat_pembayarans || activeData.riwayat_pembayarans.length === 0) && (activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0)) <= 0">
                                 <td colspan="4" class="p-4 text-center text-gray-400">Belum ada riwayat cicilan untuk faktur ini.</td>
                             </tr>
                         </tbody>
                         <tfoot class="bg-orange-50 font-bold text-gray-800">
                             <tr>
                                 <td colspan="2" class="p-3 text-right">TOTAL TELAH DIBAYAR:</td>
-                                <td colspan="2" class="p-3 text-[#E65C00] text-lg" x-text="'Rp ' + formatRupiah(detailData.bayar)"></td>
+                                <td colspan="2" class="p-3 text-[#E65C00] text-lg" x-text="'Rp ' + formatRupiah(activeData.bayar)"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -231,21 +287,28 @@
         return {
             modalDetail: false,
             modalUpdate: false,
+            modalKoreksi: false,
             
             // Ambil data PHP (pagination items)
             hutangs: @json($hutangs->items()),
             
-            detailData: {},
-            updateData: {},
+            activeData: {},
+            nominalBayar: '',
 
             openDetail(index) {
-                this.detailData = this.hutangs[index];
+                this.activeData = { ...this.hutangs[index] };
                 this.modalDetail = true;
             },
 
             openUpdate(index) {
-                this.updateData = this.hutangs[index];
+                this.activeData = { ...this.hutangs[index] };
+                this.nominalBayar = '';
                 this.modalUpdate = true;
+            },
+            
+            openKoreksi(index) {
+                this.activeData = { ...this.hutangs[index] };
+                this.modalKoreksi = true;
             },
 
             formatRupiah(angka) {

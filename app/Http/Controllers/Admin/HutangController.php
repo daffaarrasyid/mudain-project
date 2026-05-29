@@ -32,29 +32,31 @@ class HutangController extends Controller
     {
         $request->validate([
             'nominal_bayar' => 'required|numeric|min:1',
-            'metode_bayar' => 'required',
         ]);
 
         DB::beginTransaction();
         try {
             $pembelian = Pembelian::findOrFail($id);
             
+            $sisaHutang = (float) $pembelian->sisa_hutang;
+            $nominalBayar = min((float) $request->nominal_bayar, $sisaHutang);
+
             // 1. Catat ke tabel Riwayat Pembayaran (Biar muncul di modal Detail lo)
             RiwayatPembayaranPembelian::create([
                 'pembelian_id' => $pembelian->id,
-                'nominal_bayar' => $request->nominal_bayar,
+                'nominal_bayar' => $nominalBayar,
                 'tanggal_bayar' => now(),
-                'metode_bayar' => $request->metode_bayar,
+                'metode_bayar' => $request->metode_bayar ?? 'Cash / Tunai',
                 'keterangan' => $request->keterangan ?? 'Pembayaran Cicilan Hutang'
             ]);
 
             // 2. Update saldo di tabel Pembelian utama
-            $bayarBaru = $pembelian->bayar + $request->nominal_bayar;
-            $sisaBaru = $pembelian->grand_total - $bayarBaru;
+            $bayarBaru = (float) $pembelian->bayar + $nominalBayar;
+            $sisaBaru = max(0.0, (float) $pembelian->grand_total - $bayarBaru);
 
             $pembelian->update([
                 'bayar' => $bayarBaru,
-                'sisa_hutang' => $sisaBaru < 0 ? 0 : $sisaBaru,
+                'sisa_hutang' => $sisaBaru,
                 'status_pembayaran' => $sisaBaru <= 0 ? 'Lunas' : 'Hutang'
             ]);
 
@@ -64,5 +66,26 @@ class HutangController extends Controller
             DB::rollback();
             return back()->withErrors(['error' => 'Gagal mencatat pembayaran!']);
         }
+    }
+
+    // Fungsi untuk update data master secara manual (Modal Koreksi)
+    public function updateMaster(Request $request, $id)
+    {
+        $pembelian = Pembelian::findOrFail($id);
+        
+        $grandTotal = (float) $request->grand_total;
+        $bayar = (float) $request->bayar;
+        $sisaHutangBaru = max(0.0, $grandTotal - $bayar);
+        
+        $pembelian->update([
+            'grand_total' => $grandTotal,
+            'total_harga' => $grandTotal + $pembelian->diskon, // Sync with diskon
+            'bayar' => $bayar,
+            'sisa_hutang' => $sisaHutangBaru,
+            'jatuh_tempo' => $request->jatuh_tempo,
+            'status_pembayaran' => $sisaHutangBaru <= 0 ? 'Lunas' : 'Hutang'
+        ]);
+
+        return back()->with('success', 'Data hutang berhasil dikoreksi secara manual!');
     }
 }

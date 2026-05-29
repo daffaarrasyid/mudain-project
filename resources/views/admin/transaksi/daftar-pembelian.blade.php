@@ -216,12 +216,16 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Nominal Transfer / Bayar Baru (Rp)</label>
-                    <input type="number" name="nominal_tambah" required min="1" placeholder="Cth: 500000" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00] text-lg font-bold text-gray-800">
+                    <input type="number" name="nominal_tambah" x-model="nominalTambah" required min="1" placeholder="Cth: 500000" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00] text-lg font-bold text-gray-800">
+                    <p x-show="nominalTambah && parseInt(nominalTambah) > editData.sisa_hutang" x-transition class="text-xs text-red-500 mt-1 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation text-xs"></i> Nominal pembayaran melebihi sisa hutang!
+                    </p>
                 </div>
                 
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
                     <button type="button" @click="modalEdit = false" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors">Batal</button>
-                    <button type="submit" class="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white font-medium rounded-xl transition-colors shadow-lg shadow-green-500/30">Proses Bayar</button>
+                    <button type="submit" :disabled="!nominalTambah || parseInt(nominalTambah) > editData.sisa_hutang || parseInt(nominalTambah) <= 0"
+                        class="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors shadow-lg shadow-green-500/30 disabled:shadow-none">Proses Bayar</button>
                 </div>
             </form>
         </div>
@@ -266,6 +270,7 @@
             
             detailData: {},
             editData: {},
+            nominalTambah: '',
             hapusId: '',
 
             openDetail(index) {
@@ -275,6 +280,7 @@
 
             openEdit(index) {
                 this.editData = this.pembelians[index];
+                this.nominalTambah = '';
                 this.modalEdit = true;
             },
 

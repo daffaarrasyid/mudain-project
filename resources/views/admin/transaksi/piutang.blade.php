@@ -66,12 +66,12 @@
                         </td>
                         <td class="px-6 py-5 text-center">
                             <div class="flex flex-col gap-1.5 items-center justify-center w-[140px] mx-auto">
-                                <button x-show="ptg.kembalian >= 0" @click="openDetail(index)" class="w-full bg-[#38BDF8] hover:bg-[#0284C7] text-white px-2 py-1.5 rounded text-[10px] sm:text-[11px] font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                                <button @click="openDetail(index)" class="w-full bg-[#38BDF8] hover:bg-[#0284C7] text-white px-2 py-1.5 rounded text-[10px] sm:text-[11px] font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
                                     <i class="fa-solid fa-magnifying-glass"></i> Detail Histori
                                 </button>
                                 
                                 <button x-show="ptg.kembalian < 0" @click="openPayment(index)" class="w-full bg-[#10B981] hover:bg-[#059669] text-white px-2 py-1.5 rounded text-[10px] sm:text-[11px] font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-credit-card"></i> Catat Cicilan
+                                    <i class="fa-solid fa-money-bill-wave"></i> Bayar Cicilan
                                 </button>
                                 <button x-show="ptg.kembalian < 0" @click="openUpdate(index)" class="w-full bg-[#F59E0B] hover:bg-[#D97706] text-white px-2 py-1.5 rounded text-[10px] sm:text-[11px] font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
                                     <i class="fa-solid fa-rotate"></i> Koreksi Data
@@ -130,6 +130,12 @@
                     <div class="bg-gray-100 px-4 py-2 border-b border-gray-200"><span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Histori Pembayaran Sebelumnya</span></div>
                     <table class="w-full text-left text-sm">
                         <tbody class="text-gray-600">
+                            <!-- Pembayaran Awal / DP (Diambil dari: total bayar - total cicilan) -->
+                            <tr x-show="(activeData.bayar - activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0)) > 0" class="border-b border-gray-50 bg-gray-50/50">
+                                <td class="p-3" x-text="formatTanggal(activeData.created_at)"></td>
+                                <td class="p-3 font-bold text-green-600" x-text="'Rp ' + formatRupiah(activeData.bayar - activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0))"></td>
+                                <td class="p-3 text-gray-500 italic">Uang Muka (DP)</td>
+                            </tr>
                             <template x-for="riwayat in activeData.riwayat_pembayarans" :key="riwayat.id">
                                 <tr class="border-b border-gray-50">
                                     <td class="p-3" x-text="formatTanggal(riwayat.tanggal_bayar)"></td>
@@ -137,7 +143,7 @@
                                     <td class="p-3 text-gray-500" x-text="riwayat.keterangan || '-'"></td>
                                 </tr>
                             </template>
-                            <tr x-show="!activeData.riwayat_pembayarans || activeData.riwayat_pembayarans.length === 0">
+                            <tr x-show="(!activeData.riwayat_pembayarans || activeData.riwayat_pembayarans.length === 0) && (activeData.bayar - activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0)) <= 0">
                                 <td colspan="3" class="p-3 text-center text-gray-400 italic">Belum ada cicilan yang dicatat.</td>
                             </tr>
                         </tbody>
@@ -149,8 +155,11 @@
                 @csrf @method('PUT')
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nominal Pembayaran Customer (Rp) <span class="text-red-500">*</span></label>
-                    <input type="number" name="nominal_bayar" min="1" :max="getSisa(activeData)" placeholder="Masukkan jumlah yang dibayar..." required
+                    <input type="number" name="nominal_bayar" x-model="nominalBayar" min="1" :max="getSisa(activeData)" placeholder="Masukkan jumlah yang dibayar..." required
                            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] text-lg font-bold text-right">
+                    <p x-show="nominalBayar && parseInt(nominalBayar) > getSisa(activeData)" x-transition class="text-xs text-red-500 mt-1 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation text-xs"></i> Nominal pembayaran melebihi sisa piutang!
+                    </p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan Tambahan</label>
@@ -159,7 +168,8 @@
                 
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
                     <button type="button" @click="modalPayment = false" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors">Batal</button>
-                    <button type="submit" class="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white font-medium rounded-xl transition-colors shadow-lg shadow-green-500/30">Simpan Payment</button>
+                    <button type="submit" :disabled="!nominalBayar || parseInt(nominalBayar) > getSisa(activeData) || parseInt(nominalBayar) <= 0"
+                            class="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors shadow-lg shadow-green-500/30 disabled:shadow-none">Simpan Payment</button>
                 </div>
             </form>
         </div>
@@ -225,6 +235,12 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- Pembayaran Awal / DP (Diambil dari: total bayar - total cicilan) -->
+                            <tr x-show="(activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0)) > 0" class="border-b border-gray-50 bg-gray-50/50">
+                                <td class="p-3" x-text="formatTanggal(activeData.created_at)"></td>
+                                <td class="p-3 text-right font-bold text-green-600" x-text="'Rp ' + formatRupiah(activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0))"></td>
+                                <td class="p-3 text-gray-500 italic">Uang Muka (DP)</td>
+                            </tr>
                             <template x-for="riwayat in activeData.riwayat_pembayarans" :key="riwayat.id">
                                 <tr class="border-b border-gray-50">
                                     <td class="p-3 text-gray-600" x-text="formatTanggal(riwayat.tanggal_bayar)"></td>
@@ -232,7 +248,7 @@
                                     <td class="p-3 text-gray-500 italic" x-text="riwayat.keterangan || '-'"></td>
                                 </tr>
                             </template>
-                            <tr x-show="!activeData.riwayat_pembayarans || activeData.riwayat_pembayarans.length === 0">
+                            <tr x-show="(!activeData.riwayat_pembayarans || activeData.riwayat_pembayarans.length === 0) && (activeData.bayar - (activeData.riwayat_pembayarans?.reduce((sum, r) => sum + parseInt(r.nominal_bayar), 0) || 0)) <= 0">
                                 <td colspan="3" class="p-3 text-center text-gray-400">Belum ada riwayat cicilan untuk faktur ini.</td>
                             </tr>
                         </tbody>
@@ -264,9 +280,11 @@
             
             piutangs: @json($piutangs->items()),
             activeData: {},
+            nominalBayar: '',
 
             openPayment(index) {
                 this.activeData = { ...this.piutangs[index] };
+                this.nominalBayar = '';
                 this.modalPayment = true;
             },
             openUpdate(index) {

@@ -4,38 +4,67 @@
     <meta charset="UTF-8">
     <title>Laporan Piutang</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; color: #333; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #38BDF8; padding-bottom: 10px; }
-        .title { font-size: 18px; font-weight: bold; margin-bottom: 5px; color: #38BDF8; }
-        .subtitle { font-size: 12px; color: #666; }
-        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .table th { background-color: #f9f9f9; text-align: center; font-weight: bold; }
+        body { font-family: 'Helvetica', Arial, sans-serif; font-size: 11px; color: #333; line-height: 1.4; margin: 0; padding: 0; }
+        .kop-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
+        .kop-table td { border: none !important; padding: 0 !important; }
+        .kop-line { border-top: 2px solid #E65C00; border-bottom: 1px solid #E65C00; height: 3px; margin-bottom: 20px; }
+        
+        .title-block { text-align: center; margin-bottom: 20px; }
+        .title-block h2 { font-size: 15px; font-weight: bold; color: #333; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .title-block .subtitle { font-size: 10px; color: #666; margin-top: 5px; display: block; }
+        
+        table.data-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+        table.data-table th, table.data-table td { padding: 8px 10px; text-align: left; }
+        table.data-table th { background-color: #E65C00; color: white; font-size: 10px; font-weight: bold; text-transform: uppercase; border: 1px solid #d45200; }
+        table.data-table td { border-bottom: 1px solid #eee; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; }
+        table.data-table tbody tr:nth-child(even) { background-color: #fafafa; }
+        
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .font-bold { font-weight: bold; }
+        .text-orange { color: #E65C00; }
+        .text-red { color: #EF4444; font-weight: bold; }
+        .text-green { color: #10B981; font-weight: bold; }
+        .footer { text-align: center; margin-top: 45px; font-size: 9px; color: #888; font-style: italic; border-top: 1px solid #eee; padding-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="title">LAPORAN PIUTANG (TAGIHAN CUSTOMER)</div>
-        <div class="subtitle">
+    <!-- KOP LAPORAN -->
+    <table class="kop-table">
+        <tr>
+            <td style="width: 15%; vertical-align: middle; text-align: left;">
+                <img src="{{ public_path('assets/images/logo-mudain-orange.png') }}" style="height: 40px; display: block;" alt="Logo Mudain">
+            </td>
+            <td style="width: 85%; text-align: right; vertical-align: middle; line-height: 1.3;">
+                <span style="font-size: 18px; font-weight: bold; color: #E65C00;">CV Muda Kita Indonesia</span><br>
+                <span style="font-size: 9px; color: #555;">Jalan Nuri No. 47, Rancamanyar Regency 2, Kel. Rancamanyar, Kec. Baleendah, Kab. Bandung, Jawa Barat</span><br>
+                <span style="font-size: 9px; color: #555;">Telepon: 0851-7433-9047 | Email: Mudakita.id@gmail.com | Website: mudain.co.id</span>
+            </td>
+        </tr>
+    </table>
+    <div class="kop-line"></div>
+
+    <!-- JUDUL DOCUMENT -->
+    <div class="title-block">
+        <h2>Laporan Piutang (Tagihan Customer)</h2>
+        <span class="subtitle">
             Periode: {{ \Carbon\Carbon::parse($request->tanggal_awal)->format('d M Y') }} - {{ \Carbon\Carbon::parse($request->tanggal_akhir)->format('d M Y') }}<br>
-            Customer: <span class="font-bold">{{ $request->customer_id == 'Semua' ? 'SEMUA CUSTOMER' : \App\Models\Customer::find($request->customer_id)->nama_customer }}</span>
-        </div>
+            Customer: <span class="font-bold text-orange">{{ $request->customer_id == 'Semua' ? 'SEMUA CUSTOMER' : \App\Models\Customer::find($request->customer_id)->nama_customer }}</span>
+        </span>
     </div>
 
-    <table class="table">
+    <!-- TABEL DATA -->
+    <table class="data-table">
         <thead>
             <tr>
-                <th>No</th>
-                <th>Tanggal Transaksi</th>
-                <th>Invoice</th>
-                <th>Customer</th>
-                <th>Total Belanja</th>
-                <th>Sudah Dibayar</th>
-                <th>Sisa Tagihan (Piutang)</th>
+                <th class="text-center" style="width: 5%;">No</th>
+                <th style="width: 15%;">Tanggal Transaksi</th>
+                <th style="width: 15%;">Invoice</th>
+                <th style="width: 20%;">Customer</th>
+                <th class="text-right" style="width: 15%;">Total Belanja</th>
+                <th class="text-right" style="width: 15%;">Sudah Dibayar</th>
+                <th class="text-right" style="width: 15%;">Sisa Tagihan (Piutang)</th>
             </tr>
         </thead>
         <tbody>
@@ -46,28 +75,29 @@
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::parse($trx->created_at)->format('d/m/Y H:i') }}</td>
-                <td class="font-bold">{{ $trx->invoice }}</td>
+                <td class="font-bold text-orange">{{ $trx->invoice }}</td>
                 <td>{{ $trx->customer->nama_customer ?? 'Umum / Tanpa Nama' }}</td>
                 <td class="text-right">Rp {{ number_format($trx->total_harga, 0, ',', '.') }}</td>
                 <td class="text-right">Rp {{ number_format($trx->bayar, 0, ',', '.') }}</td>
-                <td class="text-right font-bold" style="color: #FF0000;">Rp {{ number_format($sisaPiutang, 0, ',', '.') }}</td>
+                <td class="text-right text-red">Rp {{ number_format($sisaPiutang, 0, ',', '.') }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="text-center">Tidak ada catatan piutang customer pada periode ini.</td>
+                <td colspan="7" class="text-center" style="color: #999; padding: 20px;">Tidak ada catatan piutang customer pada periode ini.</td>
             </tr>
             @endforelse
         </tbody>
         <tfoot>
-            <tr>
-                <td colspan="6" class="text-right font-bold">TOTAL SISA PIUTANG</td>
-                <td class="text-right font-bold" style="color: #FF0000;">Rp {{ number_format($totalPiutang, 0, ',', '.') }}</td>
+            <tr style="background-color: #fff8f5; font-weight: bold;">
+                <td colspan="6" class="text-right font-bold text-red" style="font-size: 10px; border-top: 2px solid #EF4444;">TOTAL SISA PIUTANG</td>
+                <td class="text-right font-bold text-red" style="font-size: 11px; border-top: 2px solid #EF4444;">Rp {{ number_format($totalPiutang, 0, ',', '.') }}</td>
             </tr>
         </tfoot>
     </table>
 
-    <div style="text-align: center; margin-top: 40px; font-style: italic; color: #777;">
-        Dicetak otomatis oleh Sistem Mudain Project pada {{ now()->format('d/m/Y H:i') }}
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>Dokumen ini sah dan dihasilkan secara otomatis oleh Sistem Mudain Project. CV. Muda Kita Indonesia © 2026. All Rights Reserved.</p>
     </div>
 
 </body>

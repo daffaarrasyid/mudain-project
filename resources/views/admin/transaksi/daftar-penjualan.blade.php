@@ -310,6 +310,10 @@
                             placeholder="Contoh: 500000"
                             class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-[#E65C00] focus:ring-1 focus:ring-[#E65C00] text-lg font-bold text-gray-800 text-right">
 
+                        <p x-show="inputNominal && parseInt(inputNominal) > Math.abs(editData.kembalian)" x-transition class="text-xs text-red-500 mt-1 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-triangle-exclamation text-xs"></i> Nominal pembayaran melebihi sisa tagihan!
+                        </p>
+
                         <p class="text-xs mt-2 font-medium"
                             :class="(parseInt(inputNominal) || 0) >= Math.abs(editData.kembalian) ? 'text-green-500' :
                                 'text-gray-500'">
@@ -322,8 +326,8 @@
                     <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
                         <button type="button" @click="modalEdit = false"
                             class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors">Batal</button>
-                        <button type="submit"
-                            class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-medium rounded-xl transition-colors shadow-lg shadow-amber-500/30">Bayar
+                        <button type="submit" :disabled="!inputNominal || parseInt(inputNominal) > Math.abs(editData.kembalian) || parseInt(inputNominal) <= 0"
+                            class="px-5 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors shadow-lg shadow-amber-500/30 disabled:shadow-none">Bayar
                             Cicilan</button>
                     </div>
                 </form>

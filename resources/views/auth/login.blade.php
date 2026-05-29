@@ -7,6 +7,7 @@
     <title>Login Dashboard Admin - Mudain</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* Animasi Kustom untuk interaktifitas */
@@ -113,14 +114,19 @@
                         @enderror
                     </div>
 
-                    <div class="group">
+                    <div class="group relative">
                         <label for="password"
                             class="block text-sm font-medium text-gray-700 mb-2 transition-colors group-focus-within:text-[#E65C00]">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Masukkan Password"
-                            class="w-full px-5 py-3.5 bg-[#F4F4F4] border border-transparent rounded-xl 
-                                      focus:ring-2 focus:ring-[#E65C00]/50 focus:border-[#E65C00] focus:bg-white 
-                                      transition-all duration-300 outline-none text-gray-800"
-                            required>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" placeholder="Masukkan Password"
+                                class="w-full px-5 py-3.5 bg-[#F4F4F4] border border-transparent rounded-xl 
+                                          focus:ring-2 focus:ring-[#E65C00]/50 focus:border-[#E65C00] focus:bg-white 
+                                          transition-all duration-300 outline-none text-gray-800 pr-12"
+                                required>
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#E65C00] transition-colors focus:outline-none">
+                                <i id="toggle-icon" class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
                         @error('password')
                             <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                         @enderror
@@ -139,6 +145,21 @@
         </div>
 
     </div>
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggle-icon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+</script>
 </body>
 
 </html>
