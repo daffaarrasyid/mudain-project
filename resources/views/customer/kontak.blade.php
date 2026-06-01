@@ -36,7 +36,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-gray-800 text-lg mb-1">Kantor Pusat</h4>
-                            <p class="text-gray-500 text-[14px] leading-relaxed">Jl. Nuri No.47, Rancamanyar, Kec. Baleendah, Kabupaten Bandung, Jawa Barat 40375</p>
+                            <p class="text-gray-500 text-[14px] leading-relaxed">Jalan Nuri No. 47, Rancamanyar Regency 2, Kel. Rancamanyar, Kec. Baleendah, Kab. Bandung, Jawa Barat 40375</p>
                         </div>
                     </div>
 
@@ -47,8 +47,7 @@
                         <div>
                             <h4 class="font-bold text-gray-800 text-lg mb-1">Email Kami</h4>
                             <div class="flex flex-col text-gray-500 text-[14px]">
-                                <a href="mailto:#" class="hover:text-brand transition-colors">mudainproject@gmail.com</a>
-                                <a href="mailto:#" class="hover:text-brand transition-colors">mudakaryaindonesia@gmail.com</a>
+                                <a href="mailto:Mudakita.id@gmail.com" class="hover:text-brand transition-colors">Mudakita.id@gmail.com</a>
                             </div>
                         </div>
                     </div>
@@ -60,8 +59,20 @@
                         <div>
                             <h4 class="font-bold text-gray-800 text-lg mb-1">Nomor Kami</h4>
                             <div class="flex flex-col text-gray-500 text-[14px]">
-                                <a href="tel:#" class="hover:text-brand transition-colors">Telepon : 0865375728</a>
-                                <a href="https://wa.me/#" target="_blank" class="hover:text-brand transition-colors">WhatsApp : 086537837538</a>
+                                <a href="tel:085174339047" class="hover:text-brand transition-colors">Telepon : +62 851-7433-9047</a>
+                                <a href="https://wa.me/6285174339047" target="_blank" class="hover:text-brand transition-colors">WhatsApp : +62 851-7433-9047</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-5 group">
+                        <div class="w-12 h-12 shrink-0 bg-brand text-white rounded-full flex items-center justify-center text-xl shadow-md transform group-hover:scale-110 transition-transform duration-300">
+                            <i class="fa-solid fa-globe"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-lg mb-1">Website</h4>
+                            <div class="flex flex-col text-gray-500 text-[14px]">
+                                <a href="https://mudain.my.id" target="_blank" class="hover:text-brand transition-colors">mudain.my.id</a>
                             </div>
                         </div>
                     </div>
@@ -77,7 +88,7 @@
                             <i class="fa-brands fa-instagram"></i>
                         </a>
                         <a href="#" target="_blank" class="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center text-lg shadow-md transform hover:-translate-y-1 hover:bg-[#cc4c0e] transition-all duration-300">
-                            <i class="fa-brands fa-x-twitter"></i>
+                            <i class="fa-brands fa-twitter"></i>
                         </a>
                         <a href="#" target="_blank" class="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center text-lg shadow-md transform hover:-translate-y-1 hover:bg-[#cc4c0e] transition-all duration-300">
                             <i class="fa-brands fa-youtube"></i>

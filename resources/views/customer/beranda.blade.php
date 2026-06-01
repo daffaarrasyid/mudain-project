@@ -10,9 +10,9 @@
             <p class="text-gray-500 mb-10 text-[15px] leading-relaxed max-w-lg">
                 Lagi cari sponsor merchandise? Mudain hadir dengan skema kemitraan yang fleksibel, kualitas jahitan kelas dunia, dan pengerjaan tepat waktu demi suksesnya proker lo.
             </p>
-            <button class="bg-brand hover:bg-[#cf4b0c] text-white font-semibold py-3.5 px-8 rounded-lg shadow-[0_8px_20px_rgba(232,87,17,0.3)] hover:shadow-[0_12px_25px_rgba(232,87,17,0.4)] transform hover:-translate-y-1 transition-all duration-300">
+            <a href="https://wa.me/6285174339047?text=Halo%20Mudain,%20saya%20ingin%20berkolaborasi%20untuk%20pembuatan%20merchandise%20/%20pakaian" target="_blank" class="inline-block bg-brand hover:bg-[#cf4b0c] text-white font-semibold py-3.5 px-8 rounded-lg shadow-[0_8px_20px_rgba(232,87,17,0.3)] hover:shadow-[0_12px_25px_rgba(232,87,17,0.4)] transform hover:-translate-y-1 transition-all duration-300">
                 Kolaborasi Sekarang
-            </button>
+            </a>
         </div>
         
         <div class="md:w-1/2 mt-16 md:mt-0 relative flex justify-center items-center fade-in-up delay-200 is-visible">
@@ -22,15 +22,30 @@
 
     @php
         $features = [
-            ['title' => 'Bahan Premium', 'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>', 'delay' => 'delay-100'],
-            ['title' => 'Jahitan Rapi', 'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>', 'delay' => 'delay-200'],
-            ['title' => 'Beres Tepat Waktu', 'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>', 'delay' => 'delay-300']
+            [
+                'title' => 'Bahan Premium', 
+                'desc' => 'Kami menyeleksi bahan kain kualitas premium berstandar tinggi untuk menjamin kenyamanan maksimal saat Anda memakainya seharian.',
+                'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>', 
+                'delay' => 'delay-100'
+            ],
+            [
+                'title' => 'Jahitan Rapi', 
+                'desc' => 'Setiap detail pengerjaan dikerjakan oleh penjahit profesional berpengalaman demi menghasilkan jahitan presisi, kuat, dan awet.',
+                'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>', 
+                'delay' => 'delay-200'
+            ],
+            [
+                'title' => 'Beres Tepat Waktu', 
+                'desc' => 'Kami berkomitmen penuh untuk menyelesaikan produksi pesanan secara on-time sesuai jadwal kesepakatan demi kelancaran event Anda.',
+                'svg' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>', 
+                'delay' => 'delay-300'
+            ]
         ];
     @endphp
 
     <section class="container mx-auto px-6 lg:px-12 py-16 text-center">
         <div class="fade-in-up">
-            <h2 class="text-[32px] font-bold text-[#4a4a4a] mb-2">Kenapa harus dikami?</h2>
+            <h2 class="text-[32px] font-bold text-[#4a4a4a] mb-2">Kenapa harus di Mudain?</h2>
             <div class="w-16 h-1 bg-brand mx-auto mb-16 rounded-full"></div>
         </div>
         
@@ -42,7 +57,7 @@
                 </div>
                 <h3 class="text-[20px] font-bold text-dark mb-4">{{ $feature['title'] }}</h3>
                 <p class="text-gray-400 text-[13px] leading-relaxed">
-                    Lorem ipsum dolor sit amet consectetur. Ut feugiat neque nec tincidunt gravida et non morbi fermentum.
+                    {{ $feature['desc'] }}
                 </p>
             </div>
             @endforeach

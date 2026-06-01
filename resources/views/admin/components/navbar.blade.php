@@ -5,12 +5,7 @@
             <i class="fa-solid fa-bars text-2xl"></i>
         </button>
 
-        <div class="flex items-center space-x-6 px-5 py-2 relative">
-            <button class="relative text-gray-500 hover:text-gray-700 transition">
-                <i class="fa-solid fa-bell text-xl"></i>
-                <span class="absolute top-0 right-0 -mt-1 -mr-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white border-2 border-white">5</span>
-            </button>
-            
+        <div class="flex items-center space-x-6 px-5 py-2 relative">       
             <div @click="profileOpen = !profileOpen" @click.away="profileOpen = false" class="flex items-center space-x-3 border-l border-gray-200 pl-4 cursor-pointer group">
                 <img src="https://ui-avatars.com/api/?name={{ Auth::user()->name ?? 'Dadang' }}&background=E65C00&color=fff" alt="Profile" class="h-9 w-9 rounded-full object-cover border-2 border-white shadow-sm transition-transform group-hover:scale-105">
                 <div class="hidden sm:block text-right">

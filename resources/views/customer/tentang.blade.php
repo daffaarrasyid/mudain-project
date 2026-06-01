@@ -87,21 +87,28 @@
     </section>
 
     <section class="container mx-auto px-6 lg:px-12 py-24 flex flex-col-reverse lg:flex-row items-center gap-16">
-        <div class="w-full lg:w-1/2 fade-in-up">
+        <div class="w-full lg:w-1/2 fade-in-up" x-data="{ tab: 'misi' }">
             <p class="text-gray-400 font-medium mb-2 text-[15px]">Tujuan Kami</p>
             <h2 class="text-3xl md:text-4xl font-bold text-brand leading-tight mb-8">
                 Memuaskan klien lokal<br>dan global
             </h2>
             
             <div class="flex flex-wrap gap-3 mb-8">
-                <button class="bg-brand text-white px-8 py-2.5 rounded-full text-sm font-semibold shadow-md transform hover:-translate-y-1 transition-all duration-300">Misi</button>
-                <button class="bg-[#ffd9c7] text-brand px-8 py-2.5 rounded-full text-sm font-semibold hover:bg-brand hover:text-white shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all duration-300">Visi</button>
-                <button class="bg-[#ffd9c7] text-brand px-8 py-2.5 rounded-full text-sm font-semibold hover:bg-brand hover:text-white shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all duration-300">Tujuan</button>
+                <button @click="tab = 'misi'" :class="tab === 'misi' ? 'bg-brand text-white shadow-md' : 'bg-[#ffd9c7] text-brand hover:bg-brand hover:text-white shadow-sm hover:shadow-md'" class="px-8 py-2.5 rounded-full text-sm font-semibold transform hover:-translate-y-1 transition-all duration-300">Misi</button>
+                <button @click="tab = 'visi'" :class="tab === 'visi' ? 'bg-brand text-white shadow-md' : 'bg-[#ffd9c7] text-brand hover:bg-brand hover:text-white shadow-sm hover:shadow-md'" class="px-8 py-2.5 rounded-full text-sm font-semibold transform hover:-translate-y-1 transition-all duration-300">Visi</button>
             </div>
 
-            <p class="text-gray-500 leading-relaxed text-[15px]">
-                Lorem ipsum dolor sit amet consectetur. Sit curabitur sed malesuada mauris. Magna risus justo potenti posuere. Urna massa eget nisi aliquet viverra in ornare vel. Lacus diam dolor.
-            </p>
+            <div x-show="tab === 'misi'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0">
+                <p class="text-gray-500 leading-relaxed text-[15px]">
+                    Memberikan pelayanan terbaik dalam pembuatan pakaian seragam, memastikan kepuasan pelanggan, dan menjadi mitra terpercaya bagi setiap instansi dan perusahaan di Indonesia.
+                </p>
+            </div>
+            
+            <div x-show="tab === 'visi'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;">
+                <p class="text-gray-500 leading-relaxed text-[15px]">
+                    Menjadi pelopor dan perusahaan konveksi terdepan di Indonesia yang berorientasi pada kualitas unggul, inovasi desain, dan kepuasan pelanggan secara global.
+                </p>
+            </div>
         </div>
 
         <div class="w-full lg:w-1/2 fade-in-up delay-100 relative group overflow-hidden rounded-[30px] shadow-2xl">

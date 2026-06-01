@@ -1,5 +1,5 @@
-<div class="relative mt-32 fade-in-up">
-    <svg class="absolute top-0 w-full h-16 md:h-28 -mt-16 md:-mt-28 text-brand" preserveAspectRatio="none" viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg">
+<div class="relative mt-32">
+    <svg class="absolute top-[1px] w-full h-16 md:h-28 -mt-16 md:-mt-28 text-brand" preserveAspectRatio="none" viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg">
         <path fill="currentColor" d="M0,0 C480,120 960,120 1440,0 L1440,120 L0,120 Z"></path>
     </svg>
 
@@ -10,8 +10,9 @@
                 <img src="{{ asset('assets/images/mudain-putih.png') }}" alt="Logo Mudain" class="h-10 md:h-12 w-auto object-contain mb-3">
                 <p class="text-white text-[13px] mb-6 font-medium">Sahabat Terbaik Organisasimu</p>
                 <div class="flex space-x-4 text-xl">
-                    <a href="#" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://instagram.com/mudain.my.id" target="_blank" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-twitter"></i></a>
                     <a href="#" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-youtube"></i></a>
                 </div>
             </div>
@@ -29,26 +30,25 @@
             <div>
                 <h4 class="font-bold text-[16px] mb-5">Kontak</h4>
                 <ul class="text-white text-[14px] space-y-3 font-medium">
-                    <li class="hover:text-orange-200 transition duration-300">+62 080000000</li>
-                    <li class="hover:text-orange-200 transition duration-300">mudain@gmail.com</li>
+                    <li class="hover:text-orange-200 transition duration-300"><a href="tel:085174339047">+62 851-7433-9047</a></li>
+                    <li class="hover:text-orange-200 transition duration-300"><a href="mailto:Mudakita.id@gmail.com">Mudakita.id@gmail.com</a></li>
                 </ul>
             </div>
 
             <div>
                 <h4 class="font-bold text-[16px] mb-5">Alamat</h4>
                 <p class="text-white text-[14px] leading-relaxed font-medium">
-                    Jl. Nuri No.47,<br>
-                    Rancamanyar, Kec.<br>
-                    Baleendah, Kabupaten<br>
-                    Bandung, Jawa Barat<br>
-                    40375
+                    Jalan Nuri No. 47,<br>
+                    Rancamanyar Regency 2, Kel. Rancamanyar,<br>
+                    Kec. Baleendah, Kab. Bandung,<br>
+                    Jawa Barat 40375
                 </p>
             </div>
             
         </div>
 
         <div class="border-t border-[#f27a3c] pt-8 text-center text-white text-[13px] font-medium tracking-wide">
-            Made with ♡ by TRPL IPB University
+            Copyright &copy; {{ date('Y') }} CV Muda Kita Indonesia. All Rights Reserved.
         </div>
     </footer>
 </div>
