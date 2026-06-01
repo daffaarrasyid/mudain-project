@@ -10,7 +10,7 @@
                 <img src="{{ asset('assets/images/mudain-putih.png') }}" alt="Logo Mudain" class="h-10 md:h-12 w-auto object-contain mb-3">
                 <p class="text-white text-[13px] mb-6 font-medium">Sahabat Terbaik Organisasimu</p>
                 <div class="flex space-x-4 text-xl">
-                    <a href="https://instagram.com/mudain.my.id" target="_blank" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://instagram.com/mudainproject_" target="_blank" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-facebook"></i></a>
                     <a href="#" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-twitter"></i></a>
                     <a href="#" class="hover:text-orange-200 transition-colors"><i class="fa-brands fa-youtube"></i></a>
