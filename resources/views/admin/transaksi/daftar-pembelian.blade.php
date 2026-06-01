@@ -14,7 +14,7 @@
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800">Daftar Pembelian (PO)</h2>
+            <h2 class="text-2xl font-bold text-gray-800">Daftar Pembelian</h2>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">

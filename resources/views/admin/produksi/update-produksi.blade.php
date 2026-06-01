@@ -15,7 +15,7 @@
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Update Produksi (Make-to-Order)</h2>
+                <h2 class="text-2xl font-bold text-gray-800">Update Produksi</h2>
             </div>
 
             <div class="flex items-center gap-3 w-full md:w-auto">
