@@ -84,7 +84,7 @@
                         <a href="#" target="_blank" class="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center text-lg shadow-md transform hover:-translate-y-1 hover:bg-[#cc4c0e] transition-all duration-300">
                             <i class="fa-brands fa-facebook-f"></i>
                         </a>
-                        <a href="#" target="_blank" class="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center text-lg shadow-md transform hover:-translate-y-1 hover:bg-[#cc4c0e] transition-all duration-300">
+                        <a href="https://instagram.com/mudainproject" target="_blank" class="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center text-lg shadow-md transform hover:-translate-y-1 hover:bg-[#cc4c0e] transition-all duration-300">
                             <i class="fa-brands fa-instagram"></i>
                         </a>
                         <a href="#" target="_blank" class="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center text-lg shadow-md transform hover:-translate-y-1 hover:bg-[#cc4c0e] transition-all duration-300">
