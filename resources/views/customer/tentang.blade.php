@@ -15,7 +15,7 @@
                 Tentang kami
             </h1>
             <p class="text-orange-50 text-xl md:text-2xl font-medium drop-shadow-md">
-                CV. Muda Karya Indonesia
+                CV. Muda Kita Indonesia
             </p>
         </div>
     </header>

@@ -15,12 +15,12 @@ class KeuanganController extends Controller
     {
         $allKas = Kas::getDynamicKas();
 
-        // 5. Ngitung Saldo Saat Ini
+        // Ngitung Saldo Saat Ini
         $totalMasuk = $allKas->where('tipe', 'Masuk')->sum('nominal');
         $totalKeluar = $allKas->where('tipe', 'Keluar')->sum('nominal');
         $saldo = $totalMasuk - $totalKeluar;
 
-        // 6. Buat pagination manual
+        // Buat pagination manual
         $perPage = request('per_page', 10);
         if (!in_array($perPage, [10, 25, 50])) {
             $perPage = 10;

@@ -21,7 +21,6 @@ class PenjualanDetail extends Model
         return $this->belongsTo(Penjualan::class);
     }
 
-    // --- INI SOLUSINYA ---
     // Relasi ke Produk (Barang yang dibeli)
     public function produk()
     {

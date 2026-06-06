@@ -225,7 +225,7 @@ class LaporanController extends Controller
         return view('admin.laporan.stok');
     }
 
-    // FUNGSI BARU: Export PDF Laporan Stok
+    // Export PDF Laporan Stok
     public function exportStok(Request $request)
     {
         // 1. Validasi Input Form
@@ -264,7 +264,7 @@ class LaporanController extends Controller
         return view('admin.laporan.hutang', compact('suppliers'));
     }
 
-    // FUNGSI BARU: Export PDF Laporan Hutang
+    // Export PDF Laporan Hutang
     public function exportHutang(Request $request)
     {
         $request->validate([
@@ -306,7 +306,7 @@ class LaporanController extends Controller
         return view('admin.laporan.piutang', compact('customers'));
     }
 
-    // FUNGSI BARU: Export PDF Laporan Piutang
+    // Export PDF Laporan Piutang
     public function exportPiutang(Request $request)
     {
         // 1. Validasi

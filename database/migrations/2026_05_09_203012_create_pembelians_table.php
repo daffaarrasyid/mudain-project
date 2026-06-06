@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('tanggal_faktur');
             $table->foreignId('supplier_id')->constrained('suppliers');
             // TAMBAHAN BARU: Relasi ke Penjualan
-            $table->foreignId('penjualan_id')->constrained('penjualans')->onDelete('cascade');
+            $table->foreignId('penjualan_id')->nullable()->constrained('penjualans')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users');
             $table->bigInteger('total_harga');
             $table->bigInteger('diskon')->default(0);

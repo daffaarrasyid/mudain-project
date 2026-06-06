@@ -13,7 +13,6 @@ class Stok extends Model
         'produk_id', 'jenis', 'jumlah', 'nilai', 'tanggal', 'keterangan'
     ];
 
-    // Relasi balik ke Produk
     public function produk()
     {
         return $this->belongsTo(Produk::class);

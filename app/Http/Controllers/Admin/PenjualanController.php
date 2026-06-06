@@ -78,7 +78,7 @@ class PenjualanController extends Controller
     // Proses Simpan Transaksi (Create / Update)
     public function store(Request $request)
     {
-        // Decode data cart dari JSON Alpine (Dipisah antara Produk dan Servis)
+        // Decode data cart dari JSON 
         $cartProduk = json_decode($request->cart_produk, true) ?? [];
         $cartService = json_decode($request->cart_service, true) ?? [];
 

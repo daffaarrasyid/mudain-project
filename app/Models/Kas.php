@@ -10,7 +10,7 @@ class Kas extends Model
     use HasFactory;
 
     protected $table = 'kas';
-    protected $guarded = []; // Izinkan semua kolom diisi
+    protected $guarded = [];
 
     public function user()
     {
